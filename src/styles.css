@@ -1,1 +1,102 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Blue theme variables */
+:root {
+  --blue-100: #e3f0ff;
+  --blue-200: #b6d4fe;
+  --blue-300: #6ea8fe;
+  --blue-400: #228be6;
+  --blue-500: #1565c0;
+  --blue-600: #0d47a1;
+  --blue-700: #003366;
+}
+
+/* Common utility classes */
+.text-blue {
+  color: var(--blue-600) !important;
+}
+
+.bg-blue-100 {
+  background: var(--blue-100) !important;
+}
+
+.bg-blue-200 {
+  background: var(--blue-200) !important;
+}
+
+.bg-blue-300 {
+  background: var(--blue-300) !important;
+}
+
+.border-blue {
+  border-color: var(--blue-400) !important;
+}
+
+.icon-blue {
+  color: var(--blue-500);
+}
+
+.icon-blue-dark {
+  color: var(--blue-700);
+}
+
+.link-blue {
+  color: var(--blue-500);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.link-blue:hover {
+  color: var(--blue-600);
+}
+
+/* Animation keyframes */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translate3d(0, -40px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+.animate__fadeInDown {
+  animation: fadeInDown 0.7s;
+}
+
+.animate__pulse {
+  animation: pulse 1.2s infinite;
+}
+
+/* Navbar overrides */
+.navbar {
+  background: linear-gradient(90deg, var(--blue-500) 70%, var(--blue-600) 100%) !important;
+  box-shadow: 0 2px 8px rgba(21,101,192,0.07);
+}
+
+.navbar .navbar-brand {
+  color: #fff !important;
+  letter-spacing: 1px;
+}
+
+.navbar .nav-link.active,
+.navbar .nav-link:hover {
+  color: var(--blue-100) !important;
+}
+
+.dropdown-menu {
+  background: var(--blue-100);
+  border: 1px solid var(--blue-200);
+}
+
+.dropdown-item {
+  color: var(--blue-600);
+}
+
+.dropdown-item:hover, 
+.dropdown-item:focus {
+  background: var(--blue-200);
+  color: var(--blue-600);
+}

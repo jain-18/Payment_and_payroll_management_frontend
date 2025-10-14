@@ -1,0 +1,41 @@
+<div>
+    <app-login-navbar></app-login-navbar>
+</div>
+<div class="login-bg d-flex align-items-center justify-content-center min-vh-100">
+    <div class="login-card card shadow-lg border-0 animate__animated animate__fadeInDown">
+        <div class="card-body p-5">
+            <div class="text-center mb-4">
+                <h1 class="mb-2 text-blue">Organization Login</h1>
+                <p class="text-secondary">Sign in to manage your organization account</p>
+            </div>
+            <form autocomplete="off">
+                <div class="mb-3">
+                    <label for="org-username" class="form-label text-blue">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-blue-200 border-blue"><i
+                                class="bi bi-person icon-blue"></i></span>
+                        <input type="text" class="form-control border-blue" id="org-username"
+                            placeholder="Enter username">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="org-password" class="form-label text-blue">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-blue-300 border-blue"><i
+                                class="bi bi-lock icon-blue-dark"></i></span>
+                        <input type="password" class="form-control border-blue" id="org-password"
+                            placeholder="Enter password">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div></div>
+                    <a href="#" class="link-blue fw-semibold animate__animated animate__fadeIn">Register here</a>
+                </div>
+                <div class="d-grid">
+                    <button type="submit"
+                        class="btn btn-primary btn-lg shadow-sm animate__animated animate__pulse animate__delay-1s">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

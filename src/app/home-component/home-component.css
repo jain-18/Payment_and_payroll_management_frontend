@@ -1,0 +1,19 @@
+/* Minimal custom blue theme for extra polish */
+:root {
+	--blue-100: #e3f0ff;
+	--blue-200: #b6d4fe;
+	--blue-300: #6ea8fe;
+	--blue-400: #228be6;
+	--blue-500: #1565c0;
+	--blue-600: #0d47a1;
+}
+
+.bg-blue-gradient {
+	background: linear-gradient(135deg, var(--blue-100) 60%, var(--blue-200) 100%) !important;
+}
+.text-blue {
+	color: var(--blue-600) !important;
+}
+.border-blue {
+	border-color: var(--blue-400) !important;
+}
