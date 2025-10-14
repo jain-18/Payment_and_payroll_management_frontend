@@ -3,6 +3,7 @@ import { LoginComponent } from './login-component/login-component';
 import { HomeComponent } from './home-component/home-component';
 import { AdminLoginComponent } from './admin-login-component/admin-login-component';
 import { EmployeeLogin } from './employee-login/employee-login';
+import { AdminDashboardComponent } from './admin/admin-dashboard-component/admin-dashboard-component';
 import { OrgDashboardComponent } from './organization/org-dashboard-component/org-dashboard-component';
 import { OrgRegisterComponent } from './org-register-component/org-register-component';
 
@@ -11,6 +12,8 @@ export const routes: Routes = [
     {path:'home', component: HomeComponent},
     {path:'organization-login', component: LoginComponent},
     {path:'admin-login', component: AdminLoginComponent},
+    {path:'employee-login', component: EmployeeLogin},
+    {path:'admin-dashboard', component: AdminDashboardComponent},
     {path:'employee-login', component: EmployeeLogin},
     {path:'org-dashboard', component: OrgDashboardComponent},
     {path:'org-register', component: OrgRegisterComponent}
