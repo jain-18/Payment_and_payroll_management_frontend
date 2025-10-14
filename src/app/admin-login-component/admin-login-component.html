@@ -6,19 +6,27 @@
 				<h1 class="mb-2 text-blue">Admin Login</h1>
 				<p class="text-secondary">Sign in to access admin features</p>
 			</div>
-			<form autocomplete="off">
+			<form [formGroup]="loginViewModel" (ngSubmit)="onSubmit()" autocomplete="off">
+				<div *ngIf="loginError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+					{{loginError}}
+					<button type="button" class="btn-close" (click)="loginError = ''"></button>
+				</div>
 				<div class="mb-3">
 					<label for="admin-username" class="form-label text-blue">Username</label>
 					<div class="input-group">
 						<span class="input-group-text bg-blue-200 border-blue"><i class="bi bi-person icon-blue"></i></span>
-						<input type="text" class="form-control border-blue" id="admin-username" placeholder="Enter username">
+						<input type="text" class="form-control border-blue" id="admin-username" 
+							formControlName="username" placeholder="Enter username"
+							[class.is-invalid]="loginViewModel.get('username')?.invalid && loginViewModel.get('username')?.touched">
 					</div>
 				</div>
 				<div class="mb-3">
 					<label for="admin-password" class="form-label text-blue">Password</label>
 					<div class="input-group">
 						<span class="input-group-text bg-blue-300 border-blue"><i class="bi bi-lock icon-blue-dark"></i></span>
-						<input type="password" class="form-control border-blue" id="admin-password" placeholder="Enter password">
+						<input type="password" class="form-control border-blue" id="admin-password" 
+							formControlName="password" placeholder="Enter password"
+							[class.is-invalid]="loginViewModel.get('password')?.invalid && loginViewModel.get('password')?.touched">
 					</div>
 				</div>
 				<div class="d-flex justify-content-between align-items-center mb-4">
@@ -26,7 +34,10 @@
 					<a href="#" class="link-blue fw-semibold">Forgot password?</a>
 				</div>
 				<div class="d-grid">
-					<button type="submit" class="btn btn-primary btn-lg shadow-sm animate__pulse">Login</button>
+					<button type="submit" class="btn btn-primary btn-lg shadow-sm" [disabled]="isLoading">
+						<span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+						{{isLoading ? 'Logging in...' : 'Login'}}
+					</button>
 				</div>
 			</form>
 		</div>
