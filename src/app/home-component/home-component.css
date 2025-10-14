@@ -17,3 +17,17 @@
 .border-blue {
 	border-color: var(--blue-400) !important;
 }
+
+/* Card hover effects */
+.hover-card {
+    transition: transform 0.3s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Background gradient */
+.bg-blue-gradient {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
