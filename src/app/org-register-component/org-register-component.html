@@ -1,0 +1,365 @@
+<div class="register-container">
+    <app-login-navbar></app-login-navbar>
+    <main class="register-bg d-flex align-items-center justify-content-center py-5">
+        <div class="register-card card shadow-lg border-0 animate__animated animate__fadeInDown">
+            <div class="card-body p-5">
+                <header class="text-center mb-4">
+                    <h1 class="mb-2 text-blue">Organization Registration</h1>
+                    <p class="text-secondary">Create your organization account</p>
+                </header>
+                <div [ngSwitch]="showOtpForm">
+                <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" *ngSwitchCase="false" autocomplete="off" class="needs-validation">
+                    <!-- Login Credentials Section -->
+                    <div class="section-title mb-3">
+                        <h5 class="text-blue">Login Credentials</h5>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label text-blue">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-blue-200 border-blue">
+                                <i class="bi bi-person icon-blue"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control border-blue" 
+                                   id="userName"
+                                   formControlName="userName"
+                                   [class.is-invalid]="userNameControl?.invalid && userNameControl?.touched"
+                                   placeholder="Choose a username">
+                        </div>
+                            <div class="form-text" [class.text-success]="!userNameControl?.invalid" [class.text-danger]="userNameControl?.invalid && userNameControl?.touched">
+                                <i class="bi" [class.bi-check-circle-fill]="!userNameControl?.invalid" [class.bi-exclamation-circle-fill]="userNameControl?.invalid && userNameControl?.touched"></i>
+                                Username must be at least 4 characters
+                            </div>
+                            <div class="invalid-feedback" *ngIf="userNameControl?.invalid && userNameControl?.touched">
+                                <span *ngIf="userNameControl?.errors?.['required']">Username is required</span>
+                            </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label text-blue">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-blue-300 border-blue">
+                                <i class="bi bi-lock icon-blue-dark"></i>
+                            </span>
+                            <input type="password" 
+                                   class="form-control border-blue" 
+                                   id="password"
+                                   formControlName="password"
+                                   [class.is-invalid]="passwordControl?.invalid && passwordControl?.touched"
+                                   placeholder="Create a password">
+                        </div>
+                        <div class="form-text mt-2">
+                            Password requirements:
+                            <ul class="list-unstyled ms-3 small">
+                                <li [class.text-success]="meetsMinLength(passwordControl?.value)" [class.text-danger]="!meetsMinLength(passwordControl?.value) && passwordControl?.touched">
+                                    <i class="bi" [class.bi-check-circle-fill]="meetsMinLength(passwordControl?.value)" [class.bi-x-circle-fill]="!meetsMinLength(passwordControl?.value) && passwordControl?.touched"></i>
+                                    Minimum 6 characters
+                                </li>
+                                <li [class.text-success]="hasUpperCase(passwordControl?.value)" [class.text-danger]="!hasUpperCase(passwordControl?.value) && passwordControl?.touched">
+                                    <i class="bi" [class.bi-check-circle-fill]="hasUpperCase(passwordControl?.value)" [class.bi-x-circle-fill]="!hasUpperCase(passwordControl?.value) && passwordControl?.touched"></i>
+                                    One uppercase letter
+                                </li>
+                                <li [class.text-success]="hasLowerCase(passwordControl?.value)" [class.text-danger]="!hasLowerCase(passwordControl?.value) && passwordControl?.touched">
+                                    <i class="bi" [class.bi-check-circle-fill]="hasLowerCase(passwordControl?.value)" [class.bi-x-circle-fill]="!hasLowerCase(passwordControl?.value) && passwordControl?.touched"></i>
+                                    One lowercase letter
+                                </li>
+                                <li [class.text-success]="hasNumber(passwordControl?.value)" [class.text-danger]="!hasNumber(passwordControl?.value) && passwordControl?.touched">
+                                    <i class="bi" [class.bi-check-circle-fill]="hasNumber(passwordControl?.value)" [class.bi-x-circle-fill]="!hasNumber(passwordControl?.value) && passwordControl?.touched"></i>
+                                    One number
+                                </li>
+                                <li [class.text-success]="hasSpecialChar(passwordControl?.value)" [class.text-danger]="!hasSpecialChar(passwordControl?.value) && passwordControl?.touched">
+                                    <i class="bi" [class.bi-check-circle-fill]="hasSpecialChar(passwordControl?.value)" [class.bi-x-circle-fill]="!hasSpecialChar(passwordControl?.value) && passwordControl?.touched"></i>
+                                    One special character (@$!%*?&)
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="invalid-feedback" *ngIf="passwordControl?.invalid && passwordControl?.touched && passwordControl?.errors?.['required']">
+                            Password is required
+                        </div>
+                    </div>
+
+                    <!-- Organization Details Section -->
+                    <div class="section-title mb-3 mt-4">
+                        <h5 class="text-blue">Organization Details</h5>
+                    </div>
+                    <div class="mb-3">
+                        <label for="organizationName" class="form-label text-blue">Organization Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-blue-200 border-blue">
+                                <i class="bi bi-building icon-blue"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control border-blue" 
+                                   id="organizationName"
+                                   formControlName="organizationName"
+                                   [class.is-invalid]="organizationNameControl?.invalid && organizationNameControl?.touched"
+                                   placeholder="Enter organization name">
+                        </div>
+                        <div class="form-text" [class.text-success]="!organizationNameControl?.invalid" [class.text-danger]="organizationNameControl?.invalid && organizationNameControl?.touched">
+                            <i class="bi" [class.bi-check-circle-fill]="!organizationNameControl?.invalid" [class.bi-exclamation-circle-fill]="organizationNameControl?.invalid && organizationNameControl?.touched"></i>
+                            Start with a letter, may include letters, numbers, and spaces (max 50 characters)
+                        </div>
+                        <div class="invalid-feedback" *ngIf="organizationNameControl?.invalid && organizationNameControl?.touched">
+                            <span *ngIf="organizationNameControl?.errors?.['required']">Organization name is required</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="organizationEmail" class="form-label text-blue">Organization Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-blue-200 border-blue">
+                                <i class="bi bi-envelope icon-blue"></i>
+                            </span>
+                            <input type="email" 
+                                   class="form-control border-blue" 
+                                   id="organizationEmail"
+                                   formControlName="organizationEmail"
+                                   [class.is-invalid]="organizationEmailControl?.invalid && organizationEmailControl?.touched"
+                                   placeholder="Enter organization email">
+                        </div>
+                        <div class="form-text" [class.text-success]="!organizationEmailControl?.invalid" [class.text-danger]="organizationEmailControl?.invalid && organizationEmailControl?.touched">
+                            <i class="bi" [class.bi-check-circle-fill]="!organizationEmailControl?.invalid" [class.bi-exclamation-circle-fill]="organizationEmailControl?.invalid && organizationEmailControl?.touched"></i>
+                            Enter a valid email address (e.g., organization@example.com)
+                        </div>
+                        <div class="invalid-feedback" *ngIf="organizationEmailControl?.invalid && organizationEmailControl?.touched">
+                            <span *ngIf="organizationEmailControl?.errors?.['required']">Email is required</span>
+                        </div>
+                    </div>
+
+                    <!-- Address Section -->
+                    <div class="section-title mb-3 mt-4">
+                        <h5 class="text-blue">Address Details</h5>
+                    </div>
+                    <div formGroupName="address">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="city" class="form-label text-blue">City</label>
+                                <input type="text" 
+                                       class="form-control border-blue" 
+                                       id="city"
+                                       formControlName="city"
+                                       [class.is-invalid]="cityControl?.invalid && cityControl?.touched"
+                                       placeholder="Enter city">
+                                <div class="form-text small" [class.text-success]="!cityControl?.invalid" [class.text-danger]="cityControl?.invalid && cityControl?.touched">
+                                    <i class="bi" [class.bi-check-circle-fill]="!cityControl?.invalid" [class.bi-exclamation-circle-fill]="cityControl?.invalid && cityControl?.touched"></i>
+                                    City name must be at least 2 characters
+                                </div>
+                                <div class="invalid-feedback" *ngIf="cityControl?.invalid && cityControl?.touched">
+                                    <span *ngIf="cityControl?.errors?.['required']">City is required</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="state" class="form-label text-blue">State</label>
+                                <input type="text" 
+                                       class="form-control border-blue" 
+                                       id="state"
+                                       formControlName="state"
+                                       [class.is-invalid]="stateControl?.invalid && stateControl?.touched"
+                                       placeholder="Enter state">
+                                <div class="form-text small" [class.text-success]="!stateControl?.invalid" [class.text-danger]="stateControl?.invalid && stateControl?.touched">
+                                    <i class="bi" [class.bi-check-circle-fill]="!stateControl?.invalid" [class.bi-exclamation-circle-fill]="stateControl?.invalid && stateControl?.touched"></i>
+                                    State name must be at least 2 characters
+                                </div>
+                                <div class="invalid-feedback" *ngIf="stateControl?.invalid && stateControl?.touched">
+                                    <span *ngIf="stateControl?.errors?.['required']">State is required</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pinCode" class="form-label text-blue">Pincode</label>
+                            <input type="text" 
+                                   class="form-control border-blue" 
+                                   id="pinCode"
+                                   formControlName="pinCode"
+                                   [class.is-invalid]="pinCodeControl?.invalid && pinCodeControl?.touched"
+                                   placeholder="Enter pincode">
+                            <div class="form-text small" [class.text-success]="!pinCodeControl?.invalid" [class.text-danger]="pinCodeControl?.invalid && pinCodeControl?.touched">
+                                <i class="bi" [class.bi-check-circle-fill]="!pinCodeControl?.invalid" [class.bi-exclamation-circle-fill]="pinCodeControl?.invalid && pinCodeControl?.touched"></i>
+                                Enter a valid 6-digit pincode
+                            </div>
+                            <div class="invalid-feedback" *ngIf="pinCodeControl?.invalid && pinCodeControl?.touched">
+                                <span *ngIf="pinCodeControl?.errors?.['required']">Pincode is required</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Banking Details Section -->
+                    <div class="section-title mb-3 mt-4">
+                        <h5 class="text-blue">Banking Details</h5>
+                    </div>
+                    <div class="mb-3">
+                        <label for="accountNo" class="form-label text-blue">Account Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-blue-200 border-blue">
+                                <i class="bi bi-bank icon-blue"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control border-blue" 
+                                   id="accountNo"
+                                   formControlName="accountNo"
+                                   [class.is-invalid]="accountNoControl?.invalid && accountNoControl?.touched"
+                                   placeholder="Enter account number">
+                        </div>
+                        <div class="form-text" [class.text-success]="!accountNoControl?.invalid" [class.text-danger]="accountNoControl?.invalid && accountNoControl?.touched">
+                            <i class="bi" [class.bi-check-circle-fill]="!accountNoControl?.invalid" [class.bi-exclamation-circle-fill]="accountNoControl?.invalid && accountNoControl?.touched"></i>
+                            Account number must be between 9 and 18 digits
+                        </div>
+                        <div class="invalid-feedback" *ngIf="accountNoControl?.invalid && accountNoControl?.touched">
+                            <span *ngIf="accountNoControl?.errors?.['required']">Account number is required</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ifsc" class="form-label text-blue">IFSC Code</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-blue-200 border-blue">
+                                <i class="bi bi-upc icon-blue"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control border-blue" 
+                                   id="ifsc"
+                                   formControlName="ifsc"
+                                   [class.is-invalid]="ifscControl?.invalid && ifscControl?.touched"
+                                   placeholder="Enter IFSC code">
+                        </div>
+                        <div class="form-text" [class.text-success]="!ifscControl?.invalid" [class.text-danger]="ifscControl?.invalid && ifscControl?.touched">
+                            <i class="bi" [class.bi-check-circle-fill]="!ifscControl?.invalid" [class.bi-exclamation-circle-fill]="ifscControl?.invalid && ifscControl?.touched"></i>
+                            Format: XXXX0XXXXXX (4 Capital letters, 0, followed by 6 alphanumeric characters)
+                        </div>
+                        <div class="invalid-feedback" *ngIf="ifscControl?.invalid && ifscControl?.touched">
+                            <span *ngIf="ifscControl?.errors?.['required']">IFSC code is required</span>
+                        </div>
+                    </div>
+
+                    <!-- Document Upload Section -->
+                    <div class="section-title mb-3 mt-4">
+                        <h5 class="text-blue">Document Upload</h5>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pancard" class="form-label text-blue">PAN Card</label>
+                        <div class="input-group">
+                            <input type="file" 
+                                   class="form-control border-blue" 
+                                   id="pancard"
+                                   formControlName="pancard"
+                                   [class.is-invalid]="pancardControl?.invalid && pancardControl?.touched"
+                                   accept="image/*,.pdf"
+                                   (change)="onFileSelected($event, 'pancard')">
+                        </div>
+                        <div class="invalid-feedback" *ngIf="pancardControl?.invalid && pancardControl?.touched">
+                            <span *ngIf="pancardControl?.errors?.['required']">PAN card is required</span>
+                            <span *ngIf="pancardControl?.errors?.['invalidFileType']">Please upload a valid image or PDF file</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cancelledCheque" class="form-label text-blue">Cancelled Cheque</label>
+                        <div class="input-group">
+                            <input type="file" 
+                                   class="form-control border-blue" 
+                                   id="cancelledCheque"
+                                   formControlName="cancelledCheque"
+                                   [class.is-invalid]="cancelledChequeControl?.invalid && cancelledChequeControl?.touched"
+                                   accept="image/*,.pdf"
+                                   (change)="onFileSelected($event, 'cancelledCheque')">
+                        </div>
+                        <div class="invalid-feedback" *ngIf="cancelledChequeControl?.invalid && cancelledChequeControl?.touched">
+                            <span *ngIf="cancelledChequeControl?.errors?.['required']">Cancelled cheque is required</span>
+                            <span *ngIf="cancelledChequeControl?.errors?.['invalidFileType']">Please upload a valid image or PDF file</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="companyRegistrationCertificate" class="form-label text-blue">Company Registration Certificate</label>
+                        <div class="input-group">
+                            <input type="file" 
+                                   class="form-control border-blue" 
+                                   id="companyRegistrationCertificate"
+                                   formControlName="companyRegistrationCertificate"
+                                   [class.is-invalid]="companyRegistrationCertificateControl?.invalid && companyRegistrationCertificateControl?.touched"
+                                   accept="image/*,.pdf"
+                                   (change)="onFileSelected($event, 'companyRegistrationCertificate')">
+                        </div>
+                        <div class="invalid-feedback" *ngIf="companyRegistrationCertificateControl?.invalid && companyRegistrationCertificateControl?.touched">
+                            <span *ngIf="companyRegistrationCertificateControl?.errors?.['required']">Registration certificate is required</span>
+                            <span *ngIf="companyRegistrationCertificateControl?.errors?.['invalidFileType']">Please upload a valid image or PDF file</span>
+                        </div>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div class="text-danger small mb-3" *ngIf="registerError">{{ registerError }}</div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid">
+                        <button type="submit" 
+                                class="btn btn-primary py-2" 
+                                [class.animate__pulse]="!isLoading"
+                                [disabled]="registerForm.invalid || isLoading">
+                            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            {{ isLoading ? 'Registering...' : 'Register' }}
+                        </button>
+                    </div>
+
+                    <!-- Login Link -->
+                    <div class="text-center mt-4">
+                        <span class="text-secondary">Already have an account?</span>
+                        <a routerLink="/organization-login" class="link-blue fw-semibold ms-2 text-decoration-none">Login here</a>
+                    </div>
+                </form>
+
+                <!-- OTP Form -->
+                <form [formGroup]="otpForm" (ngSubmit)="onOtpSubmit()" *ngSwitchCase="true" class="animate__animated animate__fadeIn">
+                    <div class="text-center mb-4">
+                        <h4 class="text-blue">Verify Email</h4>
+                        <p class="text-secondary">Enter the OTP sent to {{ registerForm.get('organizationEmail')?.value }}</p>
+                        <div class="alert alert-success mt-3">
+                            <i class="bi bi-envelope-check me-2"></i>
+                            OTP has been sent to your email address.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="otp" class="form-label text-blue">Enter OTP</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-blue-200 border-blue">
+                                <i class="bi bi-shield-lock"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control border-blue text-center" 
+                                   style="letter-spacing: 0.5em; font-size: 1.5em;"
+                                   id="otp"
+                                   formControlName="otp"
+                                   [class.is-invalid]="otpControl?.invalid && otpControl?.touched"
+                                   maxlength="6"
+                                   autocomplete="off"
+                                   placeholder="••••••">
+                        </div>
+                        <div class="invalid-feedback" *ngIf="otpControl?.invalid && otpControl?.touched">
+                            <span *ngIf="otpControl?.errors?.['required']">OTP is required</span>
+                            <span *ngIf="otpControl?.errors?.['pattern']">Please enter a valid 6-digit OTP</span>
+                        </div>
+                        <div class="text-danger small mt-2" *ngIf="registerError">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                            {{ registerError }}
+                        </div>
+                        <div class="form-text text-center mt-2" *ngIf="!registerError">
+                            Please check your email for the 6-digit OTP
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid">
+                        <button type="submit" 
+                                class="btn btn-primary py-2" 
+                                [class.animate__pulse]="!isLoading"
+                                [disabled]="otpForm.invalid || isLoading">
+                            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            {{ isLoading ? 'Verifying...' : 'Verify OTP' }}
+                        </button>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
