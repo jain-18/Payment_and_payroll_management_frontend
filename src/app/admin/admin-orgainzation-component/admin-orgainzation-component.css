@@ -1,0 +1,31 @@
+.table-responsive {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Improve table responsiveness */
+.table {
+    margin-bottom: 0;
+}
+
+/* Smooth status badge transitions */
+.badge {
+    transition: background-color 0.3s ease;
+}
+
+/* Button group hover effects */
+.btn-group .btn {
+    transition: all 0.2s ease;
+}
+
+.btn-group .btn:hover:not([disabled]) {
+    transform: translateY(-1px);
+}
