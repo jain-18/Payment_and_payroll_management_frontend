@@ -8,6 +8,7 @@ import { OrgDashboardComponent } from './organization/org-dashboard-component/or
 import { OrgRegisterComponent } from './org-register-component/org-register-component';
 import { CreateEmployeeComponent } from './organization/create-employee-component/create-employee-component';
 import { AdminOrgainzationComponent } from './admin/admin-orgainzation-component/admin-orgainzation-component';
+import { ManageEmployeeComponent } from './organization/manage-employee-component/manage-employee-component';
 
 export const routes: Routes = [
     {path:'', redirectTo:'home', pathMatch:'full'},
@@ -19,5 +20,6 @@ export const routes: Routes = [
     {path:'admin/admin-orgainzation', component: AdminOrgainzationComponent},
     {path:'org-dashboard', component: OrgDashboardComponent},
     {path:'org-register', component: OrgRegisterComponent},
-    {path:'org-dashboard/create-employee', component: CreateEmployeeComponent}
+    {path:'org-dashboard/create-employee', component: CreateEmployeeComponent},
+    {path:'org-dashboard/manage-employee', component: ManageEmployeeComponent}
 ];

@@ -1,0 +1,337 @@
+/* Manage Employee Component Styling */
+:root {
+  --blue-100: #e3f0ff;
+  --blue-200: #b6d4fe;
+  --blue-300: #6ea8fe;
+  --blue-400: #228be6;
+  --blue-500: #1565c0;
+  --blue-600: #0d47a1;
+}
+
+.manage-employee-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, var(--blue-100) 100%);
+  min-height: calc(100vh - 76px);
+  padding: 2rem 0;
+}
+
+/* Card Styling */
+.card {
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  border: none;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card-header {
+  background: linear-gradient(90deg, var(--blue-500), var(--blue-600)) !important;
+  border: none;
+  padding: 1.25rem;
+}
+
+.card-header h4 {
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Table Styling */
+.table-responsive {
+  border-radius: 0;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background: linear-gradient(90deg, var(--blue-200), var(--blue-300)) !important;
+  color: var(--blue-600);
+  font-weight: 600;
+  border: none;
+  padding: 1rem 0.75rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table tbody td {
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.employee-row {
+  transition: all 0.3s ease;
+}
+
+.employee-row:hover {
+  background-color: var(--blue-100) !important;
+  transform: scale(1.01);
+}
+
+/* Avatar Circle */
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, var(--blue-400), var(--blue-500));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Badge Styling */
+.badge {
+  font-size: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.badge.bg-info {
+  background: linear-gradient(45deg, #17a2b8, #138496) !important;
+}
+
+.badge.bg-secondary {
+  background: linear-gradient(45deg, #6c757d, #545b62) !important;
+}
+
+.badge.bg-success {
+  background: linear-gradient(45deg, #28a745, #1e7e34) !important;
+}
+
+.badge.bg-danger {
+  background: linear-gradient(45deg, #dc3545, #c82333) !important;
+}
+
+/* Button Styling */
+.btn {
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-group-sm .btn {
+  border-radius: 15px;
+  padding: 0.375rem 0.75rem;
+}
+
+.btn-outline-primary:hover {
+  background: var(--blue-500);
+  border-color: var(--blue-500);
+  transform: translateY(-2px);
+}
+
+.btn-outline-warning:hover {
+  transform: translateY(-2px);
+}
+
+.btn-outline-danger:hover {
+  transform: translateY(-2px);
+}
+
+.btn-light {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  color: var(--blue-600);
+  font-weight: 600;
+}
+
+.btn-light:hover {
+  background: white;
+  color: var(--blue-700);
+  transform: translateY(-2px);
+}
+
+/* Form Controls */
+.form-select, .form-control {
+  border-radius: 10px;
+  border: 1px solid #ced4da;
+  transition: all 0.3s ease;
+}
+
+.form-select:focus, .form-control:focus {
+  border-color: var(--blue-400);
+  box-shadow: 0 0 0 0.2rem rgba(34, 139, 230, 0.25);
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--blue-600);
+  margin-bottom: 0.5rem;
+}
+
+/* Pagination Styling */
+.pagination {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.page-link {
+  color: var(--blue-600);
+  border: 1px solid #dee2e6;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.page-link:hover {
+  color: white;
+  background-color: var(--blue-500);
+  border-color: var(--blue-500);
+  transform: translateY(-1px);
+}
+
+.page-item.active .page-link {
+  background-color: var(--blue-600);
+  border-color: var(--blue-600);
+  color: white;
+}
+
+.page-item.disabled .page-link {
+  color: #6c757d;
+  background-color: white;
+  border-color: #dee2e6;
+}
+
+/* Pagination Info */
+.pagination-info {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Alert Styling */
+.alert {
+  border-radius: 10px;
+  border: none;
+  margin-bottom: 1.5rem;
+}
+
+.alert-danger {
+  background: linear-gradient(90deg, #f8d7da, #f5c6cb);
+  color: #721c24;
+}
+
+/* Loading Spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Empty State */
+.text-center .fa-users {
+  opacity: 0.5;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .table-responsive {
+    font-size: 0.9rem;
+  }
+  
+  .avatar-circle {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .manage-employee-container {
+    padding: 1rem 0;
+  }
+  
+  .card-header .d-flex {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.8rem;
+  }
+  
+  .btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .avatar-circle {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+  
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .pagination {
+    justify-content: center;
+  }
+  
+  .pagination-info {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .card-body .row {
+    row-gap: 1rem;
+  }
+  
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  /* Hide less important columns on mobile */
+  .table th:nth-child(3),
+  .table td:nth-child(3),
+  .table th:nth-child(9),
+  .table td:nth-child(9) {
+    display: none;
+  }
+}
+
+/* Animation */
+.fa-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Hover Effects */
+.table tbody tr:hover .btn-group .btn {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.table tbody .btn-group .btn {
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+/* Status Indicators */
+.table-warning {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.table-warning:hover {
+  background-color: rgba(255, 193, 7, 0.2) !important;
+}
