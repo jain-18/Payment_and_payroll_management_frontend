@@ -38,7 +38,7 @@ export class AdminLoginComponent {
         next: (response) => {
           this.svc.saveToken(response);
           this.isLoading = false;
-          this.router.navigate(['/admin-dashboard']); // Navigate to admin dashboard on successful login
+          this.router.navigate(['/admin/admin-dashboard']); // Navigate to admin dashboard on successful login
         },
         error: (error) => {
           console.error('Login error:', error);

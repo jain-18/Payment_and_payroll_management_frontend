@@ -19,11 +19,18 @@ export class orgLoginService {
   }
 
   saveToken(loginResponse: LoginResponseViewModel) {
-    localStorage.setItem('token', loginResponse.accessToken);
-    const payLoadBase64 = loginResponse.accessToken.split('.')[1];
-    const decodedPayload = JSON.parse(atob(payLoadBase64));
-    console.log("token saved")
-    console.log(decodedPayload);
+    // localStorage is available only in browser; guard for SSR
+    if (typeof window !== 'undefined' && window?.localStorage) {
+      try {
+        window.localStorage.setItem('token', loginResponse.accessToken);
+        const payLoadBase64 = loginResponse.accessToken.split('.')[1];
+        const decodedPayload = JSON.parse(atob(payLoadBase64));
+        console.log('token saved');
+        console.log(decodedPayload);
+      } catch (err) {
+        console.warn('Failed to save token or decode payload:', err);
+      }
+    }
   }
 
   getRole(token: string): string[] {
@@ -41,8 +48,10 @@ export class orgLoginService {
   }
 
   getToken(): string | null {
-    let token = localStorage.getItem('token');
-    return token;
+    if (typeof window !== 'undefined' && window?.localStorage) {
+      return window.localStorage.getItem('token');
+    }
+    return null;
   }
 
   // getTest():Observable<string>{

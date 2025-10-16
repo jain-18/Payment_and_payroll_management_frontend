@@ -9,11 +9,13 @@ export const libraryInterceptor: HttpInterceptorFn = (req, next) => {
     const token = authToken.getToken();
     console.log('Token found');
 
-    if(token){
-        const cloned = req.clone ({setHeaders:{
-            Authorization: `Bearer ${token}`
-        }
+    if (token) {
+        const cloned = req.clone({
+            setHeaders: {
+                Authorization: `Bearer ${token}`
+            }
         });
+        console.log(token)
         return next(cloned);
     }
     console.log('No token found, skipping auth header');
