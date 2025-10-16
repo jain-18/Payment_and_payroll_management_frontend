@@ -3,4 +3,5 @@ export interface PageableRequest {
     size?: number;
     sortBy?: string;
     active?: boolean;
+    searchTerm?: string;
 }
