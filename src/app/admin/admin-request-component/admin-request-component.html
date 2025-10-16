@@ -1,0 +1,108 @@
+<app-admin-navbar></app-admin-navbar>
+
+<div class="container py-4">
+    <!-- Loading State -->
+    <div class="d-flex justify-content-center my-5" *ngIf="loading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="alert alert-danger" *ngIf="error">
+        {{ error }}
+    </div>
+
+    <!-- Main Content -->
+    <div class="card" *ngIf="!loading && !error">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">All Requests</h3>
+            <!-- Page Size Selector -->
+            <div class="d-flex align-items-center">
+                <label class="text-white me-2">Items per page:</label>
+                <select class="form-select form-select-sm" style="width: auto;" 
+                        [ngModel]="pageSize" 
+                        (ngModelChange)="onPageSizeChange($event)">
+                    <option [ngValue]="5">5</option>
+                    <option [ngValue]="10">10</option>
+                    <option [ngValue]="20">20</option>
+                    <option [ngValue]="50">50</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <!-- Requests Table -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th (click)="onSortChange('requestId')">#</th>
+                            <th (click)="onSortChange('requestType')">Type</th>
+                            <th (click)="onSortChange('requestStatus')">Status</th>
+                            <th (click)="onSortChange('createdBy')">Created By</th>
+                            <th (click)="onSortChange('to')">To</th>
+                            <th (click)="onSortChange('requestDate')">Date</th>
+                            <th (click)="onSortChange('totalAmount')">Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let request of allRequests">
+                            <td>{{ request.requestId }}</td>
+                            <td>{{ request.requestType }}</td>
+                            <td>
+                                <span class="badge" [ngClass]="{
+                                    'bg-success': request.requestStatus === 'APPROVED',
+                                    'bg-danger': request.requestStatus === 'REJECTED',
+                                    'bg-warning': request.requestStatus === 'PENDING'
+                                }">
+                                    {{ request.requestStatus }}
+                                </span>
+                            </td>
+                            <td>{{ request.createdBy }}</td>
+                            <td>{{ request.to }}</td>
+                            <td>{{ request.requestDate | date:'mediumDate' }}</td>
+                            <td>₹{{ request.totalAmount | number:'1.2-2' }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary me-1">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-success me-1" *ngIf="request.requestStatus === 'PENDING'">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" *ngIf="request.requestStatus === 'PENDING'">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav *ngIf="totalPages > 1" aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" [class.disabled]="currentPage === 0">
+                        <a class="page-link" (click)="onPageChange(0)" role="button">First</a>
+                    </li>
+                    <li class="page-item" [class.disabled]="currentPage === 0">
+                        <a class="page-link" (click)="onPageChange(currentPage - 1)" role="button">Previous</a>
+                    </li>
+                    
+                    <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
+                        [class.active]="i === currentPage">
+                        <a class="page-link" (click)="onPageChange(i)" role="button">{{ i + 1 }}</a>
+                    </li>
+                    
+                    <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                        <a class="page-link" (click)="onPageChange(currentPage + 1)" role="button">Next</a>
+                    </li>
+                    <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                        <a class="page-link" (click)="onPageChange(totalPages - 1)" role="button">Last</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

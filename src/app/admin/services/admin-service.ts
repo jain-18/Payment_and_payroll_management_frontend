@@ -7,6 +7,7 @@ import { PageableRequest } from '../model/pageableRequest';
 import { PageResponse } from '../model/pageResponse';
 import { Observable } from 'rxjs';
 import { OrgInfoResponse } from '../model/orgInfoResponse';
+import { AllRequest } from '../model/allRequest';
 
 @Injectable({
   providedIn: 'root'
@@ -88,6 +89,19 @@ export class AdminService {
     const params = new HttpParams()
       .set('id', orgId.toString());
     return this.http.get<OrgInfoResponse>(`${this.apiUrlOfOrg}/orgInfo`, { 
+      ...this.getHeaders(),
+      params 
+    });
+  }
+
+  getAllRequests(page: number = 0, size: number = 10, sortBy: string = 'requestDate'): Observable<PageResponse<AllRequest>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('sortDir', 'DESC');
+
+    return this.http.get<PageResponse<AllRequest>>(`${this.apiUrlofAdmin}/all-request`, { 
       ...this.getHeaders(),
       params 
     });
