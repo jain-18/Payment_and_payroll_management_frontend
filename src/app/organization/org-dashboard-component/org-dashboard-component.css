@@ -1,0 +1,127 @@
+/* Organization Dashboard Styling */
+:root {
+  --blue-100: #e3f0ff;
+  --blue-200: #b6d4fe;
+  --blue-300: #6ea8fe;
+  --blue-400: #228be6;
+  --blue-500: #1565c0;
+  --blue-600: #0d47a1;
+}
+
+.dashboard-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, var(--blue-100) 100%);
+  min-height: calc(100vh - 76px);
+  padding: 2rem 0;
+}
+
+.welcome-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-section h1 {
+  background: linear-gradient(90deg, var(--blue-500), var(--blue-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-card {
+  transition: all 0.3s ease;
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  background: white;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.icon-wrapper {
+  background: rgba(255, 255, 255, 0.1);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.dashboard-card .btn {
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.dashboard-card .btn:hover {
+  transform: translateY(-2px);
+}
+
+.stats-card {
+  transition: all 0.3s ease;
+  border-radius: 15px;
+  background: white;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card .card-body {
+  padding: 1.5rem;
+}
+
+.stats-card h4 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.stats-card h6 {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem 0;
+  }
+  
+  .welcome-section {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .welcome-section h1 {
+    font-size: 2rem;
+  }
+  
+  .icon-wrapper {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .icon-wrapper i {
+    font-size: 2rem !important;
+  }
+}
+
+/* Animation classes */
+.animate__fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,1 +1,127 @@
-<p>org-dashboard-component works!</p>
+<app-org-dashboard-navbar></app-org-dashboard-navbar>
+
+<div class="container-fluid dashboard-container">
+  <div class="row">
+    <div class="col-12">
+      <div class="welcome-section">
+        <h1 class="display-4 text-primary fw-bold">Welcome to Organization Dashboard</h1>
+        <p class="lead text-muted">Manage your employees, vendors, and payments efficiently</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-4">
+    <!-- Employee Management Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card dashboard-card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <div class="icon-wrapper mb-3">
+            <i class="fas fa-users fa-3x text-primary"></i>
+          </div>
+          <h5 class="card-title">Employee Management</h5>
+          <p class="card-text text-muted">Create, manage employees and handle payroll payments</p>
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary" routerLink="/org-dashboard/create-employee">Create Employee</button>
+            <button class="btn btn-outline-primary" routerLink="/org-dashboard/manage-employee">Manage Employees</button>
+            <button class="btn btn-primary" routerLink="/org-dashboard/employee-payments">Employee Payments</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vendor Management Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card dashboard-card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <div class="icon-wrapper mb-3">
+            <i class="fas fa-handshake fa-3x text-success"></i>
+          </div>
+          <h5 class="card-title">Vendor Management</h5>
+          <p class="card-text text-muted">Create, manage vendors and handle vendor payments</p>
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-success" routerLink="/org-dashboard/create-vendor">Create Vendor</button>
+            <button class="btn btn-outline-success" routerLink="/org-dashboard/manage-vendor">Manage Vendors</button>
+            <button class="btn btn-success" routerLink="/org-dashboard/vendor-payments">Vendor Payments</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile & Settings Card -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card dashboard-card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <div class="icon-wrapper mb-3">
+            <i class="fas fa-user-cog fa-3x text-warning"></i>
+          </div>
+          <h5 class="card-title">Profile & Settings</h5>
+          <p class="card-text text-muted">Update your information and manage account settings</p>
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-warning" routerLink="/org-dashboard/update-info">Update Info</button>
+            <button class="btn btn-outline-warning" routerLink="/org-dashboard/concerns">Concerns</button>
+            <button class="btn btn-warning text-white">Account Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats Row -->
+  <div class="row g-4 mt-4">
+    <div class="col-lg-3 col-md-6">
+      <div class="card stats-card border-primary">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-subtitle mb-2 text-muted">Total Employees</h6>
+              <h4 class="card-title text-primary mb-0">--</h4>
+            </div>
+            <i class="fas fa-users fa-2x text-primary opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card stats-card border-success">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-subtitle mb-2 text-muted">Total Vendors</h6>
+              <h4 class="card-title text-success mb-0">--</h4>
+            </div>
+            <i class="fas fa-handshake fa-2x text-success opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card stats-card border-warning">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-subtitle mb-2 text-muted">Pending Payments</h6>
+              <h4 class="card-title text-warning mb-0">--</h4>
+            </div>
+            <i class="fas fa-clock fa-2x text-warning opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card stats-card border-info">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-subtitle mb-2 text-muted">This Month</h6>
+              <h4 class="card-title text-info mb-0">$--</h4>
+            </div>
+            <i class="fas fa-dollar-sign fa-2x text-info opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
