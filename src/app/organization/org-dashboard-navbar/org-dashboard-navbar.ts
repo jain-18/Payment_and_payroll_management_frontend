@@ -15,7 +15,7 @@ export class OrgDashboardNavbar {
 
   logout() {
     // Clear any stored authentication tokens/data
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
     localStorage.removeItem('organizationData');
     
     // Navigate to home page

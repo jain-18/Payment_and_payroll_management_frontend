@@ -1,1 +1,235 @@
-<p>create-employee-component works!</p>
+<app-org-dashboard-navbar></app-org-dashboard-navbar>
+
+<div class="container-fluid create-employee-container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+          <h4 class="card-title mb-0">
+            <i class="fas fa-user-plus me-2"></i>
+            Create New Employee
+          </h4>
+        </div>
+        
+        <div class="card-body p-4">
+          <!-- Success Message -->
+          <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            {{ successMessage }}
+            <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ errorMessage }}
+            <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+          </div>
+
+          <form [formGroup]="createEmployeeForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="row">
+              <!-- Employee Name -->
+              <div class="col-md-6 mb-3">
+                <label for="employeeName" class="form-label required">Employee Name</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-user text-primary"></i>
+                  </span>
+                  <input
+                    type="text"
+                    id="employeeName"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('employeeName')"
+                    formControlName="employeeName"
+                    placeholder="Enter employee name"
+                    maxlength="50">
+                </div>
+                <div *ngIf="isFieldInvalid('employeeName')" class="invalid-feedback">
+                  {{ getFieldError('employeeName') }}
+                </div>
+              </div>
+
+              <!-- Employee Role -->
+              <div class="col-md-6 mb-3">
+                <label for="employeeRole" class="form-label required">Employee Role</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-briefcase text-primary"></i>
+                  </span>
+                  <input
+                    type="text"
+                    id="employeeRole"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('employeeRole')"
+                    formControlName="employeeRole"
+                    placeholder="Enter employee role"
+                    maxlength="50">
+                </div>
+                <div *ngIf="isFieldInvalid('employeeRole')" class="invalid-feedback">
+                  {{ getFieldError('employeeRole') }}
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-6 mb-3">
+                <label for="email" class="form-label required">Email Address</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-envelope text-primary"></i>
+                  </span>
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('email')"
+                    formControlName="email"
+                    placeholder="Enter email address">
+                </div>
+                <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
+                  {{ getFieldError('email') }}
+                </div>
+              </div>
+
+              <!-- Department -->
+              <div class="col-md-6 mb-3">
+                <label for="department" class="form-label required">Department</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-building text-primary"></i>
+                  </span>
+                  <input
+                    type="text"
+                    id="department"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('department')"
+                    formControlName="department"
+                    placeholder="Enter department">
+                </div>
+                <div *ngIf="isFieldInvalid('department')" class="invalid-feedback">
+                  {{ getFieldError('department') }}
+                </div>
+              </div>
+
+              <!-- Salary -->
+              <div class="col-md-6 mb-3">
+                <label for="salary" class="form-label required">Salary</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-dollar-sign text-success"></i>
+                  </span>
+                  <input
+                    type="number"
+                    id="salary"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('salary')"
+                    formControlName="salary"
+                    placeholder="Enter salary amount"
+                    min="0"
+                    step="0.01">
+                </div>
+                <div *ngIf="isFieldInvalid('salary')" class="invalid-feedback">
+                  {{ getFieldError('salary') }}
+                </div>
+              </div>
+
+              <!-- Joined Date -->
+              <div class="col-md-6 mb-3">
+                <label for="joinedDate" class="form-label required">Joined Date</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-calendar text-primary"></i>
+                  </span>
+                  <input
+                    type="date"
+                    id="joinedDate"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('joinedDate')"
+                    formControlName="joinedDate">
+                </div>
+                <div *ngIf="isFieldInvalid('joinedDate')" class="invalid-feedback">
+                  {{ getFieldError('joinedDate') }}
+                </div>
+              </div>
+
+              <!-- Account Number -->
+              <div class="col-md-6 mb-3">
+                <label for="accountNumber" class="form-label required">Account Number</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-university text-primary"></i>
+                  </span>
+                  <input
+                    type="text"
+                    id="accountNumber"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('accountNumber')"
+                    formControlName="accountNumber"
+                    placeholder="Enter account number"
+                    pattern="[0-9]*"
+                    maxlength="18">
+                </div>
+                <div *ngIf="isFieldInvalid('accountNumber')" class="invalid-feedback">
+                  {{ getFieldError('accountNumber') }}
+                </div>
+              </div>
+
+              <!-- IFSC Code -->
+              <div class="col-md-6 mb-3">
+                <label for="ifsc" class="form-label required">IFSC Code</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-code text-primary"></i>
+                  </span>
+                  <input
+                    type="text"
+                    id="ifsc"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('ifsc')"
+                    formControlName="ifsc"
+                    placeholder="Enter IFSC code"
+                    maxlength="11"
+                    style="text-transform: uppercase">
+                </div>
+                <div *ngIf="isFieldInvalid('ifsc')" class="invalid-feedback">
+                  {{ getFieldError('ifsc') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="onCancel()"
+                [disabled]="isSubmitting">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Dashboard
+              </button>
+
+              <div class="d-flex gap-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-warning"
+                  (click)="createEmployeeForm.reset()"
+                  [disabled]="isSubmitting">
+                  <i class="fas fa-undo me-2"></i>
+                  Reset Form
+                </button>
+
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="createEmployeeForm.invalid || isSubmitting">
+                  <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <i *ngIf="!isSubmitting" class="fas fa-user-plus me-2"></i>
+                  {{ isSubmitting ? 'Creating Employee...' : 'Create Employee' }}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
