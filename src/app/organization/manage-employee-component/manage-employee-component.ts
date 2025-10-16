@@ -18,6 +18,15 @@ export class ManageEmployeeComponent implements OnInit {
   isLoading = true; // Start with loading true to handle SSR properly
   errorMessage = '';
   
+  // Search functionality
+  searchId: number | null = null;
+  isSearching = false;
+  searchResults: EmployeeResponse[] = [];
+  isSearchMode = false;
+  
+  // Delete functionality
+  deletingEmployeeId: number | null = null;
+  
   // Expose Math to template
   Math = Math;
   
@@ -173,5 +182,163 @@ export class ManageEmployeeComponent implements OnInit {
 
   isBrowser(): boolean {
     return isPlatformBrowser(this.platformId);
+  }
+
+  searchEmployee(): void {
+    if (!this.searchId || !isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    console.log('Starting search for employee ID:', this.searchId);
+    this.isSearching = true;
+    this.errorMessage = '';
+    
+    // Force change detection to show loading state immediately
+    this.cdr.markForCheck();
+
+    this.employeeService.searchEmployeeById(this.searchId).subscribe({
+      next: (employee: EmployeeResponse) => {
+        console.log('Employee found:', employee);
+        this.searchResults = [employee];
+        this.isSearchMode = true;
+        this.isSearching = false;
+        console.log('Search completed. isSearching:', this.isSearching, 'isSearchMode:', this.isSearchMode);
+        // Force change detection to update view
+        this.cdr.markForCheck();
+        // Also try detectChanges as backup
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
+      error: (error) => {
+        console.error('Error searching employee:', error);
+        this.isSearching = false;
+        this.searchResults = [];
+        this.isSearchMode = true;
+        
+        if (error.status === 404) {
+          this.errorMessage = `Employee not found with ID: ${this.searchId}`;
+        } else if (error.status === 400) {
+          this.errorMessage = 'This employee does not belong to the given organization.';
+        } else if (error.status === 401) {
+          this.errorMessage = 'Session expired. Please login again.';
+        } else {
+          this.errorMessage = error.error?.message || 'Failed to search employee. Please try again.';
+        }
+        // Force change detection to update view
+        this.cdr.markForCheck();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
+      complete: () => {
+        // Ensure searching state is cleared
+        this.isSearching = false;
+        console.log('Search request completed. isSearching:', this.isSearching);
+        // Force final change detection
+        this.cdr.markForCheck();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      }
+    });
+  }
+
+  clearSearch(): void {
+    console.log('Clearing search');
+    this.searchId = null;
+    this.searchResults = [];
+    this.isSearchMode = false;
+    this.errorMessage = '';
+    this.isSearching = false;
+    console.log('Search cleared. isSearchMode:', this.isSearchMode);
+    // Force change detection to update view immediately
+    this.cdr.markForCheck();
+    setTimeout(() => this.cdr.detectChanges(), 0);
+  }
+
+  onSearchKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.searchEmployee();
+    }
+  }
+
+  get displayedEmployees(): EmployeeResponse[] {
+    return this.isSearchMode ? this.searchResults : this.employees;
+  }
+
+  get showPagination(): boolean {
+    return !this.isSearchMode && this.totalPages > 1 && !this.isLoading && this.employees.length > 0;
+  }
+
+  deleteEmployee(employeeId: number, employeeName: string): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    // Confirm deletion
+    const confirmed = confirm(`Are you sure you want to delete employee "${employeeName}"? This action cannot be undone.`);
+    if (!confirmed) {
+      return;
+    }
+
+    console.log('Starting delete for employee ID:', employeeId);
+    this.deletingEmployeeId = employeeId;
+    this.errorMessage = '';
+    
+    // Force change detection to show loading state
+    this.cdr.markForCheck();
+
+    this.employeeService.deleteEmployee(employeeId).subscribe({
+      next: () => {
+        console.log('Employee deleted successfully:', employeeId);
+        this.deletingEmployeeId = null;
+        
+        // Remove from current display
+        if (this.isSearchMode) {
+          // If in search mode, clear search and reload all
+          this.clearSearch();
+        } else {
+          // Remove from employees array
+          this.employees = this.employees.filter(emp => emp.employeeId !== employeeId);
+          this.totalElements = Math.max(0, this.totalElements - 1);
+          
+          // If current page becomes empty and it's not the first page, go to previous page
+          if (this.employees.length === 0 && this.currentPage > 0) {
+            this.currentPage--;
+          }
+        }
+        
+        // Reload data to ensure consistency
+        this.loadEmployees();
+        
+        // Force change detection
+        this.cdr.markForCheck();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
+      error: (error) => {
+        console.error('Error deleting employee:', error);
+        this.deletingEmployeeId = null;
+        
+        if (error.status === 404) {
+          this.errorMessage = `Employee not found with ID: ${employeeId}`;
+        } else if (error.status === 400) {
+          this.errorMessage = 'This employee does not belong to the given organization.';
+        } else if (error.status === 401) {
+          this.errorMessage = 'Session expired. Please login again.';
+        } else if (error.status === 403) {
+          this.errorMessage = 'Access denied. You do not have permission to delete employees.';
+        } else {
+          this.errorMessage = error.error?.message || 'Failed to delete employee. Please try again.';
+        }
+        
+        // Force change detection
+        this.cdr.markForCheck();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
+      complete: () => {
+        this.deletingEmployeeId = null;
+        console.log('Delete request completed');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  isDeleting(employeeId: number): boolean {
+    return this.deletingEmployeeId === employeeId;
   }
 }

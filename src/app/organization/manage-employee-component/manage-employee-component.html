@@ -20,7 +20,46 @@
         
         <!-- Filters and Controls -->
         <div class="card-body">
-          <div class="row align-items-center mb-3">
+          <!-- Search Section -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="fas fa-search"></i>
+                </span>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  placeholder="Search by Employee ID..." 
+                  [(ngModel)]="searchId"
+                  (keypress)="onSearchKeyPress($event)"
+                  [disabled]="isSearching">
+                <button 
+                  class="btn btn-primary" 
+                  type="button" 
+                  (click)="searchEmployee()"
+                  [disabled]="!searchId || isSearching">
+                  <i class="fas fa-search me-2" [class.fa-spin]="isSearching"></i>
+                  {{ isSearching ? 'Searching...' : 'Search' }}
+                </button>
+                <button 
+                  class="btn btn-outline-secondary" 
+                  type="button" 
+                  (click)="clearSearch()"
+                  [disabled]="!isSearchMode && !searchId">
+                  <i class="fas fa-times me-2"></i>
+                  Clear
+                </button>
+              </div>
+              <small class="text-muted mt-1 d-block">
+                <i class="fas fa-info-circle me-1"></i>
+                {{ isSearchMode ? 'Showing search results' : 'Enter Employee ID to search for a specific employee' }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Sort and Pagination Controls (hidden during search) -->
+          <div class="row align-items-center mb-3" *ngIf="!isSearchMode">
             <div class="col-md-4">
               <label for="sortBy" class="form-label">Sort By:</label>
               <select 
@@ -83,7 +122,7 @@
       </div>
 
       <!-- Employees Table -->
-      <div *ngIf="!isLoading && employees.length > 0" class="card shadow-sm border-0">
+      <div *ngIf="(!isLoading && !isSearching) && displayedEmployees.length > 0" class="card shadow-sm border-0">
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -102,7 +141,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let employee of employees; let i = index" 
+                <tr *ngFor="let employee of displayedEmployees; let i = index" 
                     class="employee-row" 
                     [class.table-warning]="!employee.active">
                   <td class="fw-bold">{{ employee.employeeId }}</td>
@@ -151,14 +190,17 @@
                       <button 
                         type="button" 
                         class="btn btn-outline-warning"
-                        title="Edit Employee">
+                        title="Edit Employee" routerLink="/org-dashboard/edit-employee/{{employee.employeeId}}">
                         <i class="fas fa-edit"></i>
                       </button>
                       <button 
                         type="button" 
                         class="btn btn-outline-danger"
-                        title="Delete Employee">
-                        <i class="fas fa-trash"></i>
+                        title="Delete Employee"
+                        (click)="deleteEmployee(employee.employeeId, employee.employeeName)"
+                        [disabled]="isDeleting(employee.employeeId)">
+                        <i class="fas fa-trash" [class.fa-spin]="isDeleting(employee.employeeId)"></i>
+                        <span *ngIf="isDeleting(employee.employeeId)" class="ms-1">Deleting...</span>
                       </button>
                     </div>
                   </td>
@@ -168,20 +210,28 @@
           </div>
 
           <!-- Empty State -->
-          <div *ngIf="employees.length === 0 && !isLoading" class="text-center py-5">
+          <div *ngIf="displayedEmployees.length === 0 && !isLoading && !isSearching" class="text-center py-5">
             <i class="fas fa-users fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No employees found</h5>
-            <p class="text-muted mb-3">Start by adding your first employee to the organization.</p>
-            <button class="btn btn-primary" routerLink="/org-dashboard/create-employee">
+            <h5 class="text-muted">
+              {{ isSearchMode ? 'No employee found' : 'No employees found' }}
+            </h5>
+            <p class="text-muted mb-3">
+              {{ isSearchMode ? 'Try searching with a different Employee ID.' : 'Start by adding your first employee to the organization.' }}
+            </p>
+            <button *ngIf="!isSearchMode" class="btn btn-primary" routerLink="/org-dashboard/create-employee">
               <i class="fas fa-plus me-2"></i>
               Add First Employee
+            </button>
+            <button *ngIf="isSearchMode" class="btn btn-outline-primary" (click)="clearSearch()">
+              <i class="fas fa-arrow-left me-2"></i>
+              Back to All Employees
             </button>
           </div>
         </div>
       </div>
 
       <!-- Pagination -->
-      <div *ngIf="totalPages > 1 && !isLoading && employees.length > 0" class="d-flex justify-content-between align-items-center mt-4">
+      <div *ngIf="showPagination" class="d-flex justify-content-between align-items-center mt-4">
         <div class="pagination-info">
           <small class="text-muted">
             Showing {{ currentPage * pageSize + 1 }} to 
