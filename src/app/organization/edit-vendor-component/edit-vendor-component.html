@@ -1,1 +1,226 @@
-<p>edit-vendor-component works!</p>
+<app-org-dashboard-navbar></app-org-dashboard-navbar>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4>Edit Vendor</h4>
+        </div>
+        
+        <div class="card-body">
+          <!-- Loading State -->
+          <div *ngIf="isLoading" class="text-center p-5">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading vendor details...</span>
+            </div>
+            <div class="mt-3">Loading vendor details...</div>
+          </div>
+
+          <!-- Error State -->
+          <div *ngIf="!isLoading && errorMessage" class="alert alert-danger">
+            <strong>Error:</strong> {{ errorMessage }}
+            <div class="mt-2">
+              <button class="btn btn-secondary me-2" (click)="onCancel()">Go Back</button>
+              <button class="btn btn-primary" (click)="loadVendor()">Retry</button>
+            </div>
+          </div>
+
+          <!-- Success Message -->
+          <div *ngIf="successMessage" class="alert alert-success">
+            <strong>Success:</strong> {{ successMessage }}
+            <div class="mt-2">Redirecting to vendor management...</div>
+          </div>
+
+          <!-- Edit Form -->
+          <form *ngIf="!isLoading && !errorMessage && editVendorForm" [formGroup]="editVendorForm" (ngSubmit)="onSubmit()">
+            
+            <!-- Vendor Information Section -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <h5 class="text-primary border-bottom pb-2">Vendor Information</h5>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="vendorName" class="form-label">Vendor Name *</label>
+                <input
+                  type="text"
+                  id="vendorName"
+                  class="form-control"
+                  formControlName="vendorName"
+                  [class.is-invalid]="vendorName?.invalid && (vendorName?.dirty || vendorName?.touched)"
+                  placeholder="Enter vendor name"
+                />
+                <div *ngIf="vendorName?.invalid && (vendorName?.dirty || vendorName?.touched)" class="invalid-feedback">
+                  <div *ngIf="vendorName?.errors?.['required']">Vendor name is required</div>
+                  <div *ngIf="vendorName?.errors?.['pattern']">Only letters and spaces are allowed</div>
+                  <div *ngIf="vendorName?.errors?.['maxlength']">Maximum 50 characters allowed</div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  class="form-control"
+                  formControlName="email"
+                  [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)"
+                  placeholder="Enter email address"
+                />
+                <div *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="invalid-feedback">
+                  <div *ngIf="email?.errors?.['required']">Email is required</div>
+                  <div *ngIf="email?.errors?.['email'] || email?.errors?.['pattern']">Please enter a valid email</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="phoneNumber" class="form-label">Phone Number *</label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  class="form-control"
+                  formControlName="phoneNumber"
+                  [class.is-invalid]="phoneNumber?.invalid && (phoneNumber?.dirty || phoneNumber?.touched)"
+                  placeholder="Enter 10-digit phone number"
+                />
+                <div *ngIf="phoneNumber?.invalid && (phoneNumber?.dirty || phoneNumber?.touched)" class="invalid-feedback">
+                  <div *ngIf="phoneNumber?.errors?.['required']">Phone number is required</div>
+                  <div *ngIf="phoneNumber?.errors?.['pattern']">Enter a valid 10-digit phone number starting with 6-9</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Account Details Section -->
+            <div class="row mb-4 mt-5">
+              <div class="col-12">
+                <h5 class="text-primary border-bottom pb-2">Account Details</h5>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="accountNumber" class="form-label">Account Number *</label>
+                <input
+                  type="text"
+                  id="accountNumber"
+                  class="form-control"
+                  formControlName="accountNumber"
+                  [class.is-invalid]="accountNumber?.invalid && (accountNumber?.dirty || accountNumber?.touched)"
+                  placeholder="Enter 10-20 digit account number"
+                />
+                <div *ngIf="accountNumber?.invalid && (accountNumber?.dirty || accountNumber?.touched)" class="invalid-feedback">
+                  <div *ngIf="accountNumber?.errors?.['required']">Account number is required</div>
+                  <div *ngIf="accountNumber?.errors?.['pattern']">Enter a valid account number (10-20 digits)</div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="ifsc" class="form-label">IFSC Code *</label>
+                <input
+                  type="text"
+                  id="ifsc"
+                  class="form-control"
+                  formControlName="ifsc"
+                  [class.is-invalid]="ifsc?.invalid && (ifsc?.dirty || ifsc?.touched)"
+                  placeholder="Enter IFSC code (e.g., SBIN0123456)"
+                  style="text-transform: uppercase"
+                />
+                <div *ngIf="ifsc?.invalid && (ifsc?.dirty || ifsc?.touched)" class="invalid-feedback">
+                  <div *ngIf="ifsc?.errors?.['required']">IFSC code is required</div>
+                  <div *ngIf="ifsc?.errors?.['pattern']">Enter a valid IFSC code (e.g., SBIN0123456)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Address Section -->
+            <div class="row mb-4 mt-5">
+              <div class="col-12">
+                <h5 class="text-primary border-bottom pb-2">Address Information</h5>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="city" class="form-label">City *</label>
+                <input
+                  type="text"
+                  id="city"
+                  class="form-control"
+                  formControlName="city"
+                  [class.is-invalid]="city?.invalid && (city?.dirty || city?.touched)"
+                  placeholder="Enter city"
+                />
+                <div *ngIf="city?.invalid && (city?.dirty || city?.touched)" class="invalid-feedback">
+                  <div *ngIf="city?.errors?.['required']">City is required</div>
+                  <div *ngIf="city?.errors?.['minlength']">City must be at least 2 characters</div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <label for="state" class="form-label">State *</label>
+                <input
+                  type="text"
+                  id="state"
+                  class="form-control"
+                  formControlName="state"
+                  [class.is-invalid]="state?.invalid && (state?.dirty || state?.touched)"
+                  placeholder="Enter state"
+                />
+                <div *ngIf="state?.invalid && (state?.dirty || state?.touched)" class="invalid-feedback">
+                  <div *ngIf="state?.errors?.['required']">State is required</div>
+                  <div *ngIf="state?.errors?.['minlength']">State must be at least 2 characters</div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <label for="pinCode" class="form-label">Pin Code *</label>
+                <input
+                  type="text"
+                  id="pinCode"
+                  class="form-control"
+                  formControlName="pinCode"
+                  [class.is-invalid]="pinCode?.invalid && (pinCode?.dirty || pinCode?.touched)"
+                  placeholder="Enter 6-digit pin code"
+                />
+                <div *ngIf="pinCode?.invalid && (pinCode?.dirty || pinCode?.touched)" class="invalid-feedback">
+                  <div *ngIf="pinCode?.errors?.['required']">Pin code is required</div>
+                  <div *ngIf="pinCode?.errors?.['pattern']">Enter a valid 6-digit pin code</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mt-5">
+              <div class="col-12">
+                <div class="d-flex justify-content-end gap-2">
+                  <button 
+                    type="button" 
+                    class="btn btn-secondary"
+                    (click)="onCancel()"
+                    [disabled]="isSubmitting"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    class="btn btn-primary"
+                    [disabled]="!editVendorForm.valid || isSubmitting"
+                  >
+                    <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    {{ isSubmitting ? 'Updating...' : 'Update Vendor' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

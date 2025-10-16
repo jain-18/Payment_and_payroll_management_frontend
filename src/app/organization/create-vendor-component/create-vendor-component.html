@@ -1,1 +1,244 @@
-<p>create-vendor-component works!</p>
+<app-org-dashboard-navbar></app-org-dashboard-navbar>
+
+<div class="container-fluid create-vendor-container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <!-- Header Section -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-success text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-handshake me-2"></i>
+              Create New Vendor
+            </h4>
+            <button class="btn btn-light btn-sm" routerLink="/org-dashboard">
+              <i class="fas fa-arrow-left me-2"></i>
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Create Vendor Form -->
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <form [formGroup]="createVendorForm" (ngSubmit)="onSubmit()">
+            
+            <!-- Basic Information Section -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <h5 class="text-success mb-3">
+                  <i class="fas fa-info-circle me-2"></i>
+                  Basic Information
+                </h5>
+              </div>
+              
+              <!-- Vendor Name -->
+              <div class="col-md-6 mb-3">
+                <label for="vendorName" class="form-label">
+                  <i class="fas fa-building me-1"></i>Vendor Name *
+                </label>
+                <input
+                  type="text"
+                  id="vendorName"
+                  class="form-control"
+                  formControlName="vendorName"
+                  [class.is-invalid]="vendorName?.invalid && vendorName?.touched"
+                  placeholder="Enter vendor name">
+                <div *ngIf="vendorName?.invalid && vendorName?.touched" class="invalid-feedback">
+                  <div *ngIf="vendorName?.errors?.['required']">Vendor name is required</div>
+                  <div *ngIf="vendorName?.errors?.['pattern']">Must start with a letter and may include digits and spaces</div>
+                  <div *ngIf="vendorName?.errors?.['maxlength']">Maximum 50 characters allowed</div>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">
+                  <i class="fas fa-envelope me-1"></i>Email Address *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  class="form-control"
+                  formControlName="email"
+                  [class.is-invalid]="email?.invalid && email?.touched"
+                  placeholder="Enter email address">
+                <div *ngIf="email?.invalid && email?.touched" class="invalid-feedback">
+                  <div *ngIf="email?.errors?.['required']">Email is required</div>
+                  <div *ngIf="email?.errors?.['email'] || email?.errors?.['pattern']">Please enter a valid email</div>
+                </div>
+              </div>
+
+              <!-- Phone Number -->
+              <div class="col-md-6 mb-3">
+                <label for="phoneNumber" class="form-label">
+                  <i class="fas fa-phone me-1"></i>Phone Number *
+                </label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  class="form-control"
+                  formControlName="phoneNumber"
+                  [class.is-invalid]="phoneNumber?.invalid && phoneNumber?.touched"
+                  placeholder="Enter 10-digit mobile number">
+                <div *ngIf="phoneNumber?.invalid && phoneNumber?.touched" class="invalid-feedback">
+                  <div *ngIf="phoneNumber?.errors?.['required']">Phone number is required</div>
+                  <div *ngIf="phoneNumber?.errors?.['pattern']">Must be a valid 10-digit Indian mobile number</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Account Information Section -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <h5 class="text-success mb-3">
+                  <i class="fas fa-university me-2"></i>
+                  Account Information
+                </h5>
+              </div>
+              
+              <!-- Account Number -->
+              <div class="col-md-6 mb-3">
+                <label for="accountNumber" class="form-label">
+                  <i class="fas fa-credit-card me-1"></i>Account Number *
+                </label>
+                <input
+                  type="text"
+                  id="accountNumber"
+                  class="form-control"
+                  formControlName="accountNumber"
+                  [class.is-invalid]="accountNumber?.invalid && accountNumber?.touched"
+                  placeholder="Enter account number">
+                <div *ngIf="accountNumber?.invalid && accountNumber?.touched" class="invalid-feedback">
+                  <div *ngIf="accountNumber?.errors?.['required']">Account number is required</div>
+                  <div *ngIf="accountNumber?.errors?.['pattern']">Account number must be 10-20 digits</div>
+                </div>
+              </div>
+
+              <!-- IFSC Code -->
+              <div class="col-md-6 mb-3">
+                <label for="ifsc" class="form-label">
+                  <i class="fas fa-code me-1"></i>IFSC Code *
+                </label>
+                <input
+                  type="text"
+                  id="ifsc"
+                  class="form-control"
+                  formControlName="ifsc"
+                  [class.is-invalid]="ifsc?.invalid && ifsc?.touched"
+                  placeholder="Enter IFSC code"
+                  style="text-transform: uppercase;">
+                <div *ngIf="ifsc?.invalid && ifsc?.touched" class="invalid-feedback">
+                  <div *ngIf="ifsc?.errors?.['required']">IFSC code is required</div>
+                  <div *ngIf="ifsc?.errors?.['pattern']">Invalid IFSC format (e.g., ABCD0123456)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Address Information Section -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <h5 class="text-success mb-3">
+                  <i class="fas fa-map-marker-alt me-2"></i>
+                  Address Information
+                </h5>
+              </div>
+              
+              <!-- City -->
+              <div class="col-md-4 mb-3">
+                <label for="city" class="form-label">
+                  <i class="fas fa-city me-1"></i>City *
+                </label>
+                <input
+                  type="text"
+                  id="city"
+                  class="form-control"
+                  formControlName="city"
+                  [class.is-invalid]="city?.invalid && city?.touched"
+                  placeholder="Enter city">
+                <div *ngIf="city?.invalid && city?.touched" class="invalid-feedback">
+                  <div *ngIf="city?.errors?.['required']">City is required</div>
+                  <div *ngIf="city?.errors?.['minlength']">City must be at least 2 characters</div>
+                </div>
+              </div>
+
+              <!-- State -->
+              <div class="col-md-4 mb-3">
+                <label for="state" class="form-label">
+                  <i class="fas fa-map me-1"></i>State *
+                </label>
+                <input
+                  type="text"
+                  id="state"
+                  class="form-control"
+                  formControlName="state"
+                  [class.is-invalid]="state?.invalid && state?.touched"
+                  placeholder="Enter state">
+                <div *ngIf="state?.invalid && state?.touched" class="invalid-feedback">
+                  <div *ngIf="state?.errors?.['required']">State is required</div>
+                  <div *ngIf="state?.errors?.['minlength']">State must be at least 2 characters</div>
+                </div>
+              </div>
+
+              <!-- Pin Code -->
+              <div class="col-md-4 mb-3">
+                <label for="pinCode" class="form-label">
+                  <i class="fas fa-map-pin me-1"></i>Pin Code *
+                </label>
+                <input
+                  type="text"
+                  id="pinCode"
+                  class="form-control"
+                  formControlName="pinCode"
+                  [class.is-invalid]="pinCode?.invalid && pinCode?.touched"
+                  placeholder="Enter 6-digit pin code">
+                <div *ngIf="pinCode?.invalid && pinCode?.touched" class="invalid-feedback">
+                  <div *ngIf="pinCode?.errors?.['required']">Pin code is required</div>
+                  <div *ngIf="pinCode?.errors?.['pattern']">Pin code must be exactly 6 digits</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="row">
+              <div class="col-12">
+                <div class="d-flex justify-content-end gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="resetForm()"
+                    [disabled]="isSubmitting">
+                    <i class="fas fa-undo me-2"></i>
+                    Reset
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-success"
+                    [disabled]="createVendorForm.invalid || isSubmitting">
+                    <i class="fas fa-save me-2" [class.fa-spin]="isSubmitting"></i>
+                    {{ isSubmitting ? 'Creating...' : 'Create Vendor' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
