@@ -1,1 +1,286 @@
-<p>manage-employee-component works!</p>
+<app-org-dashboard-navbar></app-org-dashboard-navbar>
+
+<div class="container-fluid manage-employee-container">
+  <div class="row">
+    <div class="col-12">
+      <!-- Header Section -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-users me-2"></i>
+              Manage Employees
+            </h4>
+            <button class="btn btn-light btn-sm" routerLink="/org-dashboard/create-employee">
+              <i class="fas fa-plus me-2"></i>
+              Add New Employee
+            </button>
+          </div>
+        </div>
+        
+        <!-- Filters and Controls -->
+        <div class="card-body">
+          <!-- Search Section -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="fas fa-search"></i>
+                </span>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  placeholder="Search by Employee ID..." 
+                  [(ngModel)]="searchId"
+                  (keypress)="onSearchKeyPress($event)"
+                  [disabled]="isSearching">
+                <button 
+                  class="btn btn-primary" 
+                  type="button" 
+                  (click)="searchEmployee()"
+                  [disabled]="!searchId || isSearching">
+                  <i class="fas fa-search me-2" [class.fa-spin]="isSearching"></i>
+                  {{ isSearching ? 'Searching...' : 'Search' }}
+                </button>
+                <button 
+                  class="btn btn-outline-secondary" 
+                  type="button" 
+                  (click)="clearSearch()"
+                  [disabled]="!isSearchMode && !searchId">
+                  <i class="fas fa-times me-2"></i>
+                  Clear
+                </button>
+              </div>
+              <small class="text-muted mt-1 d-block">
+                <i class="fas fa-info-circle me-1"></i>
+                {{ isSearchMode ? 'Showing search results' : 'Enter Employee ID to search for a specific employee' }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Sort and Pagination Controls (hidden during search) -->
+          <div class="row align-items-center mb-3" *ngIf="!isSearchMode">
+            <div class="col-md-4">
+              <label for="sortBy" class="form-label">Sort By:</label>
+              <select 
+                id="sortBy" 
+                class="form-select" 
+                [(ngModel)]="sortBy" 
+                (change)="onSortChange()">
+                <option *ngFor="let option of sortOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="col-md-3">
+              <label for="pageSize" class="form-label">Items per page:</label>
+              <select 
+                id="pageSize" 
+                class="form-select" 
+                [(ngModel)]="pageSize" 
+                (change)="onPageSizeChange()">
+                <option *ngFor="let size of pageSizes" [value]="size">
+                  {{ size }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="col-md-3">
+              <label class="form-label">&nbsp;</label>
+              <button 
+                class="btn btn-outline-primary d-block" 
+                (click)="refreshEmployees()"
+                [disabled]="isLoading">
+                <i class="fas fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>
+                Refresh
+              </button>
+            </div>
+            
+            <div class="col-md-2 text-end">
+              <small class="text-muted">
+                Total: {{ totalElements }} employees
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Loading employees...</p>
+      </div>
+
+      <!-- Employees Table -->
+      <div *ngIf="(!isLoading && !isSearching) && displayedEmployees.length > 0" class="card shadow-sm border-0">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-primary">
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Department</th>
+                  <th scope="col">Salary</th>
+                  <th scope="col">Joined Date</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Account Details</th>
+                  <th scope="col" class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let employee of displayedEmployees; let i = index" 
+                    class="employee-row" 
+                    [class.table-warning]="!employee.active">
+                  <td class="fw-bold">{{ employee.employeeId }}</td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-circle me-2">
+                        {{ employee.employeeName.charAt(0).toUpperCase() }}
+                      </div>
+                      <span class="fw-medium">{{ employee.employeeName }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge bg-info">{{ employee.employeeRole }}</span>
+                  </td>
+                  <td>
+                    <a [href]="'mailto:' + employee.email" class="text-decoration-none">
+                      {{ employee.email }}
+                    </a>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary">{{ employee.department }}</span>
+                  </td>
+                  <td class="fw-bold text-success">
+                    {{ formatSalary(employee.salary) }}
+                  </td>
+                  <td>{{ formatDate(employee.joinedDate) }}</td>
+                  <td>
+                    <span [class]="getStatusBadgeClass(employee.active)">
+                      {{ getStatusText(employee.active) }}
+                    </span>
+                  </td>
+                  <td>
+                    <small class="text-muted">
+                      <div><strong>A/C:</strong> {{ employee.accountNumber }}</div>
+                      <div><strong>IFSC:</strong> {{ employee.ifsc }}</div>
+                    </small>
+                  </td>
+                  <td class="text-center">
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button 
+                        type="button" 
+                        class="btn btn-outline-primary"
+                        title="View Details">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button 
+                        type="button" 
+                        class="btn btn-outline-warning"
+                        title="Edit Employee" routerLink="/org-dashboard/edit-employee/{{employee.employeeId}}">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button 
+                        type="button" 
+                        class="btn btn-outline-danger"
+                        title="Delete Employee"
+                        (click)="deleteEmployee(employee.employeeId, employee.employeeName)"
+                        [disabled]="isDeleting(employee.employeeId)">
+                        <i class="fas fa-trash" [class.fa-spin]="isDeleting(employee.employeeId)"></i>
+                        <span *ngIf="isDeleting(employee.employeeId)" class="ms-1">Deleting...</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="displayedEmployees.length === 0 && !isLoading && !isSearching" class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">
+              {{ isSearchMode ? 'No employee found' : 'No employees found' }}
+            </h5>
+            <p class="text-muted mb-3">
+              {{ isSearchMode ? 'Try searching with a different Employee ID.' : 'Start by adding your first employee to the organization.' }}
+            </p>
+            <button *ngIf="!isSearchMode" class="btn btn-primary" routerLink="/org-dashboard/create-employee">
+              <i class="fas fa-plus me-2"></i>
+              Add First Employee
+            </button>
+            <button *ngIf="isSearchMode" class="btn btn-outline-primary" (click)="clearSearch()">
+              <i class="fas fa-arrow-left me-2"></i>
+              Back to All Employees
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="showPagination" class="d-flex justify-content-between align-items-center mt-4">
+        <div class="pagination-info">
+          <small class="text-muted">
+            Showing {{ currentPage * pageSize + 1 }} to 
+            {{ Math.min((currentPage + 1) * pageSize, totalElements) }} 
+            of {{ totalElements }} entries
+          </small>
+        </div>
+
+        <nav aria-label="Employee pagination">
+          <ul class="pagination pagination-sm mb-0">
+            <!-- First Page -->
+            <li class="page-item" [class.disabled]="currentPage === 0">
+              <button class="page-link" (click)="onPageChange(0)" [disabled]="currentPage === 0">
+                <i class="fas fa-angle-double-left"></i>
+              </button>
+            </li>
+            
+            <!-- Previous Page -->
+            <li class="page-item" [class.disabled]="currentPage === 0">
+              <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">
+                <i class="fas fa-angle-left"></i>
+              </button>
+            </li>
+
+            <!-- Page Numbers -->
+            <li *ngFor="let page of getPageNumbers()" 
+                class="page-item" 
+                [class.active]="page === currentPage">
+              <button class="page-link" (click)="onPageChange(page)">
+                {{ page + 1 }}
+              </button>
+            </li>
+
+            <!-- Next Page -->
+            <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+              <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+                <i class="fas fa-angle-right"></i>
+              </button>
+            </li>
+            
+            <!-- Last Page -->
+            <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+              <button class="page-link" (click)="onPageChange(totalPages - 1)" [disabled]="currentPage === totalPages - 1">
+                <i class="fas fa-angle-double-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>

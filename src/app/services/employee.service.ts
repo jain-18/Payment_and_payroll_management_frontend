@@ -3,6 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { EmployeeRequest } from '../model/employee-request.model';
 import { EmployeeResponse } from '../model/employee-response.model';
+import { EmployeeUpdateRequest } from '../model/employee-update-request.model';
+import { EmployeePageResponse } from '../model/pageable-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -36,18 +38,25 @@ export class EmployeeService {
     );
   }
 
-  getAllEmployees(page: number = 0, size: number = 10, sortBy: string = 'employeeName'): Observable<any> {
+  searchEmployeeById(id: number): Observable<EmployeeResponse> {
+    return this.http.get<EmployeeResponse>(
+      `${this.baseUrl}/${id}`, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  getAllEmployees(page: number = 0, size: number = 10, sortBy: string = 'employeeName'): Observable<EmployeePageResponse> {
     const params = `?page=${page}&size=${size}&sortBy=${sortBy}`;
-    return this.http.get<any>(
+    return this.http.get<EmployeePageResponse>(
       `${this.baseUrl}${params}`, 
       { headers: this.getAuthHeaders() }
     );
   }
 
-  updateEmployee(id: number, employeeRequest: EmployeeRequest): Observable<EmployeeResponse> {
+  updateEmployee(id: number, employeeUpdateRequest: EmployeeUpdateRequest): Observable<EmployeeResponse> {
     return this.http.put<EmployeeResponse>(
       `${this.baseUrl}/${id}`, 
-      employeeRequest, 
+      employeeUpdateRequest, 
       { headers: this.getAuthHeaders() }
     );
   }

@@ -8,6 +8,11 @@ import { OrgDashboardComponent } from './organization/org-dashboard-component/or
 import { OrgRegisterComponent } from './org-register-component/org-register-component';
 import { CreateEmployeeComponent } from './organization/create-employee-component/create-employee-component';
 import { AdminOrgainzationComponent } from './admin/admin-orgainzation-component/admin-orgainzation-component';
+import { ManageEmployeeComponent } from './organization/manage-employee-component/manage-employee-component';
+import { EditEmployeeComponent } from './organization/edit-employee-component/edit-employee-component';
+import { CreateVendorComponent } from './organization/create-vendor-component/create-vendor-component';
+import { ManageVendorComponent } from './organization/manage-vendor-component/manage-vendor-component';
+import { EditVendorComponent } from './organization/edit-vendor-component/edit-vendor-component';
 
 export const routes: Routes = [
     {path:'', redirectTo:'home', pathMatch:'full'},
@@ -19,5 +24,10 @@ export const routes: Routes = [
     {path:'admin/admin-orgainzation', component: AdminOrgainzationComponent},
     {path:'org-dashboard', component: OrgDashboardComponent},
     {path:'org-register', component: OrgRegisterComponent},
-    {path:'org-dashboard/create-employee', component: CreateEmployeeComponent}
+    {path:'org-dashboard/create-employee', component: CreateEmployeeComponent},
+    {path:'org-dashboard/manage-employee', component: ManageEmployeeComponent},
+    {path:'org-dashboard/edit-employee/:id', component: EditEmployeeComponent},
+    {path:'org-dashboard/create-vendor', component: CreateVendorComponent},
+    {path:'org-dashboard/manage-vendor', component: ManageVendorComponent},
+    {path:'org-dashboard/edit-vendor/:id', component: EditVendorComponent}
 ];
