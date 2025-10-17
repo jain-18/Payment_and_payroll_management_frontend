@@ -32,24 +32,87 @@
         </div>
 
         <div class="card-body">
+            <!-- Search and Filters -->
+            <div class="row mb-4">
+                <!-- Search Input -->
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               placeholder="Search by company name (optional)..."
+                               [(ngModel)]="searchTerm"
+                               (ngModelChange)="onSearch()"
+                               title="Optional: Search by company name">
+                    </div>
+                </div>
+                
+                <!-- Filters -->
+                <div class="col-md-8">
+                    <div class="d-flex gap-2 align-items-center">
+                        <!-- Status Filter -->
+                        <select class="form-select" 
+                                [(ngModel)]="statusFilter"
+                                (ngModelChange)="onFilterChange()"
+                                title="Filter by status">
+                            <option value="">All Status</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="APPROVED">Approved</option>
+                            <option value="REJECTED">Rejected</option>
+                        </select>
+
+                        <!-- Request Type Filter -->
+                        <select class="form-select"
+                                [(ngModel)]="typeFilter"
+                                (ngModelChange)="onFilterChange()"
+                                title="Filter by request type">
+                            <option value="">All Types</option>
+                            <option value="SALARYPAYMENT">Salary Payment</option>
+                            <option value="VENDORPAYMENT">Vendor Payment</option>
+                        </select>
+
+                        <!-- Clear Filters Button -->
+                        <button class="btn btn-outline-secondary btn-sm"
+                                (click)="clearFilters()"
+                                title="Clear all filters"
+                                [disabled]="!searchTerm && !statusFilter && !typeFilter">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="row mb-3" *ngIf="allRequests.length > 0">
+                <div class="col-12">
+                    <small class="text-muted">
+                        Showing {{ currentPage * pageSize + 1 }} to {{ Math.min((currentPage + 1) * pageSize, totalElements) }} 
+                        of {{ totalElements }} results
+                        <span *ngIf="searchTerm || statusFilter || typeFilter"> (filtered)</span>
+                    </small>
+                </div>
+            </div>
+
             <!-- Requests Table -->
-            <div class="table-responsive">
+            <div class="table-responsive" *ngIf="allRequests.length > 0">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th (click)="onSortChange('requestId')">#</th>
-                            <th (click)="onSortChange('requestType')">Type</th>
-                            <th (click)="onSortChange('requestStatus')">Status</th>
-                            <th (click)="onSortChange('createdBy')">Created By</th>
-                            <th (click)="onSortChange('to')">To</th>
-                            <th (click)="onSortChange('requestDate')">Date</th>
-                            <th (click)="onSortChange('totalAmount')">Amount</th>
+                            <th>S.No</th>
+                            <th (click)="onSortChange('requestType')" style="cursor: pointer;">Type <i class="bi bi-arrow-down-up"></i></th>
+                            <th (click)="onSortChange('requestStatus')" style="cursor: pointer;">Status <i class="bi bi-arrow-down-up"></i></th>
+                            <th (click)="onSortChange('createdBy')" style="cursor: pointer;">Created By <i class="bi bi-arrow-down-up"></i></th>
+                            <th (click)="onSortChange('to')" style="cursor: pointer;">To <i class="bi bi-arrow-down-up"></i></th>
+                            <th (click)="onSortChange('requestDate')" style="cursor: pointer;">Date <i class="bi bi-arrow-down-up"></i></th>
+                            <th (click)="onSortChange('totalAmount')" style="cursor: pointer;">Amount <i class="bi bi-arrow-down-up"></i></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let request of allRequests">
-                            <td>{{ request.requestId }}</td>
+                        <tr *ngFor="let request of allRequests; let i = index">
+                            <td>{{ currentPage * pageSize + i + 1 }}</td>
                             <td>{{ request.requestType }}</td>
                             <td>
                                 <span class="badge" [ngClass]="{
@@ -65,19 +128,32 @@
                             <td>{{ request.requestDate | date:'mediumDate' }}</td>
                             <td>₹{{ request.totalAmount | number:'1.2-2' }}</td>
                             <td>
-                                <button class="btn btn-sm btn-primary me-1">
+                                <button class="btn btn-sm btn-primary me-1" title="View Details">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                <button class="btn btn-sm btn-success me-1" *ngIf="request.requestStatus === 'PENDING'">
+                                <button class="btn btn-sm btn-success me-1" 
+                                        *ngIf="request.requestStatus === 'PENDING'"
+                                        title="Approve">
                                     <i class="bi bi-check-lg"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger" *ngIf="request.requestStatus === 'PENDING'">
+                                <button class="btn btn-sm btn-danger" 
+                                        *ngIf="request.requestStatus === 'PENDING'"
+                                        title="Reject">
                                     <i class="bi bi-x-lg"></i>
                                 </button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- No Results -->
+            <div class="text-center py-5" *ngIf="allRequests.length === 0 && !loading">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h5 class="mt-3 text-muted">No requests found</h5>
+                <p class="text-muted" *ngIf="searchTerm || statusFilter || typeFilter">
+                    Try adjusting your search criteria or clear filters to see more results.
+                </p>
             </div>
 
             <!-- Pagination -->
@@ -90,10 +166,13 @@
                         <a class="page-link" (click)="onPageChange(currentPage - 1)" role="button">Previous</a>
                     </li>
                     
-                    <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
-                        [class.active]="i === currentPage">
-                        <a class="page-link" (click)="onPageChange(i)" role="button">{{ i + 1 }}</a>
-                    </li>
+                    <ng-container *ngFor="let page of [].constructor(totalPages); let i = index">
+                        <li class="page-item" 
+                            *ngIf="i >= Math.max(0, currentPage - 2) && i <= Math.min(totalPages - 1, currentPage + 2)"
+                            [class.active]="i === currentPage">
+                            <a class="page-link" (click)="onPageChange(i)" role="button">{{ i + 1 }}</a>
+                        </li>
+                    </ng-container>
                     
                     <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
                         <a class="page-link" (click)="onPageChange(currentPage + 1)" role="button">Next</a>

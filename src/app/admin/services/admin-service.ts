@@ -50,9 +50,9 @@ export class AdminService {
       params = params.set('name', request.searchTerm);
     }
 
-    return this.http.get<PageResponse<OrganizationResponse>>(`${this.apiUrlOfOrg}`, { 
+    return this.http.get<PageResponse<OrganizationResponse>>(`${this.apiUrlOfOrg}`, {
       ...this.getHeaders(),
-      params 
+      params
     });
   }
 
@@ -68,9 +68,9 @@ export class AdminService {
     console.log('Request params:', params.toString());
 
     // Send as URL parameters with empty body
-    return this.http.post<void>(`${this.apiUrlOfOrg}/status`, null, { 
+    return this.http.post<void>(`${this.apiUrlOfOrg}/status`, null, {
       ...this.getHeaders(),
-      params 
+      params
     });
   }
 
@@ -79,31 +79,89 @@ export class AdminService {
       .set('organizationName', searchTerm)
       .set('page', '0')
       .set('size', '10');
-    return this.http.get<PageResponse<OrganizationResponse>>(`${this.apiUrlOfOrg}/by-name`, { 
+    return this.http.get<PageResponse<OrganizationResponse>>(`${this.apiUrlOfOrg}/by-name`, {
       ...this.getHeaders(),
-      params 
+      params
     });
   }
 
   getOrganizationById(orgId: number): Observable<OrgInfoResponse> {
     const params = new HttpParams()
       .set('id', orgId.toString());
-    return this.http.get<OrgInfoResponse>(`${this.apiUrlOfOrg}/orgInfo`, { 
+    return this.http.get<OrgInfoResponse>(`${this.apiUrlOfOrg}/orgInfo`, {
       ...this.getHeaders(),
-      params 
+      params
     });
   }
 
-  getAllRequests(page: number = 0, size: number = 10, sortBy: string = 'requestDate'): Observable<PageResponse<AllRequest>> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString())
-      .set('sortBy', sortBy)
+  getAllRequests(params: {
+    page: number,
+    size: number,
+    sort: string,
+    search?: string,
+    status?: string,
+    type?: string
+  }): Observable<PageResponse<AllRequest>> {
+    let httpParams = new HttpParams()
+      .set('page', params.page.toString())
+      .set('size', params.size.toString())
+      .set('sortBy', params.sort)
       .set('sortDir', 'DESC');
 
-    return this.http.get<PageResponse<AllRequest>>(`${this.apiUrlofAdmin}/all-request`, { 
+    // Add filters regardless of search term
+    if (params.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    if (params.type) {
+      httpParams = httpParams.set('requestType', params.type);
+    }
+    
+    // Choose endpoint and add search parameter if needed
+    if (params.search) {
+      httpParams = httpParams.set('companyName', params.search);
+      // Use company search endpoint when search term is provided
+      return this.http.get<PageResponse<AllRequest>>(`${this.apiUrlofAdmin}/getRequestByCompany`, {
+        ...this.getHeaders(),
+        params: httpParams
+      });
+    } else {
+      // Use all requests endpoint when no search term
+      return this.http.get<PageResponse<AllRequest>>(`${this.apiUrlofAdmin}/all-request`, {
+        ...this.getHeaders(),
+        params: httpParams
+      });
+    }
+  }
+
+  getRequestByCompanyName(params: {
+    search: string,
+    page: number,
+    size: number,
+    sort: string,
+    type?: string,
+    status?: string
+  }): Observable<PageResponse<AllRequest>> {
+    let httpParams = new HttpParams()
+      .set('page', params.page.toString())
+      .set('size', params.size.toString())
+      .set('sortBy', params.sort)
+      .set('sortDir', 'DESC');
+    
+    // Only add companyName parameter if search term is provided
+    if (params.search && params.search.trim()) {
+      httpParams = httpParams.set('companyName', params.search.trim());
+    }
+    
+    if (params.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    if (params.type) {
+      httpParams = httpParams.set('requestType', params.type);
+    }
+    
+    return this.http.get<PageResponse<AllRequest>>(`${this.apiUrlofAdmin}/getRequestByCompany`, {
       ...this.getHeaders(),
-      params 
+      params: httpParams
     });
   }
 }
