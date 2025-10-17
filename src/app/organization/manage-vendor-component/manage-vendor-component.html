@@ -148,7 +148,7 @@
               <tbody>
                 <tr *ngFor="let vendor of displayedVendors; let i = index" 
                     class="vendor-row" 
-                    [class.table-warning]="!vendor.isActive">
+                    [class.table-warning]="!vendor.active">
                   <td class="fw-bold">{{ vendor.vendorId }}</td>
                   <td>
                     <div class="d-flex align-items-center">
@@ -181,8 +181,8 @@
                     </small>
                   </td>
                   <td>
-                    <span [class]="vendor.isActive ? 'badge bg-success' : 'badge bg-danger'">
-                      {{ vendor.isActive ? 'Active' : 'Inactive' }}
+                    <span [class]="vendor.active ? 'badge bg-success' : 'badge bg-danger'">
+                      {{ vendor.active ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
                   <td class="text-center">
