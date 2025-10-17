@@ -1,0 +1,208 @@
+<div class="request-details-container">
+    <!-- Header -->
+    <div class="header">
+        <h2>Request Details</h2>
+        <a routerLink="/admin/all-request">
+            <button type="button" class="btn btn-secondary">
+                ← Back to Requests
+            </button>
+        </a>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading request details...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+        <span class="error-icon">⚠️</span>
+        {{ errorMessage }}
+        <button type="button" class="close-btn" (click)="clearMessages()">×</button>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="alert alert-success">
+        <span class="success-icon">✅</span>
+        {{ successMessage }}
+    </div>
+
+    <!-- Request Details -->
+    <div *ngIf="requestDetails && !isLoading" class="request-details">
+        <!-- Request Information Card -->
+        <div class="info-card">
+            <h3>Request Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Request ID:</label>
+                    <span>{{ requestDetails.requestId }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Type:</label>
+                    <span class="request-type" [class.salary]="isSalaryRequest" [class.vendor]="isVendorRequest">
+                        {{ requestDetails.requestType | titlecase }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Status:</label>
+                    <span class="status" [ngClass]="'status-' + requestDetails.requestStatus.toLowerCase()">
+                        {{ requestDetails.requestStatus | titlecase }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Created By:</label>
+                    <span>{{ requestDetails.createdBy }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Request Date:</label>
+                    <span>{{ formattedRequestDate }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Action Date:</label>
+                    <span>{{ formattedActionDate }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Information Card -->
+        <div class="info-card">
+            <h3>Financial Details</h3>
+            <div class="financial-grid">
+                <div class="financial-item">
+                    <label>Total Amount:</label>
+                    <span class="amount">{{ formattedTotalAmount }}</span>
+                </div>
+                <div class="financial-item">
+                    <label>Balance:</label>
+                    <span class="amount">{{ formattedBalance }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejection Reason (if exists) -->
+        <div *ngIf="requestDetails.rejectReason" class="info-card rejection-card">
+            <h3>Rejection Details</h3>
+            <p class="rejection-reason">{{ requestDetails.rejectReason }}</p>
+        </div>
+
+        <!-- Action Buttons (only show if status is PENDING) -->
+        <div *ngIf="requestDetails.requestStatus.toLowerCase() === 'pending'" class="action-section">
+            <h3><i class="bi bi-gear"></i> Administrative Actions</h3>
+            
+            <!-- Simple Action Buttons -->
+            <div class="simple-actions" *ngIf="!showRejectForm">
+                <p class="action-instruction">
+                    Review the request details above and choose an action:
+                </p>
+                
+                <div class="button-group">
+                    <button 
+                        type="button" 
+                        class="btn btn-success btn-lg" 
+                        (click)="approveRequest()"
+                        [disabled]="isProcessing">
+                        <i class="bi bi-check-circle"></i>
+                        <span *ngIf="isProcessing" class="spinner-small"></span>
+                        {{ isProcessing ? 'Processing...' : 'Approve Request' }}
+                    </button>
+                    
+                    <button 
+                        type="button" 
+                        class="btn btn-danger btn-lg" 
+                        (click)="selectReject()"
+                        [disabled]="isProcessing">
+                        <i class="bi bi-x-circle"></i>
+                        Reject Request
+                    </button>
+                </div>
+                
+                <div class="action-info">
+                    <p><strong>Request Amount:</strong> {{ formattedTotalAmount }}</p>
+                    <p><strong>Request Type:</strong> {{ requestDetails.requestType | titlecase }}</p>
+                </div>
+            </div>
+            
+            <!-- Rejection Form (shown when reject is selected) -->
+            <div class="rejection-section" *ngIf="showRejectForm">
+                <div class="rejection-header">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <h4>Reject Request - Reason Required</h4>
+                </div>
+                
+                <p class="rejection-info">
+                    You have selected to reject this {{ requestDetails.requestType.toLowerCase() }} request. 
+                    Please provide a detailed reason for rejection. This will be sent to the requester.
+                </p>
+                
+                <div class="form-group">
+                    <label for="rejectReason" class="required-label">
+                        Reason for Rejection <span class="required">*</span>
+                    </label>
+                    <textarea 
+                        id="rejectReason" 
+                        [(ngModel)]="requestReject.rejectReason"
+                        placeholder="Please provide a clear and professional reason for rejecting this request..."
+                        rows="5" 
+                        class="form-control"
+                        [class.is-invalid]="!requestReject.rejectReason?.trim() && requestReject.rejectReason !== ''"
+                        [disabled]="isProcessing"
+                        maxlength="500"
+                        required>
+                    </textarea>
+                    <div class="char-counter">
+                        {{ requestReject.rejectReason?.length || 0 }}/500 characters
+                    </div>
+                    <div *ngIf="!requestReject.rejectReason?.trim() && requestReject.rejectReason !== ''" class="invalid-feedback">
+                        Please provide a reason for rejection.
+                    </div>
+                </div>
+                
+                <div class="rejection-actions">
+                    <button 
+                        type="button" 
+                        class="btn btn-danger btn-lg" 
+                        (click)="confirmReject()"
+                        [disabled]="isProcessing || !requestReject.rejectReason?.trim()">
+                        <i class="bi bi-x-lg"></i>
+                        <span *ngIf="isProcessing" class="spinner-small"></span>
+                        {{ isProcessing ? 'Rejecting...' : 'Confirm Rejection' }}
+                    </button>
+                    
+                    <button 
+                        type="button" 
+                        class="btn btn-secondary" 
+                        (click)="cancelReject()"
+                        [disabled]="isProcessing">
+                        <i class="bi bi-arrow-left"></i>
+                        Cancel
+                    </button>
+                </div>
+                
+                <div *ngIf="!requestReject.rejectReason?.trim()" class="rejection-warning">
+                    <i class="bi bi-info-circle"></i>
+                    Please enter a rejection reason to enable the confirmation button.
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Message for Non-Pending Requests -->
+        <div *ngIf="requestDetails.requestStatus.toLowerCase() !== 'pending'" class="status-message">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                This request has already been <strong>{{ requestDetails.requestStatus.toLowerCase() }}</strong>. 
+                No further administrative actions are available.
+            </div>
+        </div>
+    </div>
+
+    <!-- No Data State -->
+    <div *ngIf="!requestDetails && !isLoading && !errorMessage" class="no-data">
+        <div class="no-data-icon">📄</div>
+        <h3>No Request Found</h3>
+        <p>The requested details could not be found.</p>
+        <button type="button" class="btn btn-primary" (click)="goBack()">
+            Return to Requests List
+        </button>
+    </div>
+</div>

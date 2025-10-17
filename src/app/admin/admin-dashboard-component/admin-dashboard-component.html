@@ -69,13 +69,14 @@
               <h6 class="card-title mb-0">Pending Requests</h6>
             </div>
             <h2 class="fw-bold mb-0">{{ adminData.totalPendingRequest }}</h2>
-            <button class="btn btn-outline-primary btn-sm mt-3" (click)="viewAllRequests()">
-              View Details <i class="bi bi-arrow-right ms-1"></i>
-            </button>
+            <a [href]="'/admin/admin-request'">
+              <button class="btn btn-outline-primary btn-sm mt-3">
+                View Details <i class="bi bi-arrow-right ms-1"></i>
+              </button>
+            </a>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-

@@ -8,6 +8,9 @@ import { OrgDashboardComponent } from './organization/org-dashboard-component/or
 import { OrgRegisterComponent } from './org-register-component/org-register-component';
 import { CreateEmployeeComponent } from './organization/create-employee-component/create-employee-component';
 import { AdminOrgainzationComponent } from './admin/admin-orgainzation-component/admin-orgainzation-component';
+import { ViewOrganizationComponent } from './admin/view-organization-component/view-organization-component';
+import { AdminRequestComponent } from './admin/admin-request-component/admin-request-component';
+import { AdminSingleRequestComponent } from './admin/admin-single-request-component/admin-single-request-component';
 import { ManageEmployeeComponent } from './organization/manage-employee-component/manage-employee-component';
 import { EditEmployeeComponent } from './organization/edit-employee-component/edit-employee-component';
 import { CreateVendorComponent } from './organization/create-vendor-component/create-vendor-component';
@@ -23,6 +26,9 @@ export const routes: Routes = [
     {path:'employee-login', component: EmployeeLogin},
     {path:'admin/admin-dashboard', component: AdminDashboardComponent},
     {path:'admin/admin-orgainzation', component: AdminOrgainzationComponent},
+    {path:'admin/organizations/:id', component: ViewOrganizationComponent},
+    {path:'admin/all-request', component: AdminRequestComponent},
+    {path:'admin/request/:id', component: AdminSingleRequestComponent},
     {path:'org-dashboard', component: OrgDashboardComponent},
     {path:'org-register', component: OrgRegisterComponent},
     {path:'org-dashboard/create-employee', component: CreateEmployeeComponent},
