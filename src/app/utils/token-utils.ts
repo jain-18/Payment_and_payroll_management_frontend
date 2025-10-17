@@ -1,6 +1,13 @@
 export class TokenUtils {
+  private static isBrowser(): boolean {
+    return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+  }
+
   static getToken(): string | null {
-    return localStorage.getItem('token');
+    if (this.isBrowser()) {
+      return localStorage.getItem('token');
+    }
+    return null;
   }
 
   static isTokenExpired(token: string): boolean {
@@ -19,16 +26,28 @@ export class TokenUtils {
   static isValidToken(): boolean {
     const token = this.getToken();
     if (!token) {
-      console.log('No token found in localStorage');
+      console.log('TokenUtils: No token found in localStorage');
+      return false;
+    }
+
+    if (token.trim() === '') {
+      console.log('TokenUtils: Token is empty string');
+      return false;
+    }
+
+    // Check if token has proper JWT format (3 parts separated by dots)
+    const tokenParts = token.split('.');
+    if (tokenParts.length !== 3) {
+      console.log('TokenUtils: Token does not have proper JWT format');
       return false;
     }
 
     if (this.isTokenExpired(token)) {
-      console.log('Token is expired');
+      console.log('TokenUtils: Token is expired');
       return false;
     }
 
-    console.log('Token is valid');
+    console.log('TokenUtils: Token is valid');
     return true;
   }
 
@@ -49,11 +68,22 @@ export class TokenUtils {
     const token = this.getToken();
     console.log('=== Token Debug Info ===');
     console.log('Token exists:', !!token);
+    console.log('Token value:', token ? token.substring(0, 50) + '...' : 'null');
     if (token) {
       console.log('Token length:', token.length);
+      console.log('Token parts count:', token.split('.').length);
       console.log('Token expired:', this.isTokenExpired(token));
       console.log('Token payload:', this.getTokenPayload());
+      
+      // Additional checks
+      if (token.trim() === '') {
+        console.log('⚠️ Token is empty string');
+      }
+      if (token.split('.').length !== 3) {
+        console.log('⚠️ Token does not have proper JWT format');
+      }
     }
+    console.log('Is Valid:', this.isValidToken());
     console.log('========================');
   }
 }

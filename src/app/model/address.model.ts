@@ -3,3 +3,5 @@ export interface Address {
     state: string;
     pinCode: string;
 }
+
+export type AddressCreateRequest = Address;

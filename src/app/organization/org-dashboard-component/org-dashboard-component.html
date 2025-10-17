@@ -69,12 +69,17 @@
   <!-- Quick Stats Row -->
   <div class="row g-4 mt-4">
     <div class="col-lg-3 col-md-6">
-      <div class="card stats-card border-primary">
+      <div class="card stats-card border-primary" style="cursor: pointer;" routerLink="/org-dashboard/manage-employee">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h6 class="card-subtitle mb-2 text-muted">Total Employees</h6>
-              <h4 class="card-title text-primary mb-0">--</h4>
+              <h4 class="card-title text-primary mb-0">
+                <span *ngIf="!isLoadingStats">{{ totalEmployees }}</span>
+                <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </span>
+              </h4>
             </div>
             <i class="fas fa-users fa-2x text-primary opacity-75"></i>
           </div>

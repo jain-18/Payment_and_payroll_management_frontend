@@ -150,13 +150,10 @@ export class CreateEmployeeComponent implements OnInit {
           this.isSubmitting = false;
           this.successMessage = `Employee "${response.employeeName}" created successfully with ID: ${response.employeeId}`;
           
-          // Reset form after successful creation
+          // Navigate to manage employees page after successful creation
           setTimeout(() => {
-            this.createEmployeeForm.reset();
-            this.successMessage = '';
-            // Optionally navigate to manage employees page
-            // this.router.navigate(['/org-dashboard/manage-employee']);
-          }, 3000);
+            this.router.navigate(['/org-dashboard/manage-employee']);
+          }, 2000);
         },
         error: (error) => {
           this.isSubmitting = false;
