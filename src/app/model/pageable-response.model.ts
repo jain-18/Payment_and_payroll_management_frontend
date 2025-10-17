@@ -1,4 +1,5 @@
 import { EmployeeResponse } from './employee-response.model';
+import { VendorResponse } from './vendor-response.model';
 
 export interface PageableResponse<T> {
   content: T[];
@@ -30,3 +31,4 @@ export interface PageableResponse<T> {
 }
 
 export type EmployeePageResponse = PageableResponse<EmployeeResponse>;
+export type VendorPageResponse = PageableResponse<VendorResponse>;

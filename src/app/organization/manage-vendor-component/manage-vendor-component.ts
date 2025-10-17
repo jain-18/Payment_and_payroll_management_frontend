@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { VendorService } from '../../services/vendor.service';
 import { VendorResponse } from '../../model/vendor-response.model';
+import { VendorPageResponse } from '../../model/pageable-response.model';
 import { OrgDashboardNavbar } from '../org-dashboard-navbar/org-dashboard-navbar';
 
 @Component({
@@ -28,12 +29,50 @@ export class ManageVendorComponent implements OnInit {
   
   // Expose Math to template
   Math = Math;
+  
+  // Pagination properties
+  currentPage = 0;
+  pageSize = 10;
+  totalElements = 0;
+  totalPages = 0;
+  pageSizes = [5, 10, 15, 20];
+  
+  // Sorting properties
+  sortBy = 'vendorName';
+  sortDirection = 'asc';
+  sortOptions = [
+    { value: 'vendorName', label: 'Vendor Name' },
+    { value: 'email', label: 'Email' },
+    { value: 'phoneNumber', label: 'Phone Number' }
+  ];
 
   constructor(
     private vendorService: VendorService,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
+
+  // List of safe sort fields that are known to work with the backend
+  private safeSortFields = ['vendorName', 'email', 'phoneNumber'];
+  
+  // Map frontend sort field names to backend field names if needed
+  private getSortFieldForBackend(frontendField: string): string {
+    // If the backend expects different field names, map them here
+    const fieldMapping: { [key: string]: string } = {
+      'vendorName': 'vendorName',
+      'email': 'email', 
+      'phoneNumber': 'phoneNumber',
+      'accountNumber': 'accountNumber',
+      'ifsc': 'ifsc'
+    };
+    
+    return fieldMapping[frontendField] || 'vendorName';
+  }
+
+  // Check if sort field is safe to use
+  private isSafeSortField(field: string): boolean {
+    return this.safeSortFields.includes(field);
+  }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -56,10 +95,13 @@ export class ManageVendorComponent implements OnInit {
     
     this.cdr.markForCheck();
 
-    this.vendorService.getAllVendors().subscribe({
-      next: (vendors: VendorResponse[]) => {
-        console.log('Vendors loaded:', vendors);
-        this.vendors = vendors || [];
+    const backendSortField = this.getSortFieldForBackend(this.sortBy);
+    this.vendorService.getAllVendors(this.currentPage, this.pageSize, backendSortField).subscribe({
+      next: (response: VendorPageResponse) => {
+        console.log('Vendors loaded:', response);
+        this.vendors = response.content || [];
+        this.totalElements = response.totalElements || 0;
+        this.totalPages = response.totalPages || 0;
         this.isLoading = false;
         console.log('Loading state set to false, vendors count:', this.vendors.length);
         this.cdr.markForCheck();
@@ -75,6 +117,29 @@ export class ManageVendorComponent implements OnInit {
           this.errorMessage = 'Access denied. You do not have permission to view vendors.';
         } else if (error.status === 0) {
           this.errorMessage = 'Cannot connect to server. Please check if the backend is running.';
+        } else if (error.status === 500) {
+          const problematicField = this.sortBy;
+          this.errorMessage = `Sorting by "${problematicField}" is not supported by the server.`;
+          
+          // Remove the problematic field from safe fields if it was there
+          const index = this.safeSortFields.indexOf(problematicField);
+          if (index > -1) {
+            this.safeSortFields.splice(index, 1);
+          }
+          
+          // Reset to default safe sort field
+          this.sortBy = 'vendorName';
+          
+          // Update sortOptions to only include safe fields
+          this.sortOptions = this.sortOptions.filter(option => 
+            this.safeSortFields.includes(option.value)
+          );
+          
+          // Try loading again with the default sort after a brief delay
+          setTimeout(() => {
+            this.errorMessage = '';
+            this.loadVendors();
+          }, 2000);
         } else {
           this.errorMessage = error.error?.message || 'Failed to load vendors. Please try again.';
         }
@@ -158,7 +223,41 @@ export class ManageVendorComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
+    this.currentPage = 0;
     this.loadVendors();
+  }
+
+  onPageChange(page: number): void {
+    if (page >= 0 && page < this.totalPages) {
+      this.currentPage = page;
+      this.loadVendors();
+    }
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 0; // Reset to first page when changing page size
+    this.loadVendors();
+  }
+
+  onSortChange(): void {
+    this.currentPage = 0; // Reset to first page when changing sort
+    this.errorMessage = ''; // Clear any previous errors
+    this.loadVendors();
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const startPage = Math.max(0, this.currentPage - 2);
+    const endPage = Math.min(this.totalPages - 1, this.currentPage + 2);
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  get showPagination(): boolean {
+    return !this.isSearchMode && this.totalPages > 1 && !this.isLoading && this.vendors.length > 0;
   }
 
   deleteVendor(vendorId: number, vendorName: string): void {
@@ -185,7 +284,14 @@ export class ManageVendorComponent implements OnInit {
         if (this.isSearchMode) {
           this.clearSearch();
         } else {
+          // Remove from vendors array
           this.vendors = this.vendors.filter(vendor => vendor.vendorId !== vendorId);
+          this.totalElements = Math.max(0, this.totalElements - 1);
+          
+          // If current page becomes empty and it's not the first page, go to previous page
+          if (this.vendors.length === 0 && this.currentPage > 0) {
+            this.currentPage--;
+          }
         }
         
         this.loadVendors();

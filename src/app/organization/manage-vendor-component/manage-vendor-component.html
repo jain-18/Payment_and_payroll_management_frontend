@@ -58,9 +58,9 @@
             </div>
           </div>
 
-          <!-- Refresh Button -->
+          <!-- Refresh and Sort Controls -->
           <div class="row align-items-center mb-3" *ngIf="!isSearchMode">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <button 
                 class="btn btn-outline-success" 
                 (click)="refreshVendors()"
@@ -70,9 +70,43 @@
               </button>
             </div>
             
-            <div class="col-md-6 text-end">
+            <div class="col-md-4">
+              <div class="d-flex align-items-center">
+                <label for="pageSize" class="form-label me-2 mb-0">Show:</label>
+                <select 
+                  id="pageSize" 
+                  class="form-select form-select-sm" 
+                  [(ngModel)]="pageSize" 
+                  (change)="onPageSizeChange()"
+                  style="width: auto;">
+                  <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+                </select>
+                <span class="ms-2 text-muted">entries</span>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="d-flex align-items-center">
+                <label for="sortBy" class="form-label me-2 mb-0">Sort by:</label>
+                <select 
+                  id="sortBy" 
+                  class="form-select form-select-sm" 
+                  [(ngModel)]="sortBy" 
+                  (change)="onSortChange()"
+                  style="width: auto;">
+                  <option *ngFor="let option of sortOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary info -->
+          <div class="row align-items-center mb-3" *ngIf="!isSearchMode">
+            <div class="col-md-12 text-end">
               <small class="text-muted">
-                Total: {{ vendors.length }} vendors
+                Total: {{ totalElements }} vendors
               </small>
             </div>
           </div>
@@ -201,6 +235,58 @@
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="showPagination" class="d-flex justify-content-between align-items-center mt-4">
+        <div class="pagination-info">
+          <small class="text-muted">
+            Showing {{ currentPage * pageSize + 1 }} to 
+            {{ Math.min((currentPage + 1) * pageSize, totalElements) }} 
+            of {{ totalElements }} entries
+          </small>
+        </div>
+
+        <nav aria-label="Vendor pagination">
+          <ul class="pagination pagination-sm mb-0">
+            <!-- First Page -->
+            <li class="page-item" [class.disabled]="currentPage === 0">
+              <button class="page-link" (click)="onPageChange(0)" [disabled]="currentPage === 0">
+                <i class="fas fa-angle-double-left"></i>
+              </button>
+            </li>
+            
+            <!-- Previous Page -->
+            <li class="page-item" [class.disabled]="currentPage === 0">
+              <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">
+                <i class="fas fa-angle-left"></i>
+              </button>
+            </li>
+
+            <!-- Page Numbers -->
+            <li *ngFor="let page of getPageNumbers()" 
+                class="page-item" 
+                [class.active]="page === currentPage">
+              <button class="page-link" (click)="onPageChange(page)">
+                {{ page + 1 }}
+              </button>
+            </li>
+
+            <!-- Next Page -->
+            <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+              <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+                <i class="fas fa-angle-right"></i>
+              </button>
+            </li>
+            
+            <!-- Last Page -->
+            <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+              <button class="page-link" (click)="onPageChange(totalPages - 1)" [disabled]="currentPage === totalPages - 1">
+                <i class="fas fa-angle-double-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>

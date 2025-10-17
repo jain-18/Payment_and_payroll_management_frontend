@@ -62,7 +62,7 @@ export class EditVendorComponent implements OnInit {
       ]],
       accountNumber: ['', [
         Validators.required,
-        Validators.pattern(/^[0-9]{10,20}$/)
+        Validators.pattern(/^[0-9]{9,18}$/)
       ]],
       ifsc: ['', [
         Validators.required,

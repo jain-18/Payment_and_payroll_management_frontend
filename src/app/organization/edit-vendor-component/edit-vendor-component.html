@@ -115,7 +115,7 @@
                 />
                 <div *ngIf="accountNumber?.invalid && (accountNumber?.dirty || accountNumber?.touched)" class="invalid-feedback">
                   <div *ngIf="accountNumber?.errors?.['required']">Account number is required</div>
-                  <div *ngIf="accountNumber?.errors?.['pattern']">Enter a valid account number (10-20 digits)</div>
+                  <div *ngIf="accountNumber?.errors?.['pattern']">Enter a valid account number (9-18 digits)</div>
                 </div>
               </div>
 
