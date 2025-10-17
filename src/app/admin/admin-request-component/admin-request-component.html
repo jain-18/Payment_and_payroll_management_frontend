@@ -128,17 +128,21 @@
                             <td>{{ request.requestDate | date:'mediumDate' }}</td>
                             <td>₹{{ request.totalAmount | number:'1.2-2' }}</td>
                             <td>
-                                <button class="btn btn-sm btn-primary me-1" title="View Details">
+                                <button class="btn btn-sm btn-primary me-1" 
+                                        title="View Details"
+                                        (click)="viewRequestDetails(request.requestId)">
                                     <i class="bi bi-eye"></i>
                                 </button>
                                 <button class="btn btn-sm btn-success me-1" 
                                         *ngIf="request.requestStatus === 'PENDING'"
-                                        title="Approve">
+                                        title="Approve"
+                                        (click)="quickApprove(request.requestId)">
                                     <i class="bi bi-check-lg"></i>
                                 </button>
                                 <button class="btn btn-sm btn-danger" 
                                         *ngIf="request.requestStatus === 'PENDING'"
-                                        title="Reject">
+                                        title="Reject"
+                                        (click)="quickReject(request.requestId)">
                                     <i class="bi bi-x-lg"></i>
                                 </button>
                             </td>

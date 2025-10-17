@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
 import { EmployeeRequest } from '../model/employee-request.model';
 import { EmployeeResponse } from '../model/employee-response.model';
@@ -9,11 +10,15 @@ import { EmployeeResponse } from '../model/employee-response.model';
 })
 export class EmployeeService {
   private baseUrl = 'http://localhost:8080/api/employees';
+  private platformId = inject(PLATFORM_ID);
 
   constructor(private http: HttpClient) { }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
+    let token = '';
+    if (isPlatformBrowser(this.platformId)) {
+      token = localStorage.getItem('token') || '';
+    }
     console.log('Retrieved token:', token ? 'Token exists' : 'No token found');
     return new HttpHeaders({
       'Content-Type': 'application/json',

@@ -4,16 +4,18 @@ import { AllRequest } from '../model/allRequest';
 import { AdminNavbarComponent } from '../admin-navbar/admin-navbar.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-admin-request-component',
   standalone: true,
-  imports: [AdminNavbarComponent, CommonModule, FormsModule],
+  imports: [AdminNavbarComponent, CommonModule, FormsModule, RouterModule],
   templateUrl: './admin-request-component.html',
   styleUrl: './admin-request-component.css'
 })
 export class AdminRequestComponent implements OnInit {
   svc = inject(AdminService);
+  private router = inject(Router);
   Math = Math; // Make Math available in template
 
   // Data
@@ -115,5 +117,31 @@ export class AdminRequestComponent implements OnInit {
     this.typeFilter = '';
     this.currentPage = 0;
     this.loadRequests();
+  }
+
+  /**
+   * Navigate to the single request details page
+   */
+  viewRequestDetails(requestId: number): void {
+    this.router.navigate(['/admin/request', requestId]);
+  }
+
+  /**
+   * Quick approve action - could redirect to single request page for approval
+   * or implement inline approval functionality
+   */
+  quickApprove(requestId: number): void {
+    // For now, navigate to the single request page for approval
+    // This ensures the user can see full details before approving
+    this.router.navigate(['/admin/request', requestId]);
+  }
+
+  /**
+   * Quick reject action - navigate to single request page for rejection with reason
+   */
+  quickReject(requestId: number): void {
+    // Navigate to the single request page for rejection
+    // This is necessary because rejection requires a reason
+    this.router.navigate(['/admin/request', requestId]);
   }
 }

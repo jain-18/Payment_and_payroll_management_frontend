@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 import { AdminData } from '../model/adminData';
 import { OrganizationResponse } from '../model/organizationResponse';
 import { PageableRequest } from '../model/pageableRequest';
@@ -8,6 +9,8 @@ import { PageResponse } from '../model/pageResponse';
 import { Observable } from 'rxjs';
 import { OrgInfoResponse } from '../model/orgInfoResponse';
 import { AllRequest } from '../model/allRequest';
+import { RequestResp } from '../model/requestResp';
+import { RequestReasonDto } from '../model/RequestReasonDto';
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +19,15 @@ export class AdminService {
   apiUrlofAdmin = `http://localhost:8080/api/admin`;
   apiUrlOfOrg = `http://localhost:8080/portal/organizations`;
 
+  private platformId = inject(PLATFORM_ID);
 
   constructor(private http: HttpClient, private router: Router) { }
 
   private getHeaders() {
-    const token = localStorage.getItem('token');
+    let token = '';
+    if (isPlatformBrowser(this.platformId)) {
+      token = localStorage.getItem('token') || '';
+    }
     return {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -33,7 +40,9 @@ export class AdminService {
   }
 
   onLogout() {
-    localStorage.removeItem('token'); // removed leading slash
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+    }
   }
 
   listOrganizations(request: PageableRequest = {}): Observable<PageResponse<OrganizationResponse>> {
@@ -115,7 +124,7 @@ export class AdminService {
     if (params.type) {
       httpParams = httpParams.set('requestType', params.type);
     }
-    
+
     // Choose endpoint and add search parameter if needed
     if (params.search) {
       httpParams = httpParams.set('companyName', params.search);
@@ -146,22 +155,53 @@ export class AdminService {
       .set('size', params.size.toString())
       .set('sortBy', params.sort)
       .set('sortDir', 'DESC');
-    
+
     // Only add companyName parameter if search term is provided
     if (params.search && params.search.trim()) {
       httpParams = httpParams.set('companyName', params.search.trim());
     }
-    
+
     if (params.status) {
       httpParams = httpParams.set('status', params.status);
     }
     if (params.type) {
       httpParams = httpParams.set('requestType', params.type);
     }
-    
+
     return this.http.get<PageResponse<AllRequest>>(`${this.apiUrlofAdmin}/getRequestByCompany`, {
       ...this.getHeaders(),
       params: httpParams
     });
+  }
+
+  getRequestDetails(requestId: number): Observable<RequestResp> {
+    const params = new HttpParams()
+      .set('requestId', requestId.toString());
+    return this.http.get<RequestResp>(`${this.apiUrlofAdmin}/singleRequest`, {
+      ...this.getHeaders(),
+      params
+    });
+  }
+  approveSalaryRequest(requestId: number): Observable<void> {
+    const params = new HttpParams()
+      .set('requestId', requestId.toString());
+    return this.http.post<void>(`${this.apiUrlofAdmin}/salaryRequestApproved`, null, {
+      ...this.getHeaders(),
+      params
+    });
+  }
+  rejectSalaryRequest( requestReject: RequestReasonDto): Observable<RequestResp> {
+    return this.http.post<RequestResp>(`${this.apiUrlofAdmin}/salaryRequestReject`, requestReject);
+  }
+  approveVendorRequest(requestId: number): Observable<void> {
+    const params = new HttpParams()
+      .set('requestId', requestId.toString());
+    return this.http.post<void>(`${this.apiUrlofAdmin}/vendorRequestApproved`, null, {
+      ...this.getHeaders(),
+      params
+    });
+  }
+  rejectVendorRequest(requestReject: RequestReasonDto): Observable<RequestResp> {
+    return this.http.post<RequestResp>(`${this.apiUrlofAdmin}/vendorRequestRejected`, requestReject);
   }
 }
