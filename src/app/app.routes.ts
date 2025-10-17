@@ -13,6 +13,7 @@ import { EditEmployeeComponent } from './organization/edit-employee-component/ed
 import { CreateVendorComponent } from './organization/create-vendor-component/create-vendor-component';
 import { ManageVendorComponent } from './organization/manage-vendor-component/manage-vendor-component';
 import { EditVendorComponent } from './organization/edit-vendor-component/edit-vendor-component';
+import { UpdateInfo } from './organization/update-info/update-info';
 
 export const routes: Routes = [
     {path:'', redirectTo:'home', pathMatch:'full'},
@@ -29,5 +30,6 @@ export const routes: Routes = [
     {path:'org-dashboard/edit-employee/:id', component: EditEmployeeComponent},
     {path:'org-dashboard/create-vendor', component: CreateVendorComponent},
     {path:'org-dashboard/manage-vendor', component: ManageVendorComponent},
-    {path:'org-dashboard/edit-vendor/:id', component: EditVendorComponent}
+    {path:'org-dashboard/edit-vendor/:id', component: EditVendorComponent},
+    {path:'org-dashboard/update-info', component: UpdateInfo}
 ];
