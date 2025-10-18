@@ -17,6 +17,8 @@ import { CreateVendorComponent } from './organization/create-vendor-component/cr
 import { ManageVendorComponent } from './organization/manage-vendor-component/manage-vendor-component';
 import { EditVendorComponent } from './organization/edit-vendor-component/edit-vendor-component';
 import { UpdateInfo } from './organization/update-info/update-info';
+import { EmployeeDashboard } from './employee/component/employee-dashboard/employee-dashboard';
+import { EmployeeSalarySlipComponent } from './employee/component/employee-salary-slip-component/employee-salary-slip-component';
 
 export const routes: Routes = [
     {path:'', redirectTo:'home', pathMatch:'full'},
@@ -26,16 +28,19 @@ export const routes: Routes = [
     {path:'employee-login', component: EmployeeLogin},
     {path:'admin/admin-dashboard', component: AdminDashboardComponent},
     {path:'admin/admin-orgainzation', component: AdminOrgainzationComponent},
-    {path:'admin/organizations/:id', component: ViewOrganizationComponent},
+    {path:'admin/organizations/:id', component: ViewOrganizationComponent, data: {prerender: false}},
     {path:'admin/all-request', component: AdminRequestComponent},
-    {path:'admin/request/:id', component: AdminSingleRequestComponent},
+    {path:'admin/request/:id', component: AdminSingleRequestComponent, data: {prerender: false}},
     {path:'org-dashboard', component: OrgDashboardComponent},
     {path:'org-register', component: OrgRegisterComponent},
     {path:'org-dashboard/create-employee', component: CreateEmployeeComponent},
     {path:'org-dashboard/manage-employee', component: ManageEmployeeComponent},
-    {path:'org-dashboard/edit-employee/:id', component: EditEmployeeComponent},
+    {path:'org-dashboard/edit-employee/:id', component: EditEmployeeComponent, data: {prerender: false}},
     {path:'org-dashboard/create-vendor', component: CreateVendorComponent},
     {path:'org-dashboard/manage-vendor', component: ManageVendorComponent},
     {path:'org-dashboard/edit-vendor/:id', component: EditVendorComponent},
-    {path:'org-dashboard/update-info', component: UpdateInfo}
+    {path:'org-dashboard/update-info', component: UpdateInfo},
+    {path:'org-dashboard/edit-vendor/:id', component: EditVendorComponent, data: {prerender: false}},
+    {path:'employee/employee-dashboard', component:EmployeeDashboard},
+    {path:'employee/salary-slips', component: EmployeeSalarySlipComponent}
 ];

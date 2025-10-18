@@ -1,191 +1,365 @@
 <app-admin-navbar></app-admin-navbar>
 
-<div class="container py-4">
-    <!-- Loading State -->
-    <div class="d-flex justify-content-center my-5" *ngIf="loading">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
+<!-- Main Content Wrapper with Gradient Background -->
+<div class="main-wrapper">
+    <div class="container-fluid py-4">
+        <!-- Loading State with Modern Spinner -->
+        <div class="loading-container" *ngIf="loading">
+            <div class="modern-loader">
+                <div class="loader-ring"></div>
+                <div class="loader-ring"></div>
+                <div class="loader-ring"></div>
+                <div class="loader-ring"></div>
+            </div>
+            <p class="loading-text mt-3">Loading requests...</p>
         </div>
-    </div>
 
-    <!-- Error State -->
-    <div class="alert alert-danger" *ngIf="error">
-        {{ error }}
-    </div>
-
-    <!-- Main Content -->
-    <div class="card" *ngIf="!loading && !error">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h3 class="mb-0">All Requests</h3>
-            <!-- Page Size Selector -->
-            <div class="d-flex align-items-center">
-                <label class="text-white me-2">Items per page:</label>
-                <select class="form-select form-select-sm" style="width: auto;" 
-                        [ngModel]="pageSize" 
-                        (ngModelChange)="onPageSizeChange($event)">
-                    <option [ngValue]="5">5</option>
-                    <option [ngValue]="10">10</option>
-                    <option [ngValue]="20">20</option>
-                    <option [ngValue]="50">50</option>
-                </select>
+        <!-- Enhanced Error State -->
+        <div class="error-container" *ngIf="error">
+            <div class="alert alert-danger shadow-sm border-0">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+                    <div>
+                        <h6 class="alert-heading mb-1">Error Occurred</h6>
+                        <p class="mb-0">{{ error }}</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card-body">
-            <!-- Search and Filters -->
-            <div class="row mb-4">
-                <!-- Search Input -->
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" 
-                               class="form-control" 
-                               placeholder="Search by company name (optional)..."
-                               [(ngModel)]="searchTerm"
-                               (ngModelChange)="onSearch()"
-                               title="Optional: Search by company name">
+        <!-- Main Content Card with Modern Design -->
+        <div class="main-card" *ngIf="!loading && !error">
+            <!-- Beautiful Header Section -->
+            <div class="card-header-modern">
+                <div class="header-content">
+                    <div class="header-title-section">
+                        <div class="icon-wrapper">
+                            <i class="bi bi-list-check"></i>
+                        </div>
+                        <div>
+                            <h2 class="header-title">All Requests</h2>
+                            <p class="header-subtitle">Manage and review payment requests</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced Page Size Selector -->
+                    <div class="page-size-selector">
+                        <label class="selector-label">Items per page:</label>
+                        <div class="custom-select-wrapper">
+                            <select class="custom-select" 
+                                    [ngModel]="pageSize" 
+                                    (ngModelChange)="onPageSizeChange($event)">
+                                <option [ngValue]="5">5</option>
+                                <option [ngValue]="10">10</option>
+                                <option [ngValue]="20">20</option>
+                                <option [ngValue]="50">50</option>
+                            </select>
+                            <i class="bi bi-chevron-down select-arrow"></i>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Enhanced Content Body -->
+            <div class="card-body-modern">
+                <!-- Modern Search and Filters Section -->
+                <div class="filters-section">
+                    <div class="row g-4">
+                        <!-- Enhanced Search Input -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="search-wrapper">
+                                <label class="filter-label">
+                                    <i class="bi bi-search me-2"></i>Search Company
+                                </label>
+                                <div class="search-input-group">
+                                    <input type="text" 
+                                           class="search-input" 
+                                           placeholder="Enter company name..."
+                                           [(ngModel)]="searchTerm"
+                                           (ngModelChange)="onSearch()"
+                                           title="Search by company name">
+                                    <div class="search-icon">
+                                        <i class="bi bi-search"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                 
-                <!-- Filters -->
-                <div class="col-md-8">
-                    <div class="d-flex gap-2 align-items-center">
-                        <!-- Status Filter -->
-                        <select class="form-select" 
-                                [(ngModel)]="statusFilter"
-                                (ngModelChange)="onFilterChange()"
-                                title="Filter by status">
-                            <option value="">All Status</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="APPROVED">Approved</option>
-                            <option value="REJECTED">Rejected</option>
-                        </select>
+                        <!-- Enhanced Status Filter -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="filter-wrapper">
+                                <label class="filter-label">
+                                    <i class="bi bi-funnel me-2"></i>Status
+                                </label>
+                                <div class="custom-select-wrapper">
+                                    <select class="custom-select" 
+                                            [(ngModel)]="statusFilter"
+                                            (ngModelChange)="onFilterChange()"
+                                            title="Filter by status">
+                                        <option value="">All Status</option>
+                                        <option value="PENDING">🟡 Pending</option>
+                                        <option value="APPROVED">🟢 Approved</option>
+                                        <option value="REJECTED">🔴 Rejected</option>
+                                    </select>
+                                    <i class="bi bi-chevron-down select-arrow"></i>
+                                </div>
+                            </div>
+                        </div>
 
-                        <!-- Request Type Filter -->
-                        <select class="form-select"
-                                [(ngModel)]="typeFilter"
-                                (ngModelChange)="onFilterChange()"
-                                title="Filter by request type">
-                            <option value="">All Types</option>
-                            <option value="SALARYPAYMENT">Salary Payment</option>
-                            <option value="VENDORPAYMENT">Vendor Payment</option>
-                        </select>
+                        <!-- Enhanced Request Type Filter -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="filter-wrapper">
+                                <label class="filter-label">
+                                    <i class="bi bi-tag me-2"></i>Type
+                                </label>
+                                <div class="custom-select-wrapper">
+                                    <select class="custom-select"
+                                            [(ngModel)]="typeFilter"
+                                            (ngModelChange)="onFilterChange()"
+                                            title="Filter by request type">
+                                        <option value="">All Types</option>
+                                        <option value="SALARYPAYMENT">💰 Salary Payment</option>
+                                        <option value="VENDORPAYMENT">🏢 Vendor Payment</option>
+                                    </select>
+                                    <i class="bi bi-chevron-down select-arrow"></i>
+                                </div>
+                            </div>
+                        </div>
 
-                        <!-- Clear Filters Button -->
-                        <button class="btn btn-outline-secondary btn-sm"
-                                (click)="clearFilters()"
-                                title="Clear all filters"
-                                [disabled]="!searchTerm && !statusFilter && !typeFilter">
-                            <i class="bi bi-x-circle"></i> Clear
+                        <!-- Enhanced Clear Filters Button -->
+                        <div class="col-lg-2 col-md-6">
+                            <div class="filter-wrapper">
+                                <label class="filter-label">&nbsp;</label>
+                                <button class="clear-filters-btn"
+                                        (click)="clearFilters()"
+                                        title="Clear all filters"
+                                        [disabled]="!searchTerm && !statusFilter && !typeFilter">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>
+                                    Clear Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Results Summary -->
+                <div class="results-summary" *ngIf="allRequests.length > 0">
+                    <div class="summary-content">
+                        <div class="summary-text">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Showing <strong>{{ currentPage * pageSize + 1 }}</strong> to 
+                            <strong>{{ Math.min((currentPage + 1) * pageSize, totalElements) }}</strong> 
+                            of <strong>{{ totalElements }}</strong> results
+                            <span *ngIf="searchTerm || statusFilter || typeFilter" class="filtered-badge">
+                                <i class="bi bi-funnel-fill"></i> Filtered
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modern Requests Table -->
+                <div class="table-container" *ngIf="allRequests.length > 0">
+                    <div class="table-wrapper">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-number">#</th>
+                                    <th class="col-sortable" (click)="onSortChange('requestType')">
+                                        <div class="th-content">
+                                            <i class="bi bi-tag-fill me-2"></i>Type
+                                            <i class="bi bi-arrow-down-up sort-icon"></i>
+                                        </div>
+                                    </th>
+                                    <th class="col-sortable" (click)="onSortChange('requestStatus')">
+                                        <div class="th-content">
+                                            <i class="bi bi-flag-fill me-2"></i>Status
+                                            <i class="bi bi-arrow-down-up sort-icon"></i>
+                                        </div>
+                                    </th>
+                                    <th class="col-sortable" (click)="onSortChange('createdBy')">
+                                        <div class="th-content">
+                                            <i class="bi bi-person-fill me-2"></i>Created By
+                                            <i class="bi bi-arrow-down-up sort-icon"></i>
+                                        </div>
+                                    </th>
+                                    <th class="col-sortable" (click)="onSortChange('to')">
+                                        <div class="th-content">
+                                            <i class="bi bi-building me-2"></i>To
+                                            <i class="bi bi-arrow-down-up sort-icon"></i>
+                                        </div>
+                                    </th>
+                                    <th class="col-sortable" (click)="onSortChange('requestDate')">
+                                        <div class="th-content">
+                                            <i class="bi bi-calendar3 me-2"></i>Date
+                                            <i class="bi bi-arrow-down-up sort-icon"></i>
+                                        </div>
+                                    </th>
+                                    <th class="col-sortable" (click)="onSortChange('totalAmount')">
+                                        <div class="th-content">
+                                            <i class="bi bi-currency-rupee me-2"></i>Amount
+                                            <i class="bi bi-arrow-down-up sort-icon"></i>
+                                        </div>
+                                    </th>
+                                    <th class="col-actions">
+                                        <i class="bi bi-gear-fill me-2"></i>Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let request of allRequests; let i = index" class="table-row">
+                                    <td class="row-number">{{ currentPage * pageSize + i + 1 }}</td>
+                                    <td class="request-type">
+                                        <div class="type-badge" [ngClass]="{
+                                            'type-salary': request.requestType.includes('SALARY'),
+                                            'type-vendor': request.requestType.includes('VENDOR')
+                                        }">
+                                            <i class="bi" [ngClass]="{
+                                                'bi-wallet2': request.requestType.includes('SALARY'),
+                                                'bi-building': request.requestType.includes('VENDOR')
+                                            }"></i>
+                                            {{ request.requestType.replace('PAYMENT', '') }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge" [ngClass]="{
+                                            'status-approved': request.requestStatus === 'APPROVED',
+                                            'status-rejected': request.requestStatus === 'REJECTED',
+                                            'status-pending': request.requestStatus === 'PENDING'
+                                        }">
+                                            <i class="bi status-icon" [ngClass]="{
+                                                'bi-check-circle-fill': request.requestStatus === 'APPROVED',
+                                                'bi-x-circle-fill': request.requestStatus === 'REJECTED',
+                                                'bi-clock-fill': request.requestStatus === 'PENDING'
+                                            }"></i>
+                                            {{ request.requestStatus }}
+                                        </span>
+                                    </td>
+                                    <td class="created-by">
+                                        <div class="user-info">
+                                            <i class="bi bi-person-circle me-2"></i>
+                                            {{ request.createdBy }}
+                                        </div>
+                                    </td>
+                                    <td class="company-name">
+                                        <div class="company-info">
+                                            <i class="bi bi-building me-2"></i>
+                                            {{ request.to }}
+                                        </div>
+                                    </td>
+                                    <td class="request-date">
+                                        <div class="date-info">
+                                            <i class="bi bi-calendar-event me-2"></i>
+                                            {{ request.requestDate | date:'MMM dd, yyyy' }}
+                                        </div>
+                                    </td>
+                                    <td class="amount">
+                                        <div class="amount-display">
+                                            <i class="bi bi-currency-rupee me-1"></i>
+                                            <strong>{{ request.totalAmount | number:'1.2-2' }}</strong>
+                                        </div>
+                                    </td>
+                                    <td class="actions">
+                                        <div class="action-buttons">
+                                            <button class="action-btn view-btn" 
+                                                    title="View Details"
+                                                    (click)="viewRequestDetails(request.requestId)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="action-btn approve-btn" 
+                                                    *ngIf="request.requestStatus === 'PENDING'"
+                                                    title="Quick Approve"
+                                                    (click)="quickApprove(request.requestId)">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                            <button class="action-btn reject-btn" 
+                                                    *ngIf="request.requestStatus === 'PENDING'"
+                                                    title="Quick Reject"
+                                                    (click)="quickReject(request.requestId)">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Enhanced No Results State -->
+                <div class="no-results-container" *ngIf="allRequests.length === 0 && !loading">
+                    <div class="no-results-content">
+                        <div class="no-results-icon">
+                            <i class="bi bi-inbox"></i>
+                        </div>
+                        <h4 class="no-results-title">No requests found</h4>
+                        <p class="no-results-subtitle" *ngIf="!searchTerm && !statusFilter && !typeFilter">
+                            There are currently no payment requests in the system.
+                        </p>
+                        <p class="no-results-subtitle" *ngIf="searchTerm || statusFilter || typeFilter">
+                            No requests match your current search criteria.
+                        </p>
+                        <button class="btn btn-outline-primary mt-3" 
+                                *ngIf="searchTerm || statusFilter || typeFilter"
+                                (click)="clearFilters()">
+                            <i class="bi bi-arrow-clockwise me-2"></i>
+                            Clear All Filters
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Results Summary -->
-            <div class="row mb-3" *ngIf="allRequests.length > 0">
-                <div class="col-12">
-                    <small class="text-muted">
-                        Showing {{ currentPage * pageSize + 1 }} to {{ Math.min((currentPage + 1) * pageSize, totalElements) }} 
-                        of {{ totalElements }} results
-                        <span *ngIf="searchTerm || statusFilter || typeFilter"> (filtered)</span>
-                    </small>
+                <!-- Modern Pagination -->
+                <div class="pagination-container" *ngIf="totalPages > 1">
+                    <nav class="modern-pagination" aria-label="Page navigation">
+                        <ul class="pagination-list">
+                            <li class="page-item" [class.disabled]="currentPage === 0">
+                                <button class="page-btn first-btn" 
+                                        (click)="onPageChange(0)"
+                                        [disabled]="currentPage === 0">
+                                    <i class="bi bi-chevron-double-left"></i>
+                                    <span class="btn-text">First</span>
+                                </button>
+                            </li>
+                            <li class="page-item" [class.disabled]="currentPage === 0">
+                                <button class="page-btn prev-btn" 
+                                        (click)="onPageChange(currentPage - 1)"
+                                        [disabled]="currentPage === 0">
+                                    <i class="bi bi-chevron-left"></i>
+                                    <span class="btn-text">Previous</span>
+                                </button>
+                            </li>
+                            
+                            <ng-container *ngFor="let page of [].constructor(totalPages); let i = index">
+                                <li class="page-item" 
+                                    *ngIf="i >= Math.max(0, currentPage - 2) && i <= Math.min(totalPages - 1, currentPage + 2)"
+                                    [class.active]="i === currentPage">
+                                    <button class="page-btn number-btn" 
+                                            [class.active]="i === currentPage"
+                                            (click)="onPageChange(i)">
+                                        {{ i + 1 }}
+                                    </button>
+                                </li>
+                            </ng-container>
+                            
+                            <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                                <button class="page-btn next-btn" 
+                                        (click)="onPageChange(currentPage + 1)"
+                                        [disabled]="currentPage === totalPages - 1">
+                                    <span class="btn-text">Next</span>
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </li>
+                            <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                                <button class="page-btn last-btn" 
+                                        (click)="onPageChange(totalPages - 1)"
+                                        [disabled]="currentPage === totalPages - 1">
+                                    <span class="btn-text">Last</span>
+                                    <i class="bi bi-chevron-double-right"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
-
-            <!-- Requests Table -->
-            <div class="table-responsive" *ngIf="allRequests.length > 0">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>S.No</th>
-                            <th (click)="onSortChange('requestType')" style="cursor: pointer;">Type <i class="bi bi-arrow-down-up"></i></th>
-                            <th (click)="onSortChange('requestStatus')" style="cursor: pointer;">Status <i class="bi bi-arrow-down-up"></i></th>
-                            <th (click)="onSortChange('createdBy')" style="cursor: pointer;">Created By <i class="bi bi-arrow-down-up"></i></th>
-                            <th (click)="onSortChange('to')" style="cursor: pointer;">To <i class="bi bi-arrow-down-up"></i></th>
-                            <th (click)="onSortChange('requestDate')" style="cursor: pointer;">Date <i class="bi bi-arrow-down-up"></i></th>
-                            <th (click)="onSortChange('totalAmount')" style="cursor: pointer;">Amount <i class="bi bi-arrow-down-up"></i></th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let request of allRequests; let i = index">
-                            <td>{{ currentPage * pageSize + i + 1 }}</td>
-                            <td>{{ request.requestType }}</td>
-                            <td>
-                                <span class="badge" [ngClass]="{
-                                    'bg-success': request.requestStatus === 'APPROVED',
-                                    'bg-danger': request.requestStatus === 'REJECTED',
-                                    'bg-warning': request.requestStatus === 'PENDING'
-                                }">
-                                    {{ request.requestStatus }}
-                                </span>
-                            </td>
-                            <td>{{ request.createdBy }}</td>
-                            <td>{{ request.to }}</td>
-                            <td>{{ request.requestDate | date:'mediumDate' }}</td>
-                            <td>₹{{ request.totalAmount | number:'1.2-2' }}</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary me-1" 
-                                        title="View Details"
-                                        (click)="viewRequestDetails(request.requestId)">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-success me-1" 
-                                        *ngIf="request.requestStatus === 'PENDING'"
-                                        title="Approve"
-                                        (click)="quickApprove(request.requestId)">
-                                    <i class="bi bi-check-lg"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" 
-                                        *ngIf="request.requestStatus === 'PENDING'"
-                                        title="Reject"
-                                        (click)="quickReject(request.requestId)">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- No Results -->
-            <div class="text-center py-5" *ngIf="allRequests.length === 0 && !loading">
-                <i class="bi bi-inbox display-1 text-muted"></i>
-                <h5 class="mt-3 text-muted">No requests found</h5>
-                <p class="text-muted" *ngIf="searchTerm || statusFilter || typeFilter">
-                    Try adjusting your search criteria or clear filters to see more results.
-                </p>
-            </div>
-
-            <!-- Pagination -->
-            <nav *ngIf="totalPages > 1" aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item" [class.disabled]="currentPage === 0">
-                        <a class="page-link" (click)="onPageChange(0)" role="button">First</a>
-                    </li>
-                    <li class="page-item" [class.disabled]="currentPage === 0">
-                        <a class="page-link" (click)="onPageChange(currentPage - 1)" role="button">Previous</a>
-                    </li>
-                    
-                    <ng-container *ngFor="let page of [].constructor(totalPages); let i = index">
-                        <li class="page-item" 
-                            *ngIf="i >= Math.max(0, currentPage - 2) && i <= Math.min(totalPages - 1, currentPage + 2)"
-                            [class.active]="i === currentPage">
-                            <a class="page-link" (click)="onPageChange(i)" role="button">{{ i + 1 }}</a>
-                        </li>
-                    </ng-container>
-                    
-                    <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
-                        <a class="page-link" (click)="onPageChange(currentPage + 1)" role="button">Next</a>
-                    </li>
-                    <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
-                        <a class="page-link" (click)="onPageChange(totalPages - 1)" role="button">Last</a>
-                    </li>
-                </ul>
-            </nav>
         </div>
     </div>
 </div>

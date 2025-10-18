@@ -1,0 +1,169 @@
+<app-employee-navbar-component></app-employee-navbar-component>
+
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1 class="dashboard-title">
+        <i class="bi bi-person-circle"></i>
+        Employee Dashboard
+      </h1>
+      <p class="dashboard-subtitle">Welcome back! Here's your profile information</p>
+    </div>
+    <div class="refresh-btn">
+      <button (click)="loadEmployeeDetails()" class="btn-refresh">
+        <i class="bi bi-arrow-clockwise"></i>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Employee Details Card -->
+  <div class="employee-card-container" *ngIf="employeeDetail">
+    <div class="employee-card">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="bi bi-person-circle"></i>
+        </div>
+        <div class="profile-info">
+          <h2 class="employee-name">{{ employeeDetail.employeeName }}</h2>
+          <p class="employee-role">{{ employeeDetail.employeeRole }}</p>
+          <div class="status-badge" [class.active]="employeeDetail.active" [class.inactive]="!employeeDetail.active">
+            <i class="bi" [ngClass]="employeeDetail.active ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+            {{ employeeDetail.active ? 'Active' : 'Inactive' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Employee Details Grid -->
+      <div class="details-grid">
+        <!-- Personal Information -->
+        <div class="detail-section">
+          <h3 class="section-title">
+            <i class="bi bi-person-fill"></i>
+            Personal Information
+          </h3>
+          <div class="detail-items">
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-hash"></i>
+                Employee ID
+              </span>
+              <span class="detail-value">{{ employeeDetail.employeeId }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-envelope-fill"></i>
+                Email Address
+              </span>
+              <span class="detail-value">{{ employeeDetail.email }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-calendar-check"></i>
+                Joined Date
+              </span>
+              <span class="detail-value">{{ employeeDetail.joinedDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Information -->
+        <div class="detail-section">
+          <h3 class="section-title">
+            <i class="bi bi-briefcase-fill"></i>
+            Work Information
+          </h3>
+          <div class="detail-items">
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-building"></i>
+                Organization
+              </span>
+              <span class="detail-value">{{ employeeDetail.organizationName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-diagram-3-fill"></i>
+                Department
+              </span>
+              <span class="detail-value">{{ employeeDetail.department }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-currency-dollar"></i>
+                Salary
+              </span>
+              <span class="detail-value salary">₹{{ employeeDetail.salary | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banking Information -->
+        <div class="detail-section">
+          <h3 class="section-title">
+            <i class="bi bi-bank"></i>
+            Banking Information
+          </h3>
+          <div class="detail-items">
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-credit-card-fill"></i>
+                Account Number
+              </span>
+              <span class="detail-value account-number">{{ employeeDetail.accountNumber }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-bank2"></i>
+                IFSC Code
+              </span>
+              <span class="detail-value">{{ employeeDetail.ifsc }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="!employeeDetail">
+    <div class="loading-card">
+      <div class="loading-spinner">
+        <i class="bi bi-arrow-clockwise spinning"></i>
+      </div>
+      <p class="loading-text">Loading your profile information...</p>
+      <button (click)="loadEmployeeDetails()" class="btn-load">
+        <i class="bi bi-download"></i>
+        Load Details
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions" *ngIf="employeeDetail">
+    <h3 class="actions-title">
+      <i class="bi bi-lightning-fill"></i>
+      Quick Actions
+    </h3>
+    <div class="actions-grid">
+      <button class="action-btn">
+        <i class="bi bi-file-earmark-text"></i>
+        <span>View Payslips</span>
+      </button>
+      <button class="action-btn">
+        <i class="bi bi-calendar-event"></i>
+        <span>Leave Requests</span>
+      </button>
+      <button class="action-btn">
+        <i class="bi bi-gear"></i>
+        <span>Update Profile</span>
+      </button>
+      <button class="action-btn">
+        <i class="bi bi-chat-dots"></i>
+        <span>Support</span>
+      </button>
+    </div>
+  </div>
+</div>
