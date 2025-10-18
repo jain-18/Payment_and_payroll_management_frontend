@@ -6,6 +6,30 @@ import { EmployeeRequest } from '../model/employee-request.model';
 import { EmployeeResponse } from '../model/employee-response.model';
 import { EmployeeUpdateRequest } from '../model/employee-update-request.model';
 import { EmployeePageResponse } from '../model/pageable-response.model';
+import { SalarySlip } from '../employee/model/salarySlip';
+
+export interface SalarySlipPageResponse {
+  content: SalarySlip[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+}
+
+export interface SalarySlipSearchRequest {
+  employeeId: number;
+  month?: string;
+  year?: number;
+  page?: number;
+  size?: number;
+}
+
+export interface ConcernRequest {
+  salarySlipId: number;
+  concern: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -69,6 +93,36 @@ export class EmployeeService {
   deleteEmployee(id: number): Observable<void> {
     return this.http.delete<void>(
       `${this.baseUrl}/${id}`, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  // Salary Slip Methods
+  getSalarySlips(searchRequest: SalarySlipSearchRequest): Observable<SalarySlipPageResponse> {
+    const params = new URLSearchParams();
+    params.append('employeeId', searchRequest.employeeId.toString());
+    if (searchRequest.month) params.append('month', searchRequest.month);
+    if (searchRequest.year) params.append('year', searchRequest.year.toString());
+    if (searchRequest.page !== undefined) params.append('page', searchRequest.page.toString());
+    if (searchRequest.size !== undefined) params.append('size', searchRequest.size.toString());
+
+    return this.http.get<SalarySlipPageResponse>(
+      `${this.baseUrl}/${searchRequest.employeeId}/salary-slips?${params.toString()}`, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  getSalarySlipById(employeeId: number, salarySlipId: number): Observable<SalarySlip> {
+    return this.http.get<SalarySlip>(
+      `${this.baseUrl}/${employeeId}/salary-slips/${salarySlipId}`, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  raiseConcern(concernRequest: ConcernRequest): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/salary-slips/${concernRequest.salarySlipId}/concern`, 
+      { concern: concernRequest.concern }, 
       { headers: this.getAuthHeaders() }
     );
   }

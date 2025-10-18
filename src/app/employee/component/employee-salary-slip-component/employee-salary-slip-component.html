@@ -1,0 +1,391 @@
+<app-employee-navbar-component></app-employee-navbar-component>
+
+<div class="container-fluid py-4">
+  <!-- Header Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="text-center">
+        <h1 class="display-5 fw-bold text-primary mb-2">
+          <i class="bi bi-receipt me-2"></i>
+          Salary Slips
+        </h1>
+        <p class="lead text-muted">View and manage your salary history</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="bi bi-funnel me-2"></i>
+            Filter Options
+          </h5>
+          <button type="button" class="btn btn-sm btn-outline-light" (click)="toggleFilters()">
+            <i class="bi" [ngClass]="showFilters ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          </button>
+        </div>
+        
+        <div class="card-body" [class.d-none]="!showFilters">
+          <form [formGroup]="filterForm" (ngSubmit)="onSearch()">
+            <div class="row g-3">
+              <!-- Month Filter -->
+              <div class="col-md-4">
+                <label for="month" class="form-label fw-semibold">Month</label>
+                <select id="month" class="form-select" formControlName="month">
+                  <option value="">All Months</option>
+                  <option *ngFor="let month of months" [value]="month.value">
+                    {{ month.label }}
+                  </option>
+                </select>
+              </div>
+              
+              <!-- Year Filter -->
+              <div class="col-md-4">
+                <label for="year" class="form-label fw-semibold">Year</label>
+                <select id="year" class="form-select" formControlName="year">
+                  <option value="">All Years</option>
+                  <option *ngFor="let year of years" [value]="year">
+                    {{ year }}
+                  </option>
+                </select>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary" [disabled]="isSearching">
+                  <i class="bi bi-search me-1"></i>
+                  Filter
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="onClearFilters()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>
+                  Reset
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="row">
+    <div class="col-12">
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted">Loading salary slips...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && salarySlips.length === 0" class="row">
+    <div class="col-12">
+      <div class="text-center py-5">
+        <div class="mb-4">
+          <i class="bi bi-receipt display-1 text-muted"></i>
+        </div>
+        <h3 class="text-primary mb-3">No Salary Slips Found</h3>
+        <p class="text-muted mb-4">No salary slips match your current filters</p>
+        <button class="btn btn-outline-primary" (click)="onClearFilters()">
+          <i class="bi bi-funnel me-1"></i>
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Salary Slips Display -->
+  <div *ngIf="!isLoading && salarySlips.length > 0" class="row">
+    <div class="col-12">
+      <div class="row g-4">
+        <div *ngFor="let slip of salarySlips; let i = index" 
+             class="col-lg-6 col-xl-4">
+          
+          <div class="card h-100 shadow-sm border-0">
+            <!-- Card Header -->
+            <div class="card-header bg-gradient bg-primary text-white d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1 fw-bold">{{ getMonthName(slip.periodMonth) }} {{ slip.periodYear }}</h5>
+              </div>
+              <span class="badge bg-success">
+                <i class="bi bi-check-circle me-1"></i>
+                Paid
+              </span>
+            </div>
+            
+            <!-- Net Salary Highlight -->
+            <div class="card-body">
+              <div class="text-center mb-3 p-3 bg-light rounded">
+                <div class="text-muted small">Net Salary</div>
+                <div class="h4 fw-bold text-primary mb-0">₹{{ slip.netSalary | number:'1.2-2' }}</div>
+              </div>
+              
+              <!-- Salary Breakdown -->
+              <div class="row g-2">
+                <div class="col-6">
+                  <h6 class="text-success mb-2">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Earnings
+                  </h6>
+                  <div class="small mb-1 d-flex justify-content-between">
+                    <span>Basic Salary</span>
+                    <span class="fw-semibold">₹{{ slip.basicSalary | number:'1.0-0' }}</span>
+                  </div>
+                  <div class="small mb-1 d-flex justify-content-between">
+                    <span>HRA</span>
+                    <span class="fw-semibold">₹{{ slip.hra | number:'1.0-0' }}</span>
+                  </div>
+                  <div class="small mb-1 d-flex justify-content-between">
+                    <span>DA</span>
+                    <span class="fw-semibold">₹{{ slip.da | number:'1.0-0' }}</span>
+                  </div>
+                  <div class="small d-flex justify-content-between">
+                    <span>Others</span>
+                    <span class="fw-semibold">₹{{ slip.otherAllowances | number:'1.0-0' }}</span>
+                  </div>
+                </div>
+                
+                <div class="col-6">
+                  <h6 class="text-danger mb-2">
+                    <i class="bi bi-dash-circle me-1"></i>
+                    Deductions
+                  </h6>
+                  <div class="small d-flex justify-content-between">
+                    <span>PF</span>
+                    <span class="fw-semibold">₹{{ slip.pf | number:'1.0-0' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Card Actions -->
+            <div class="card-footer bg-transparent border-0">
+              <div class="d-grid gap-2">
+                <div class="btn-group" role="group">
+                  <button class="btn btn-primary btn-sm" (click)="downloadPDF(slip)">
+                    <i class="bi bi-download me-1"></i>
+                    Download
+                  </button>
+                  <button class="btn btn-outline-primary btn-sm" (click)="viewSlipDetails(slip)">
+                    <i class="bi bi-eye me-1"></i>
+                    Details
+                  </button>
+                </div>
+                <button class="btn btn-outline-warning btn-sm" (click)="raiseConcern(slip)">
+                  <i class="bi bi-chat-left-dots me-1"></i>
+                  Raise Concern
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && salarySlips.length > 0 && totalPages > 1" class="row mt-4">
+    <div class="col-12">
+      <nav aria-label="Salary slips pagination">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 0">
+            <button class="page-link" 
+                    [disabled]="currentPage === 0" 
+                    (click)="onPageChange(currentPage - 1)">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+          </li>
+          
+          <li class="page-item active">
+            <span class="page-link">
+              {{ currentPage + 1 }} of {{ totalPages }}
+            </span>
+          </li>
+          
+          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+            <button class="page-link" 
+                    [disabled]="currentPage === totalPages - 1" 
+                    (click)="onPageChange(currentPage + 1)">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- Slip Details Modal -->
+<div *ngIf="showSlipModal && selectedSlip" class="modal fade show d-block" tabindex="-1" 
+     style="background-color: rgba(0,0,0,0.5);" (click)="closeSlipModal()">
+  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h4 class="modal-title">
+          <i class="bi bi-receipt me-2"></i>
+          Salary Slip Details - {{ getMonthName(selectedSlip.periodMonth) }} {{ selectedSlip.periodYear }}
+        </h4>
+        <button type="button" class="btn-close btn-close-white" (click)="closeSlipModal()"></button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                  <i class="bi bi-person-badge me-2"></i>
+                  Employee Information
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold text-primary">Employee Name</label>
+                  <div class="form-control-plaintext">{{ selectedSlip.employeeName }}</div>
+                </div>
+                <div class="mb-0">
+                  <label class="form-label fw-semibold text-primary" >Organization</label>
+                  <div class="form-control-plaintext">{{ selectedSlip.organizationName }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                  <i class="bi bi-cash-stack me-2"></i>
+                  Salary Details
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="form-label text-success fw-semibold">Earnings</label>
+                    <div class="small mb-1 d-flex justify-content-between">
+                      <span>Basic Salary:</span>
+                      <span class="fw-semibold">₹{{ selectedSlip.basicSalary | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="small mb-1 d-flex justify-content-between">
+                      <span>HRA:</span>
+                      <span class="fw-semibold">₹{{ selectedSlip.hra | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="small mb-1 d-flex justify-content-between">
+                      <span>DA:</span>
+                      <span class="fw-semibold">₹{{ selectedSlip.da | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="small d-flex justify-content-between">
+                      <span>Others:</span>
+                      <span class="fw-semibold">₹{{ selectedSlip.otherAllowances | number:'1.2-2' }}</span>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label text-danger fw-semibold">Deductions</label>
+                    <div class="small d-flex justify-content-between">
+                      <span>PF:</span>
+                      <span class="fw-semibold">₹{{ selectedSlip.pf | number:'1.2-2' }}</span>
+                    </div>
+                  </div>
+                </div>
+                <hr>
+                <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                  <label class="form-label fw-bold text-primary">Net Salary</label>
+                  <div class="h4 fw-bold text-primary mb-0">₹{{ selectedSlip.netSalary | number:'1.2-2' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeSlipModal()">
+          <i class="bi bi-x-circle me-1"></i>
+          Close
+        </button>
+        <button type="button" class="btn btn-primary" (click)="downloadPDF(selectedSlip)">
+          <i class="bi bi-download me-1"></i>
+          Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Concern Modal -->
+<div *ngIf="showConcernModal && selectedSlip" class="modal fade show d-block" tabindex="-1" 
+     style="background-color: rgba(0,0,0,0.5);" (click)="closeConcernModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h4 class="modal-title">
+          <i class="bi bi-chat-left-dots me-2"></i>
+          Raise Concern
+        </h4>
+        <button type="button" class="btn-close" (click)="closeConcernModal()"></button>
+      </div>
+      
+      <form [formGroup]="concernForm" (ngSubmit)="submitConcern()">
+        <div class="modal-body">
+          <div class="alert alert-info d-flex align-items-center mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            <div>
+              <strong>Regarding Salary Slip:</strong> 
+              {{ getMonthName(selectedSlip.periodMonth) }} {{ selectedSlip.periodYear }}
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="concernType" class="form-label fw-semibold">
+              <i class="bi bi-tag me-1"></i>
+              Concern Type *
+            </label>
+            <select id="concernType" class="form-select" formControlName="concernType" required>
+              <option value="">Select concern type</option>
+              <option *ngFor="let type of concernTypes" [value]="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="subject" class="form-label fw-semibold">
+              <i class="bi bi-chat-text me-1"></i>
+              Subject *
+            </label>
+            <input type="text" id="subject" class="form-control" formControlName="subject" 
+                   placeholder="Brief description of the concern" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="description" class="form-label fw-semibold">
+              <i class="bi bi-card-text me-1"></i>
+              Description *
+            </label>
+            <textarea id="description" class="form-control" formControlName="description" 
+                      rows="4" placeholder="Detailed description of your concern" required></textarea>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeConcernModal()">
+            <i class="bi bi-x-circle me-1"></i>
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-warning" [disabled]="!concernForm.valid || isSubmittingConcern">
+            <span *ngIf="isSubmittingConcern" class="spinner-border spinner-border-sm me-1"></span>
+            <i *ngIf="!isSubmittingConcern" class="bi bi-send me-1"></i>
+            {{ isSubmittingConcern ? 'Submitting...' : 'Submit Concern' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

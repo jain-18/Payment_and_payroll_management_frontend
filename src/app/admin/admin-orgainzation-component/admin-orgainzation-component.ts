@@ -220,4 +220,11 @@ export class AdminOrgainzationComponent implements OnInit, OnDestroy {
   searchOrganizations(searchTerm: string): Observable<PageResponse<OrganizationResponse>> {
     return this.adminService.searchOrganizations(searchTerm);
   }
+
+  clearFilters() {
+    this.searchTerm = '';
+    this.currentFilter = undefined;
+    this.searchSubject.next('');
+    this.filterOrganizations();
+  }
 }
