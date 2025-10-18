@@ -9,5 +9,5 @@ export interface OrgInfoResponse {
     address: AddressCreateRequest;
     account: AccountDto;
     document: DocumentDto;
-    isActive: boolean;
+    active: boolean;  // Changed from isActive to match backend response
 }

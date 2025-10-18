@@ -1,0 +1,344 @@
+<app-org-dashboard-navbar></app-org-dashboard-navbar>
+
+<div class="container-fluid update-info-container">
+  <div class="row">
+    <div class="col-12">
+      <!-- Important Notice -->
+      <div class="alert alert-info mb-4" role="alert">
+        <div class="d-flex align-items-start">
+          <i class="fas fa-info-circle fa-2x me-3 text-info"></i>
+          <div>
+            <h5 class="alert-heading">Important Notice</h5>
+            <p class="mb-0">
+              After your first registration or whenever you update any information, an admin will verify your details 
+              and activate your account. You will receive an email notification once verified. Until then, 
+              no operations or activities can be performed on your account.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Section -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-building me-2"></i>
+              Update Organization Information
+            </h4>
+            <button class="btn btn-light btn-sm" routerLink="/org-dashboard">
+              <i class="fas fa-arrow-left me-2"></i>
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Loading organization information...</p>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Update Form -->
+      <form *ngIf="!isLoading" [formGroup]="updateForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+        <div class="row">
+          <!-- Organization Details Section -->
+          <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+              <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-building me-2 text-primary"></i>
+                  Organization Details
+                </h5>
+              </div>
+              <div class="card-body">
+                <!-- Organization Name -->
+                <div class="mb-3">
+                  <label for="organizationName" class="form-label">Organization Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="organizationName"
+                    formControlName="organizationName"
+                    [class.is-invalid]="organizationName?.invalid && organizationName?.touched"
+                    placeholder="Enter organization name">
+                  <div *ngIf="organizationName?.invalid && organizationName?.touched" class="invalid-feedback">
+                    <div *ngIf="organizationName?.errors?.['pattern']">
+                      Organization name must start with a letter and may include digits and spaces
+                    </div>
+                    <div *ngIf="organizationName?.errors?.['maxlength']">
+                      Organization name cannot exceed 50 characters
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Organization Email -->
+                <div class="mb-3">
+                  <label for="organizationEmail" class="form-label">Organization Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="organizationEmail"
+                    formControlName="organizationEmail"
+                    [class.is-invalid]="organizationEmail?.invalid && organizationEmail?.touched"
+                    placeholder="Enter organization email">
+                  <div *ngIf="organizationEmail?.invalid && organizationEmail?.touched" class="invalid-feedback">
+                    <div *ngIf="organizationEmail?.errors?.['email'] || organizationEmail?.errors?.['pattern']">
+                      Please enter a valid email address
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Account Status -->
+                <div *ngIf="organizationInfo" class="mb-3">
+                  <label class="form-label">Account Status</label>
+                  <div>
+                    <span [class]="organizationInfo.active ? 'badge bg-success fs-6' : 'badge bg-warning fs-6'">
+                      {{ organizationInfo.active ? 'Active' : 'Pending Verification' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Section -->
+          <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+              <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-map-marker-alt me-2 text-success"></i>
+                  Address Information
+                </h5>
+              </div>
+              <div class="card-body">
+                <!-- City -->
+                <div class="mb-3">
+                  <label for="city" class="form-label">City</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="city"
+                    formControlName="city"
+                    [class.is-invalid]="city?.invalid && city?.touched"
+                    placeholder="Enter city">
+                  <div *ngIf="city?.invalid && city?.touched" class="invalid-feedback">
+                    <div *ngIf="city?.errors?.['minlength']">
+                      City must be at least 2 characters long
+                    </div>
+                  </div>
+                </div>
+
+                <!-- State -->
+                <div class="mb-3">
+                  <label for="state" class="form-label">State</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="state"
+                    formControlName="state"
+                    [class.is-invalid]="state?.invalid && state?.touched"
+                    placeholder="Enter state">
+                  <div *ngIf="state?.invalid && state?.touched" class="invalid-feedback">
+                    <div *ngIf="state?.errors?.['minlength']">
+                      State must be at least 2 characters long
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Pin Code -->
+                <div class="mb-3">
+                  <label for="pinCode" class="form-label">PIN Code</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="pinCode"
+                    formControlName="pinCode"
+                    [class.is-invalid]="pinCode?.invalid && pinCode?.touched"
+                    placeholder="Enter 6-digit PIN code">
+                  <div *ngIf="pinCode?.invalid && pinCode?.touched" class="invalid-feedback">
+                    <div *ngIf="pinCode?.errors?.['pattern']">
+                      PIN code must be exactly 6 digits
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account Details Section -->
+          <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+              <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-university me-2 text-info"></i>
+                  Bank Account Details
+                </h5>
+              </div>
+              <div class="card-body">
+                <!-- Account Number -->
+                <div class="mb-3">
+                  <label for="accountNumber" class="form-label">Account Number</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="accountNumber"
+                    formControlName="accountNumber"
+                    [class.is-invalid]="accountNumber?.invalid && accountNumber?.touched"
+                    placeholder="Enter 9-18 digit account number">
+                  <div *ngIf="accountNumber?.invalid && accountNumber?.touched" class="invalid-feedback">
+                    <div *ngIf="accountNumber?.errors?.['pattern']">
+                      Account number must be 9-18 digits long
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IFSC Code -->
+                <div class="mb-3">
+                  <label for="ifsc" class="form-label">IFSC Code</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="ifsc"
+                    formControlName="ifsc"
+                    [class.is-invalid]="ifsc?.invalid && ifsc?.touched"
+                    placeholder="Enter IFSC code (e.g., ABCD0123456)"
+                    style="text-transform: uppercase;">
+                  <div *ngIf="ifsc?.invalid && ifsc?.touched" class="invalid-feedback">
+                    <div *ngIf="ifsc?.errors?.['pattern']">
+                      IFSC code format: 4 letters, then 0, then 6 alphanumeric characters
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Upload Section -->
+          <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+              <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-file-upload me-2 text-warning"></i>
+                  Document Upload
+                </h5>
+              </div>
+              <div class="card-body">
+                <!-- PAN Card -->
+                <div class="mb-3">
+                  <label for="pancard" class="form-label">PAN Card</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="pancard"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    (change)="onFileSelected($event, 'pancard')">
+                  <div class="form-text">Upload PAN card (JPEG, PNG, or PDF, max 5MB)</div>
+                  <div *ngIf="pancardPreview" class="mt-2">
+                    <img *ngIf="pancardPreview !== 'PDF_SELECTED'" [src]="pancardPreview" alt="PAN Card Preview" class="img-thumbnail" style="max-width: 200px;">
+                    <div *ngIf="pancardPreview === 'PDF_SELECTED'" class="alert alert-info">
+                      <i class="fas fa-file-pdf me-2"></i>PDF file selected
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Cancelled Cheque -->
+                <div class="mb-3">
+                  <label for="cancelledCheque" class="form-label">Cancelled Cheque</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="cancelledCheque"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    (change)="onFileSelected($event, 'cancelledCheque')">
+                  <div class="form-text">Upload cancelled cheque (JPEG, PNG, or PDF, max 5MB)</div>
+                  <div *ngIf="cancelledChequePreview" class="mt-2">
+                    <img *ngIf="cancelledChequePreview !== 'PDF_SELECTED'" [src]="cancelledChequePreview" alt="Cancelled Cheque Preview" class="img-thumbnail" style="max-width: 200px;">
+                    <div *ngIf="cancelledChequePreview === 'PDF_SELECTED'" class="alert alert-info">
+                      <i class="fas fa-file-pdf me-2"></i>PDF file selected
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Company Registration Certificate -->
+                <div class="mb-3">
+                  <label for="companyRegistration" class="form-label">Company Registration Certificate</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="companyRegistration"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    (change)="onFileSelected($event, 'companyRegistration')">
+                  <div class="form-text">Upload company registration certificate (JPEG, PNG, or PDF, max 5MB)</div>
+                  <div *ngIf="companyRegistrationPreview" class="mt-2">
+                    <img *ngIf="companyRegistrationPreview !== 'PDF_SELECTED'" [src]="companyRegistrationPreview" alt="Company Registration Preview" class="img-thumbnail" style="max-width: 200px;">
+                    <div *ngIf="companyRegistrationPreview === 'PDF_SELECTED'" class="alert alert-info">
+                      <i class="fas fa-file-pdf me-2"></i>PDF file selected
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="resetForm()"
+                    [disabled]="isSubmitting">
+                    <i class="fas fa-undo me-2"></i>
+                    Reset Form
+                  </button>
+                  
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary me-2"
+                      routerLink="/org-dashboard"
+                      [disabled]="isSubmitting">
+                      <i class="fas fa-times me-2"></i>
+                      Cancel
+                    </button>
+                    
+                    <button
+                      type="submit"
+                      class="btn btn-primary"
+                      [disabled]="isSubmitting">
+                      <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                      <i *ngIf="!isSubmitting" class="fas fa-save me-2"></i>
+                      {{ isSubmitting ? 'Updating...' : 'Update Information' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

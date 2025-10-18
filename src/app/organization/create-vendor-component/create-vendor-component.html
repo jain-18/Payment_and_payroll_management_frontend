@@ -126,7 +126,7 @@
                   placeholder="Enter account number">
                 <div *ngIf="accountNumber?.invalid && accountNumber?.touched" class="invalid-feedback">
                   <div *ngIf="accountNumber?.errors?.['required']">Account number is required</div>
-                  <div *ngIf="accountNumber?.errors?.['pattern']">Account number must be 10-20 digits</div>
+                  <div *ngIf="accountNumber?.errors?.['pattern']">Account number must be 9-18 digits</div>
                 </div>
               </div>
 

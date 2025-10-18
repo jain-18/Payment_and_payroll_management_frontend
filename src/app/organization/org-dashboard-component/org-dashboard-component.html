@@ -57,7 +57,7 @@
           <h5 class="card-title">Profile & Settings</h5>
           <p class="card-text text-muted">Update your information and manage account settings</p>
           <div class="d-grid gap-2">
-            <button class="btn btn-outline-warning" routerLink="/org-dashboard/update-info">Update Info</button>
+            <button class="btn btn-outline-warning" routerLink="/org-dashboard/update-info">Account Details</button>
             <button class="btn btn-outline-warning" routerLink="/org-dashboard/concerns">Concerns</button>
             <button class="btn btn-warning text-white">Account Settings</button>
           </div>
@@ -88,12 +88,17 @@
     </div>
 
     <div class="col-lg-3 col-md-6">
-      <div class="card stats-card border-success">
+      <div class="card stats-card border-success" style="cursor: pointer;" routerLink="/org-dashboard/manage-vendor">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h6 class="card-subtitle mb-2 text-muted">Total Vendors</h6>
-              <h4 class="card-title text-success mb-0">--</h4>
+              <h4 class="card-title text-success mb-0">
+                <span *ngIf="!isLoadingStats">{{ totalVendors }}</span>
+                <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </span>
+              </h4>
             </div>
             <i class="fas fa-handshake fa-2x text-success opacity-75"></i>
           </div>
@@ -102,12 +107,17 @@
     </div>
 
     <div class="col-lg-3 col-md-6">
-      <div class="card stats-card border-warning">
+      <div class="card stats-card border-warning" style="cursor: pointer;">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h6 class="card-subtitle mb-2 text-muted">Pending Payments</h6>
-              <h4 class="card-title text-warning mb-0">--</h4>
+              <h4 class="card-title text-warning mb-0">
+                <span *ngIf="!isLoadingStats">{{ pendingPayments }}</span>
+                <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </span>
+              </h4>
             </div>
             <i class="fas fa-clock fa-2x text-warning opacity-75"></i>
           </div>
@@ -116,12 +126,17 @@
     </div>
 
     <div class="col-lg-3 col-md-6">
-      <div class="card stats-card border-info">
+      <div class="card stats-card border-info" style="cursor: pointer;">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h6 class="card-subtitle mb-2 text-muted">This Month</h6>
-              <h4 class="card-title text-info mb-0">$--</h4>
+              <h4 class="card-title text-info mb-0">
+                <span *ngIf="!isLoadingStats">₹{{ monthlyTotal | number:'1.0-0' }}</span>
+                <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </span>
+              </h4>
             </div>
             <i class="fas fa-dollar-sign fa-2x text-info opacity-75"></i>
           </div>

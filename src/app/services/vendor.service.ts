@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { VendorRequest } from '../model/vendor-request.model';
 import { VendorResponse } from '../model/vendor-response.model';
 import { VendorUpdateRequest } from '../model/vendor-update-request.model';
+import { VendorPageResponse } from '../model/pageable-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +45,16 @@ export class VendorService {
     );
   }
 
-  getAllVendors(): Observable<VendorResponse[]> {
+  getAllVendors(page: number = 0, size: number = 10, sortBy: string = 'vendorName'): Observable<VendorPageResponse> {
+    const params = `?page=${page}&size=${size}&sortBy=${sortBy}`;
+    return this.http.get<VendorPageResponse>(
+      `${this.baseUrl}${params}`, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  // Keep the old method for backward compatibility
+  getAllVendorsSimple(): Observable<VendorResponse[]> {
     return this.http.get<VendorResponse[]>(
       this.baseUrl, 
       { headers: this.getAuthHeaders() }

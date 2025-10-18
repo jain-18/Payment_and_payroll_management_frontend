@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { VendorService } from '../../services/vendor.service';
 import { VendorRequest } from '../../model/vendor-request.model';
 import { OrgDashboardNavbar } from '../org-dashboard-navbar/org-dashboard-navbar';
@@ -9,7 +9,7 @@ import { TokenUtils } from '../../utils/token-utils';
 
 @Component({
   selector: 'app-create-vendor-component',
-  imports: [CommonModule, ReactiveFormsModule, OrgDashboardNavbar],
+  imports: [CommonModule, ReactiveFormsModule, OrgDashboardNavbar, RouterLink],
   templateUrl: './create-vendor-component.html',
   styleUrl: './create-vendor-component.css'
 })
@@ -52,7 +52,7 @@ export class CreateVendorComponent implements OnInit {
       ]],
       accountNumber: ['', [
         Validators.required,
-        Validators.pattern(/^[0-9]{10,20}$/)
+        Validators.pattern(/^[0-9]{9,18}$/)
       ]],
       ifsc: ['', [
         Validators.required,
