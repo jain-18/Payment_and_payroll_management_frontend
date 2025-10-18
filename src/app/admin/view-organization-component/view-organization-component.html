@@ -40,16 +40,16 @@
                     <h3 class="mb-0">{{ orgInfo.organizationName }}</h3>
                 </div>
                 <div class="d-flex align-items-center">
-                    <button [class]="'btn status-btn me-2 ' + (orgInfo.isActive ? 'btn-soft-danger' : 'btn-soft-success')"
+                    <button [class]="'btn status-btn me-2 ' + (orgInfo.active ? 'btn-soft-danger' : 'btn-soft-success')"
                             (click)="toggleStatus()"
                             [disabled]="statusLoading">
-                        <i [class]="'bi me-1 ' + (orgInfo.isActive ? 'bi-toggle-on' : 'bi-toggle-off')"></i>
+                        <i [class]="'bi me-1 ' + (orgInfo.active ? 'bi-toggle-on' : 'bi-toggle-off')"></i>
                         <span *ngIf="statusLoading" class="spinner-border spinner-border-sm me-1"></span>
-                        {{ orgInfo.isActive ? 'Deactivate' : 'Activate' }}
+                        {{ orgInfo.active ? 'Deactivate' : 'Activate' }}
                     </button>
-                    <div class="status-badge" [class.active]="orgInfo.isActive">
-                        <i class="bi" [class.bi-check-circle-fill]="orgInfo.isActive" [class.bi-x-circle-fill]="!orgInfo.isActive"></i>
-                        {{ orgInfo.isActive ? 'Active' : 'Inactive' }}
+                    <div class="status-badge" [class.active]="orgInfo.active">
+                        <i class="bi" [class.bi-check-circle-fill]="orgInfo.active" [class.bi-x-circle-fill]="!orgInfo.active"></i>
+                        {{ orgInfo.active ? 'Active' : 'Inactive' }}
                     </div>
                 </div>
             </div>

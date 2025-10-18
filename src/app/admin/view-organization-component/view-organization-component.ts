@@ -87,7 +87,7 @@ export class ViewOrganizationComponent implements OnInit, OnDestroy {
     if (!this.orgInfo || this.statusLoading) return;
 
     this.statusLoading = true;
-    const newStatus = !this.orgInfo.isActive;
+    const newStatus = !this.orgInfo.active;
 
     this.adminService.changeOrganizationStatus(this.orgInfo.organizationId, newStatus).pipe(
       finalize(() => {
@@ -96,7 +96,7 @@ export class ViewOrganizationComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: () => {
-        this.orgInfo.isActive = newStatus;
+        this.orgInfo.active = newStatus;
         this.cdr.detectChanges();
       },
       error: (error) => {
