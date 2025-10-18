@@ -1,0 +1,154 @@
+<app-employee-navbar-component></app-employee-navbar-component>
+
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="text-center">
+        <h1 class="display-5 fw-bold text-primary mb-2">
+          <i class="bi bi-chat-dots me-2"></i>
+          My Concerns
+        </h1>
+        <p class="lead text-muted">Track and manage your submitted concerns</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Controls -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <form [formGroup]="filterForm" class="row g-3">
+            <div class="col-md-6">
+              <label for="sortBy" class="form-label">Sort By</label>
+              <select id="sortBy" class="form-select" formControlName="sortBy" (change)="onSortChange()">
+                <option value="raiseAt">Date Raised (Latest First)</option>
+                <option value="concernId">Concern ID</option>
+                <option value="solved">Status</option>
+              </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <div class="text-muted">
+                <small>Total: {{ totalElements }} concern(s)</small>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading concerns...</p>
+  </div>
+
+  <!-- Concerns List -->
+  <div class="row" *ngIf="!isLoading">
+    <div class="col-12">
+      <div *ngIf="allConcerns.length === 0" class="text-center py-5">
+        <i class="bi bi-chat-dots display-1 text-muted mb-3"></i>
+        <h3 class="text-muted">No Concerns Found</h3>
+        <p class="text-muted">You haven't raised any concerns yet.</p>
+      </div>
+
+      <div *ngIf="allConcerns.length > 0" class="row g-3">
+        <div *ngFor="let concern of allConcerns; let i = index" class="col-lg-6 col-xl-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0 fw-semibold">Concern #{{ concern.concernId }}</h6>
+              <span class="badge" [class]="concern.solved ? 'bg-success' : 'bg-warning'">
+                <i class="bi" [class]="concern.solved ? 'bi-check-circle' : 'bi-clock'"></i>
+                {{ concern.solved ? 'Solved' : 'Pending' }}
+              </span>
+            </div>
+            
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label text-muted small">Organization</label>
+                <div class="fw-semibold">{{ concern.organizationName }}</div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label text-muted small">Raised On</label>
+                <div class="fw-semibold">{{ concern.raiseAt }}</div>
+              </div>
+              
+              <div class="mb-0">
+                <label class="form-label text-muted small">Status</label>
+                <div class="d-flex align-items-center">
+                  <i class="bi me-2" [class]="concern.solved ? 'bi-check-circle-fill text-success' : 'bi-clock-fill text-warning'"></i>
+                  <span [class]="concern.solved ? 'text-success' : 'text-warning'">
+                    {{ concern.solved ? 'Resolved' : 'Under Review' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Pagination Controls -->
+      <div *ngIf="allConcerns.length > 0 && totalPages > 1" class="row mt-4">
+        <div class="col-12">
+          <nav aria-label="Concerns pagination">
+            <ul class="pagination justify-content-center">
+              <!-- Previous Button -->
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">
+                  <i class="bi bi-chevron-left"></i>
+                  Previous
+                </button>
+              </li>
+              
+              <!-- First Page -->
+              <li *ngIf="currentPage > 2" class="page-item">
+                <button class="page-link" (click)="onPageChange(0)">1</button>
+              </li>
+              <li *ngIf="currentPage > 3" class="page-item disabled">
+                <span class="page-link">...</span>
+              </li>
+              
+              <!-- Page Numbers -->
+              <li *ngFor="let page of getPaginationArray()" 
+                  class="page-item" 
+                  [class.active]="page === currentPage">
+                <button class="page-link" (click)="onPageChange(page)">
+                  {{ page + 1 }}
+                </button>
+              </li>
+              
+              <!-- Last Page -->
+              <li *ngIf="currentPage < totalPages - 4" class="page-item disabled">
+                <span class="page-link">...</span>
+              </li>
+              <li *ngIf="currentPage < totalPages - 3" class="page-item">
+                <button class="page-link" (click)="onPageChange(totalPages - 1)">{{ totalPages }}</button>
+              </li>
+              
+              <!-- Next Button -->
+              <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+                  Next
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+          
+          <!-- Pagination Info -->
+          <div class="text-center text-muted mt-2">
+            <small>
+              Showing {{ (currentPage * pageSize) + 1 }} to {{ Math.min((currentPage + 1) * pageSize, totalElements) }} 
+              of {{ totalElements }} concern(s)
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
