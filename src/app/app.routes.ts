@@ -19,6 +19,7 @@ import { EditVendorComponent } from './organization/edit-vendor-component/edit-v
 import { UpdateInfo } from './organization/update-info/update-info';
 import { EmployeeDashboard } from './employee/component/employee-dashboard/employee-dashboard';
 import { EmployeeSalarySlipComponent } from './employee/component/employee-salary-slip-component/employee-salary-slip-component';
+import { VendorPaymentsComponent } from './organization/vendor-payments-component/vendor-payments-component';
 
 export const routes: Routes = [
     {path:'', redirectTo:'home', pathMatch:'full'},
@@ -42,5 +43,6 @@ export const routes: Routes = [
     {path:'org-dashboard/update-info', component: UpdateInfo},
     {path:'org-dashboard/edit-vendor/:id', component: EditVendorComponent, data: {prerender: false}},
     {path:'employee/employee-dashboard', component:EmployeeDashboard},
-    {path:'employee/salary-slips', component: EmployeeSalarySlipComponent}
+    {path:'employee/salary-slips', component: EmployeeSalarySlipComponent},
+    {path:'org-dashboard/vendor-payments', component: VendorPaymentsComponent}
 ];
