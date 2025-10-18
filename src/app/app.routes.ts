@@ -16,6 +16,7 @@ import { EditEmployeeComponent } from './organization/edit-employee-component/ed
 import { CreateVendorComponent } from './organization/create-vendor-component/create-vendor-component';
 import { ManageVendorComponent } from './organization/manage-vendor-component/manage-vendor-component';
 import { EditVendorComponent } from './organization/edit-vendor-component/edit-vendor-component';
+import { UpdateInfo } from './organization/update-info/update-info';
 import { EmployeeDashboard } from './employee/component/employee-dashboard/employee-dashboard';
 import { EmployeeSalarySlipComponent } from './employee/component/employee-salary-slip-component/employee-salary-slip-component';
 
@@ -37,6 +38,8 @@ export const routes: Routes = [
     {path:'org-dashboard/edit-employee/:id', component: EditEmployeeComponent, data: {prerender: false}},
     {path:'org-dashboard/create-vendor', component: CreateVendorComponent},
     {path:'org-dashboard/manage-vendor', component: ManageVendorComponent},
+    {path:'org-dashboard/edit-vendor/:id', component: EditVendorComponent},
+    {path:'org-dashboard/update-info', component: UpdateInfo},
     {path:'org-dashboard/edit-vendor/:id', component: EditVendorComponent, data: {prerender: false}},
     {path:'employee/employee-dashboard', component:EmployeeDashboard},
     {path:'employee/salary-slips', component: EmployeeSalarySlipComponent}

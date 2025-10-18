@@ -9,5 +9,5 @@ export interface VendorResponse {
   ifsc: string;
   organizationId: number;
   address: AddressCreateRequest;
-  isActive: boolean;
+  active: boolean;
 }
