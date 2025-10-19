@@ -70,6 +70,13 @@
         </div>
       </div>
 
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+
       <!-- Error Message -->
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-triangle me-2"></i>

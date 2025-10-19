@@ -113,4 +113,13 @@ export class VendorService {
       { headers: this.getAuthHeaders() }
     );
   }
+
+  sendPaymentRequest(vendorPaymentId: number): Observable<VendorPaymentResponse> {
+    const params = `?vendorId=${vendorPaymentId}`;
+    return this.http.post<VendorPaymentResponse>(
+      `${this.baseUrl}/request${params}`, 
+      null,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 }

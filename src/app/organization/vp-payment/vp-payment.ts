@@ -17,6 +17,7 @@ export class VpPayment implements OnInit {
   payments: VendorPaymentResponse[] = [];
   isLoading = true;
   errorMessage = '';
+  successMessage = '';
   
   // Filter functionality
   selectedStatus = '';
@@ -177,16 +178,62 @@ export class VpPayment implements OnInit {
   }
 
   sendRequest(payment: VendorPaymentResponse): void {
-    // TODO: Implement send request functionality
     console.log('Sending request for payment:', payment);
     this.processingPaymentId = payment.vpId;
+    this.errorMessage = '';
     
-    // Simulate processing
-    setTimeout(() => {
-      this.processingPaymentId = null;
-      // Here you would call the actual API
-      alert(`Request sent for payment ID: ${payment.vpId}`);
-    }, 2000);
+    this.vendorService.sendPaymentRequest(payment.vpId).subscribe({
+      next: (response: VendorPaymentResponse) => {
+        console.log('Payment request sent successfully:', response);
+        this.processingPaymentId = null;
+        
+        // Update the payment in the local array
+        const index = this.payments.findIndex(p => p.vpId === payment.vpId);
+        if (index !== -1) {
+          this.payments[index] = response;
+        }
+        
+        // Show success message
+        alert(`Request sent successfully for payment ID: ${response.vpId}. Status updated to: ${response.status}`);
+        
+        // Refresh the data to get latest state
+        this.loadPayments();
+        
+        this.cdr.markForCheck();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
+      error: (error) => {
+        console.error('Error sending payment request:', error);
+        this.processingPaymentId = null;
+        
+        if (error.status === 400) {
+          this.errorMessage = error.error?.message || 'Invalid request. Please check the payment details.';
+        } else if (error.status === 401) {
+          this.errorMessage = 'Session expired. Please login again.';
+        } else if (error.status === 403) {
+          this.errorMessage = 'Access denied. You do not have permission to send payment requests.';
+        } else if (error.status === 404) {
+          this.errorMessage = 'Payment not found or does not belong to your organization.';
+        } else if (error.status === 500) {
+          if (error.error?.message?.includes('already been sent')) {
+            this.errorMessage = 'A request for this vendor payment has already been sent to admin.';
+          } else if (error.error?.message?.includes('not active')) {
+            this.errorMessage = 'Organization is not active for this operation.';
+          } else {
+            this.errorMessage = error.error?.message || 'Failed to send payment request. Please try again.';
+          }
+        } else {
+          this.errorMessage = error.error?.message || 'Failed to send payment request. Please try again.';
+        }
+        
+        this.cdr.markForCheck();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
+      complete: () => {
+        this.processingPaymentId = null;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   editPayment(payment: VendorPaymentResponse): void {
