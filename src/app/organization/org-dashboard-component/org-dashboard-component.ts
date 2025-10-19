@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { OrgDashboardNavbar } from '../org-dashboard-navbar/org-dashboard-navbar';
 import { EmployeeService } from '../../services/employee.service';
 import { VendorService } from '../../services/vendor.service';
+import { OrganizationService } from '../../services/organization.service';
 
 @Component({
   selector: 'app-org-dashboard-component',
@@ -15,13 +16,14 @@ export class OrgDashboardComponent implements OnInit {
   totalEmployees = 0;
   totalVendors = 0;
   pendingPayments = 0;
-  monthlyTotal = 0;
+  pendingConcerns = 0;
   
   isLoadingStats = false;
 
   constructor(
     private employeeService: EmployeeService,
     private vendorService: VendorService,
+    private organizationService: OrganizationService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -34,7 +36,7 @@ export class OrgDashboardComponent implements OnInit {
   loadDashboardStats(): void {
     this.isLoadingStats = true;
     let loadedCount = 0;
-    const totalRequests = 3; // Updated to 3 requests
+    const totalRequests = 4; // Updated to 4 requests (added pending concerns)
     
     const checkLoadingComplete = () => {
       loadedCount++;
@@ -93,6 +95,20 @@ export class OrgDashboardComponent implements OnInit {
       error: (error) => {
         console.error('Error loading pending payments count:', error);
         this.pendingPayments = 0;
+        checkLoadingComplete();
+      }
+    });
+
+    // Load pending concerns count (solved = false)
+    this.organizationService.getAllRaisedConcerns(0, 1, 'raiseAt', false).subscribe({
+      next: (response) => {
+        this.pendingConcerns = response.totalElements;
+        console.log('Pending concerns loaded:', this.pendingConcerns);
+        checkLoadingComplete();
+      },
+      error: (error) => {
+        console.error('Error loading pending concerns count:', error);
+        this.pendingConcerns = 0;
         checkLoadingComplete();
       }
     });
