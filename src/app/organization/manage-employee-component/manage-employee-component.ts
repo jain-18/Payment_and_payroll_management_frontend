@@ -20,6 +20,8 @@ export class ManageEmployeeComponent implements OnInit {
   
   // Search functionality
   searchId: number | null = null;
+  searchName: string = '';
+  searchType: 'id' | 'name' = 'name'; // Default to name search for employees
   isSearching = false;
   searchResults: EmployeeResponse[] = [];
   isSearchMode = false;
@@ -185,68 +187,96 @@ export class ManageEmployeeComponent implements OnInit {
   }
 
   searchEmployee(): void {
-    if (!this.searchId || !isPlatformBrowser(this.platformId)) {
+    if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
-    console.log('Starting search for employee ID:', this.searchId);
+    if (this.searchType === 'id' && !this.searchId) {
+      return;
+    }
+
+    if (this.searchType === 'name' && !this.searchName.trim()) {
+      return;
+    }
+
+    console.log('Starting search for employee');
     this.isSearching = true;
     this.errorMessage = '';
     
-    // Force change detection to show loading state immediately
     this.cdr.markForCheck();
 
-    this.employeeService.searchEmployeeById(this.searchId).subscribe({
-      next: (employee: EmployeeResponse) => {
-        console.log('Employee found:', employee);
-        this.searchResults = [employee];
-        this.isSearchMode = true;
-        this.isSearching = false;
-        console.log('Search completed. isSearching:', this.isSearching, 'isSearchMode:', this.isSearchMode);
-        // Force change detection to update view
-        this.cdr.markForCheck();
-        // Also try detectChanges as backup
-        setTimeout(() => this.cdr.detectChanges(), 0);
-      },
-      error: (error) => {
-        console.error('Error searching employee:', error);
-        this.isSearching = false;
-        this.searchResults = [];
-        this.isSearchMode = true;
-        
-        if (error.status === 404) {
-          this.errorMessage = `Employee not found with ID: ${this.searchId}`;
-        } else if (error.status === 400) {
-          this.errorMessage = 'This employee does not belong to the given organization.';
-        } else if (error.status === 401) {
-          this.errorMessage = 'Session expired. Please login again.';
-        } else {
-          this.errorMessage = error.error?.message || 'Failed to search employee. Please try again.';
+    if (this.searchType === 'id') {
+      this.employeeService.searchEmployeeById(this.searchId!).subscribe({
+        next: (employee: EmployeeResponse) => {
+          console.log('Employee found by ID:', employee);
+          this.searchResults = [employee];
+          this.isSearchMode = true;
+          this.isSearching = false;
+          this.cdr.markForCheck();
+          setTimeout(() => this.cdr.detectChanges(), 0);
+        },
+        error: (error) => {
+          this.handleSearchError(error);
+        },
+        complete: () => {
+          this.isSearching = false;
+          this.cdr.markForCheck();
         }
-        // Force change detection to update view
-        this.cdr.markForCheck();
-        setTimeout(() => this.cdr.detectChanges(), 0);
-      },
-      complete: () => {
-        // Ensure searching state is cleared
-        this.isSearching = false;
-        console.log('Search request completed. isSearching:', this.isSearching);
-        // Force final change detection
-        this.cdr.markForCheck();
-        setTimeout(() => this.cdr.detectChanges(), 0);
-      }
-    });
+      });
+    } else {
+      this.employeeService.searchEmployeeByName(this.searchName.trim(), 0, 50, this.sortBy).subscribe({
+        next: (response: EmployeePageResponse) => {
+          console.log('Employees found by name:', response);
+          this.searchResults = response.content || [];
+          this.isSearchMode = true;
+          this.isSearching = false;
+          this.cdr.markForCheck();
+          setTimeout(() => this.cdr.detectChanges(), 0);
+        },
+        error: (error) => {
+          this.handleSearchError(error);
+        },
+        complete: () => {
+          this.isSearching = false;
+          this.cdr.markForCheck();
+        }
+      });
+    }
+  }
+
+  handleSearchError(error: any): void {
+    console.error('Search error:', error);
+    this.isSearching = false;
+    this.searchResults = [];
+    this.isSearchMode = true;
+    
+    if (error.status === 404) {
+      this.errorMessage = this.searchType === 'id' 
+        ? `No employee found with ID: ${this.searchId}`
+        : `No employees found with name containing: "${this.searchName}"`;
+    } else if (error.status === 400) {
+      this.errorMessage = 'This employee does not belong to the given organization.';
+    } else if (error.status === 401) {
+      this.errorMessage = 'Session expired. Please login again.';
+    } else if (error.status === 403) {
+      this.errorMessage = 'Access denied. You do not have permission to search employees.';
+    } else {
+      this.errorMessage = error.error?.message || 'Search failed. Please try again.';
+    }
+    
+    this.cdr.markForCheck();
+    setTimeout(() => this.cdr.detectChanges(), 0);
   }
 
   clearSearch(): void {
     console.log('Clearing search');
     this.searchId = null;
+    this.searchName = '';
     this.searchResults = [];
     this.isSearchMode = false;
     this.errorMessage = '';
     this.isSearching = false;
     console.log('Search cleared. isSearchMode:', this.isSearchMode);
-    // Force change detection to update view immediately
     this.cdr.markForCheck();
     setTimeout(() => this.cdr.detectChanges(), 0);
   }
@@ -255,6 +285,11 @@ export class ManageEmployeeComponent implements OnInit {
     if (event.key === 'Enter') {
       this.searchEmployee();
     }
+  }
+
+  onSearchTypeChange(): void {
+    // Clear previous search when switching types
+    this.clearSearch();
   }
 
   get displayedEmployees(): EmployeeResponse[] {

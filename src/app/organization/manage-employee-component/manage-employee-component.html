@@ -23,22 +23,48 @@
           <!-- Search Section -->
           <div class="row mb-4">
             <div class="col-12">
+              <!-- Search Type Selection -->
+              <div class="mb-3">
+                <div class="btn-group" role="group" aria-label="Search type">
+                  <input type="radio" class="btn-check" name="searchType" id="searchById" value="id" 
+                         [(ngModel)]="searchType" (change)="clearSearch()" autocomplete="off">
+                  <label class="btn btn-outline-primary" for="searchById">Search by ID</label>
+
+                  <input type="radio" class="btn-check" name="searchType" id="searchByName" value="name" 
+                         [(ngModel)]="searchType" (change)="clearSearch()" autocomplete="off">
+                  <label class="btn btn-outline-primary" for="searchByName">Search by Name</label>
+                </div>
+              </div>
+
+              <!-- Search Input -->
               <div class="input-group">
                 <span class="input-group-text">
                   <i class="fas fa-search"></i>
                 </span>
-                <input 
+                
+                <!-- Search by ID -->
+                <input *ngIf="searchType === 'id'"
                   type="number" 
                   class="form-control" 
                   placeholder="Search by Employee ID..." 
                   [(ngModel)]="searchId"
                   (keypress)="onSearchKeyPress($event)"
                   [disabled]="isSearching">
+
+                <!-- Search by Name -->
+                <input *ngIf="searchType === 'name'"
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Search by Employee Name..." 
+                  [(ngModel)]="searchName"
+                  (keypress)="onSearchKeyPress($event)"
+                  [disabled]="isSearching">
+
                 <button 
                   class="btn btn-primary" 
                   type="button" 
                   (click)="searchEmployee()"
-                  [disabled]="!searchId || isSearching">
+                  [disabled]="(searchType === 'id' && !searchId) || (searchType === 'name' && !searchName.trim()) || isSearching">
                   <i class="fas fa-search me-2" [class.fa-spin]="isSearching"></i>
                   {{ isSearching ? 'Searching...' : 'Search' }}
                 </button>
@@ -46,15 +72,19 @@
                   class="btn btn-outline-secondary" 
                   type="button" 
                   (click)="clearSearch()"
-                  [disabled]="!isSearchMode && !searchId">
+                  [disabled]="!isSearchMode && !searchId && !searchName">
                   <i class="fas fa-times me-2"></i>
                   Clear
                 </button>
               </div>
               <small class="text-muted mt-1 d-block">
                 <i class="fas fa-info-circle me-1"></i>
-                {{ isSearchMode ? 'Showing search results' : 'Enter Employee ID to search for a specific employee' }}
+                {{ isSearchMode ? 'Showing search results' : 
+                   (searchType === 'id' ? 'Enter Employee ID to search for a specific employee' : 'Enter Employee Name to search') }}
               </small>
+            </div>
+          </div>
+  
             </div>
           </div>
 
@@ -282,5 +312,3 @@
         </nav>
       </div>
     </div>
-  </div>
-</div>

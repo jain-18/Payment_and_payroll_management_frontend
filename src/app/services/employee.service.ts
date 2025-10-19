@@ -126,4 +126,13 @@ export class EmployeeService {
       { headers: this.getAuthHeaders() }
     );
   }
+
+  // Search methods
+  searchEmployeeByName(name: string, page: number = 0, size: number = 10, sortBy: string = 'employeeName'): Observable<EmployeePageResponse> {
+    const params = `?name=${encodeURIComponent(name)}&page=${page}&size=${size}&sortBy=${sortBy}`;
+    return this.http.get<EmployeePageResponse>(
+      `${this.baseUrl}/search-employees${params}`, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
 }
