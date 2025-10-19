@@ -224,12 +224,19 @@ export class EmployeeSalarySlipComponent implements OnInit {
           console.log('Concern submitted successfully:', response);
           this.isSubmittingConcern = false;
           this.selectedSlip = null;
+          alert('Concern raised successfully!');
         },
         error: (err) => {
           console.error('Error submitting concern:', err);
           this.isSubmittingConcern = false;
           this.selectedSlip = null;
-          // Optionally show error message to user
+          
+          // Check if the error status is 500 (Internal Server Error)
+          if (err.status === 500) {
+            alert('Concern already raised for this salary slip.');
+          } else {
+            alert('Failed to raise concern. Please try again.');
+          }
         }
       });
     }
