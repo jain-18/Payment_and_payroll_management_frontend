@@ -1,0 +1,399 @@
+<app-org-dashboard-navbar></app-org-dashboard-navbar>
+
+<div class="container-fluid py-4">
+  <!-- Header Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="text-center">
+        <h1 class="display-5 fw-bold text-primary mb-2">
+          <i class="bi bi-currency-dollar me-2"></i>
+          Employee Salary Management
+        </h1>
+        <p class="lead text-muted">Create and manage salary structures for all employees</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body text-center py-4">
+          <h5 class="card-title mb-3">
+            <i class="bi bi-plus-circle me-2"></i>
+            Create Salary Structures
+          </h5>
+          <p class="card-text text-muted mb-4">
+            Generate salary structures for all employees in your organization based on their current employment details.
+          </p>
+          <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+            <button 
+              type="button" 
+              class="btn btn-primary btn-lg px-4" 
+              (click)="createSalaryStructures()"
+              [disabled]="isCreating">
+              <span *ngIf="isCreating" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!isCreating" class="bi bi-magic me-2"></i>
+              {{ isCreating ? 'Creating...' : 'Create Salary Structures' }}
+            </button>
+            
+            <button 
+              type="button" 
+              class="btn btn-success btn-lg px-4" 
+              (click)="sendUpdateRequestToAdmin()"
+              [disabled]="isSendingRequest">
+              <span *ngIf="isSendingRequest" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!isSendingRequest" class="bi bi-send me-2"></i>
+              {{ isSendingRequest ? 'Sending...' : 'Send Update Request to Admin' }}
+            </button>
+            
+            <button 
+              type="button" 
+              class="btn btn-info btn-lg px-4" 
+              (click)="sendGeneralRequestToAdmin()"
+              [disabled]="isSendingGeneralRequest">
+              <span *ngIf="isSendingGeneralRequest" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!isSendingGeneralRequest" class="bi bi-envelope me-2"></i>
+              {{ isSendingGeneralRequest ? 'Sending...' : 'Send Request to Admin' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <form [formGroup]="filterForm" class="row g-3">
+            <div class="col-md-3">
+              <label for="status" class="form-label">Status</label>
+              <select id="status" class="form-select" formControlName="status">
+                <option value="">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="PAID">Paid</option>
+                <option value="REJECTED">Rejected</option>
+                <option value="CONCERNED">Concerned</option>
+                <option value="UPDATED">Updated</option>
+                <option value="DRAFTED">Drafted</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="sortBy" class="form-label">Sort By</label>
+              <select id="sortBy" class="form-select" formControlName="sortBy">
+                <option value="createdAt">Date Created</option>
+                <option value="employee">Employee Name</option>
+                <option value="salary">Salary Amount</option>
+                <option value="status">Status</option>
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button type="button" class="btn btn-outline-secondary" (click)="onClearFilters()">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>
+                Clear Filters
+              </button>
+            </div>
+            <div class="col-md-3 d-flex align-items-end justify-content-end">
+              <div class="text-muted">
+                <small>Total: {{ totalElements }} salary structure(s)</small>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading salary structures...</p>
+  </div>
+
+  <!-- Salary Structures Table -->
+  <div class="row" *ngIf="!isLoading">
+    <div class="col-12">
+      <!-- Empty State -->
+      <div *ngIf="salaryStructures.length === 0" class="text-center py-5">
+        <i class="bi bi-table display-1 text-muted mb-3"></i>
+        <h3 class="text-muted">No Salary Structures Found</h3>
+        <p class="text-muted">Create salary structures using the button above to get started.</p>
+      </div>
+
+      <!-- Data Table -->
+      <div *ngIf="salaryStructures.length > 0" class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-table me-2"></i>
+            Salary Structures
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">
+                    <i class="bi bi-hash me-1"></i>
+                    Slip ID
+                  </th>
+                  <th scope="col">
+                    <i class="bi bi-person me-1"></i>
+                    Employee
+                  </th>
+                  <th scope="col">
+                    <i class="bi bi-currency-dollar me-1"></i>
+                    Salary Amount
+                  </th>
+                  <th scope="col">
+                    <i class="bi bi-calendar me-1"></i>
+                    Period
+                  </th>
+                  <th scope="col">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Status
+                  </th>
+                  <th scope="col">
+                    <i class="bi bi-gear me-1"></i>
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                                <tr *ngFor="let structure of salaryStructures; let i = index; trackBy: trackBySlipId" class="align-middle">
+                  <td>
+                    <span class="badge bg-light text-dark">#{{ structure.slipId }}</span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                           style="width: 32px; height: 32px;">
+                        {{ getEmployeeInitials(structure.employee) }}
+                      </div>
+                      <div>
+                        <div class="fw-semibold">{{ structure.employee }}</div>
+                        <small class="text-muted">ID: {{ structure.employeeId }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="fw-bold text-success">
+                      {{ formatCurrency(structure.salary) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div>
+                      <i class="bi bi-calendar-month me-1"></i>
+                      {{ getMonthName(structure.periodMonth) }} {{ structure.periodYear }}
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge" [class]="getStatusBadgeClass(structure.status)">
+                      <i class="bi" [class]="getStatusIcon(structure.status)"></i>
+                      {{ structure.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <button 
+                        type="button" 
+                        class="btn btn-sm btn-outline-primary" 
+                        (click)="viewDetails(structure)"
+                        title="View Details">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button 
+                        *ngIf="structure.status === 'CONCERNED' || structure.status === 'REJECTED'"
+                        type="button" 
+                        class="btn btn-sm btn-outline-secondary" 
+                        (click)="editStructure(structure)"
+                        title="Edit Structure">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div *ngIf="salaryStructures.length > 0 && totalPages > 1" class="row mt-4">
+        <div class="col-12">
+          <nav aria-label="Salary structures pagination">
+            <ul class="pagination justify-content-center">
+              <!-- Previous Button -->
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">
+                  <i class="bi bi-chevron-left"></i>
+                  Previous
+                </button>
+              </li>
+              
+              <!-- First Page -->
+              <li *ngIf="currentPage > 2" class="page-item">
+                <button class="page-link" (click)="onPageChange(0)">1</button>
+              </li>
+              <li *ngIf="currentPage > 3" class="page-item disabled">
+                <span class="page-link">...</span>
+              </li>
+              
+              <!-- Page Numbers -->
+              <li *ngFor="let page of getPaginationArray()" 
+                  class="page-item" 
+                  [class.active]="page === currentPage">
+                <button class="page-link" (click)="onPageChange(page)">
+                  {{ page + 1 }}
+                </button>
+              </li>
+              
+              <!-- Last Page -->
+              <li *ngIf="currentPage < totalPages - 4" class="page-item disabled">
+                <span class="page-link">...</span>
+              </li>
+              <li *ngIf="currentPage < totalPages - 3" class="page-item">
+                <button class="page-link" (click)="onPageChange(totalPages - 1)">{{ totalPages }}</button>
+              </li>
+              
+              <!-- Next Button -->
+              <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+                  Next
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+          
+          <!-- Pagination Info -->
+          <div class="text-center text-muted mt-2">
+            <small>
+              Showing {{ (currentPage * pageSize) + 1 }} to {{ Math.min((currentPage + 1) * pageSize, totalElements) }} 
+              of {{ totalElements }} salary structure(s)
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Salary Modal -->
+<div class="modal fade" id="editSalaryModal" tabindex="-1" [class.show]="showEditModal" [style.display]="showEditModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-pencil-square me-2"></i>
+          Edit Salary
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cancelEdit()"></button>
+      </div>
+      
+      <form [formGroup]="editForm" (ngSubmit)="submitEdit()">
+        <div class="modal-body">
+          <div class="row g-3">
+            <!-- Employee Information (Read-only) -->
+            <div class="col-12">
+              <div class="card bg-light">
+                <div class="card-body py-3">
+                  <h6 class="card-title mb-2">Employee Information</h6>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label class="form-label text-muted small">Employee Name</label>
+                      <input type="text" class="form-control-plaintext" formControlName="employeeName" readonly>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label text-muted small">Employee ID</label>
+                      <input type="text" class="form-control-plaintext" formControlName="employeeId" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Salary Input -->
+            <div class="col-12">
+              <label for="salaryInput" class="form-label fw-semibold">
+                <i class="bi bi-currency-dollar me-1"></i>
+                New Salary Amount
+              </label>
+              <div class="input-group">
+                <span class="input-group-text">₹</span>
+                <input 
+                  type="number" 
+                  id="salaryInput"
+                  class="form-control" 
+                  formControlName="salary"
+                  placeholder="Enter new salary amount"
+                  min="0"
+                  step="1"
+                  [value]="editForm.get('salary')?.value"
+                  (input)="onSalaryInput($event)"
+                  required>
+              </div>
+              <div class="form-text">
+                <i class="bi bi-info-circle me-1"></i>
+                Enter the new salary amount for this employee.
+              </div>
+            </div>
+            
+            <!-- Current vs New Salary Comparison -->
+            <div class="col-12" *ngIf="selectedStructure && editForm.get('salary')?.value">
+              <div class="card border-info">
+                <div class="card-body py-3">
+                  <h6 class="card-title text-info mb-2">
+                    <i class="bi bi-arrow-left-right me-1"></i>
+                    Salary Comparison
+                  </h6>
+                  <div class="row text-center">
+                    <div class="col-6">
+                      <div class="border-end">
+                        <div class="text-muted small">Current Salary</div>
+                        <div class="fw-bold text-secondary">{{ formatCurrency(selectedStructure.salary) }}</div>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="text-muted small">New Salary</div>
+                      <div class="fw-bold text-primary">{{ formatCurrency(editForm.get('salary')?.value) }}</div>
+                    </div>
+                  </div>
+                  <div class="text-center mt-2">
+                    <span class="badge" 
+                          [class]="editForm.get('salary')?.value > selectedStructure.salary ? 'bg-success' : 'bg-warning'">
+                      <i class="bi" 
+                         [class]="editForm.get('salary')?.value > selectedStructure.salary ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
+                      {{ editForm.get('salary')?.value > selectedStructure.salary ? 'Increase' : 'Decrease' }}
+                      {{ Math.abs(editForm.get('salary')?.value - selectedStructure.salary) | currency:'INR':'symbol':'1.0-0' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isUpdating">
+            <i class="bi bi-x-circle me-1"></i>
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="!editForm.valid || isUpdating">
+            <span *ngIf="isUpdating" class="spinner-border spinner-border-sm me-1"></span>
+            <i *ngIf="!isUpdating" class="bi bi-check-circle me-1"></i>
+            {{ isUpdating ? 'Updating...' : 'Update Salary' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div *ngIf="showEditModal" class="modal-backdrop fade show" (click)="cancelEdit()"></div>
