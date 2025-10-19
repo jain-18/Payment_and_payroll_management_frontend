@@ -305,3 +305,101 @@
     </div>
   </div>
 </div>
+
+<!-- Payment Popup Modal -->
+<div *ngIf="showPaymentPopup" class="payment-modal-overlay" (click)="closePaymentPopup()">
+  <div class="payment-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <i class="fas fa-credit-card me-2"></i>
+        Initiate Payment
+      </h5>
+      <button type="button" class="btn-close" (click)="closePaymentPopup()"></button>
+    </div>
+    
+    <div class="modal-body">
+
+      <div *ngIf="selectedVendor" class="vendor-info mb-4">
+        <h6 class="text-primary">Payment Details</h6>
+        <div class="row">
+          <div class="col-sm-4"><strong>Vendor:</strong></div>
+          <div class="col-sm-8">{{ selectedVendor.vendorName }}</div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4"><strong>Vendor ID:</strong></div>
+          <div class="col-sm-8">{{ selectedVendor.vendorId }}</div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4"><strong>Email:</strong></div>
+          <div class="col-sm-8">{{ selectedVendor.email }}</div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4"><strong>Account:</strong></div>
+          <div class="col-sm-8">{{ selectedVendor.accountNumber }} ({{ selectedVendor.ifsc }})</div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="paymentSuccessMessage" class="alert alert-success" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        {{ paymentSuccessMessage }}
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="paymentErrorMessage" class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ paymentErrorMessage }}
+      </div>
+
+      <!-- Payment Form -->
+      <div *ngIf="!paymentSuccessMessage" class="payment-form">
+        <div class="mb-3">
+          <label for="paymentAmount" class="form-label">
+            <strong>Payment Amount (₹)</strong>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text">₹</span>
+            <input 
+              type="number" 
+              id="paymentAmount"
+              class="form-control" 
+              placeholder="Enter amount..."
+              [(ngModel)]="paymentAmount"
+              (keypress)="onPaymentAmountKeyPress($event)"
+              [disabled]="isSubmittingPayment"
+              min="0.01"
+              step="0.01">
+          </div>
+          <div class="form-text">
+            Enter the amount you want to pay to this vendor
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer" *ngIf="!paymentSuccessMessage">
+      <button 
+        type="button" 
+        class="btn btn-secondary" 
+        (click)="closePaymentPopup()"
+        [disabled]="isSubmittingPayment">
+        Cancel
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-success" 
+        (click)="submitPayment()"
+        [disabled]="!paymentAmount || paymentAmount <= 0 || isSubmittingPayment">
+        <i class="fas fa-paper-plane me-2" [class.fa-spin]="isSubmittingPayment"></i>
+        {{ isSubmittingPayment ? 'Processing...' : 'Submit Payment' }}
+      </button>
+    </div>
+    
+    <!-- Success footer -->
+    <div class="modal-footer" *ngIf="paymentSuccessMessage">
+      <button type="button" class="btn btn-primary" (click)="closePaymentPopup()">
+        Close
+      </button>
+    </div>
+  </div>
+</div>

@@ -5,6 +5,8 @@ import { RouterModule } from '@angular/router';
 import { VendorService } from '../../services/vendor.service';
 import { VendorResponse } from '../../model/vendor-response.model';
 import { VendorPageResponse } from '../../model/pageable-response.model';
+import { VendorPaymentRequest } from '../../model/vendor-payment-request.model';
+import { VendorPaymentResponse } from '../../model/vendor-payment-response.model';
 import { OrgDashboardNavbar } from '../org-dashboard-navbar/org-dashboard-navbar';
 
 @Component({
@@ -28,6 +30,14 @@ export class VendorPaymentsComponent implements OnInit {
   
   // Payment processing
   processingPaymentId: number | null = null;
+  
+  // Payment popup
+  showPaymentPopup = false;
+  selectedVendor: VendorResponse | null = null;
+  paymentAmount: number | null = null;
+  isSubmittingPayment = false;
+  paymentSuccessMessage = '';
+  paymentErrorMessage = '';
   
   // Expose Math to template
   Math = Math;
@@ -260,20 +270,94 @@ export class VendorPaymentsComponent implements OnInit {
   }
 
   initiatePayment(vendorId: number, vendorName: string): void {
-    // TODO: Implement payment initiation logic
-    console.log(`Initiating payment for vendor: ${vendorName} (ID: ${vendorId})`);
-    this.processingPaymentId = vendorId;
-    
-    // Simulate payment processing
-    setTimeout(() => {
-      this.processingPaymentId = null;
-      // Show success message or navigate to payment page
-      alert(`Payment initiated for ${vendorName}`);
-    }, 2000);
+    // Find the vendor object
+    const vendor = this.displayedVendors.find(v => v.vendorId === vendorId);
+    if (vendor) {
+      this.selectedVendor = vendor;
+      this.paymentAmount = null;
+      this.paymentErrorMessage = '';
+      this.paymentSuccessMessage = '';
+      this.showPaymentPopup = true;
+    }
+  }
+
+  closePaymentPopup(): void {
+    this.showPaymentPopup = false;
+    this.selectedVendor = null;
+    this.paymentAmount = null;
+    this.paymentErrorMessage = '';
+    this.paymentSuccessMessage = '';
+    this.isSubmittingPayment = false;
+  }
+
+  submitPayment(): void {
+    if (!this.selectedVendor || !this.paymentAmount || this.paymentAmount <= 0) {
+      this.paymentErrorMessage = 'Please enter a valid amount greater than 0';
+      return;
+    }
+
+    console.log('Starting payment submission...');
+    this.isSubmittingPayment = true;
+    this.paymentErrorMessage = '';
+    this.paymentSuccessMessage = '';
+    this.cdr.markForCheck(); // Ensure loading state is displayed immediately
+
+    const paymentRequest: VendorPaymentRequest = {
+      vendorId: this.selectedVendor.vendorId,
+      amount: this.paymentAmount
+    };
+
+    this.vendorService.initiatePayment(paymentRequest).subscribe({
+      next: (response: VendorPaymentResponse) => {
+        console.log('Payment initiated successfully:', response);
+        console.log('Setting success message and stopping loading...');
+        this.isSubmittingPayment = false;
+        this.paymentErrorMessage = ''; // Clear any previous error
+        this.paymentSuccessMessage = `Payment of ₹${response.amount} initiated successfully for ${response.vendorName}. Payment ID: ${response.vpId}`;
+        
+        console.log('Success message set:', this.paymentSuccessMessage);
+        console.log('isSubmittingPayment:', this.isSubmittingPayment);
+        
+        // Force immediate change detection
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error initiating payment:', error);
+        this.isSubmittingPayment = false;
+        this.paymentSuccessMessage = ''; // Clear any previous success message
+        this.cdr.markForCheck();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+        
+        if (error.status === 400) {
+          this.paymentErrorMessage = error.error?.message || 'Invalid payment details. Please check the amount and try again.';
+        } else if (error.status === 401) {
+          this.paymentErrorMessage = 'Session expired. Please login again.';
+        } else if (error.status === 403) {
+          this.paymentErrorMessage = 'Access denied. You do not have permission to initiate payments.';
+        } else if (error.status === 404) {
+          this.paymentErrorMessage = 'Vendor not found or not registered with your organization.';
+        } else if (error.status === 500) {
+          this.paymentErrorMessage = error.error?.message || 'Organization is not active or not registered for this vendor.';
+        } else {
+          this.paymentErrorMessage = error.error?.message || 'Failed to initiate payment. Please try again.';
+        }
+      },
+      complete: () => {
+        console.log('Payment request completed');
+        // Don't set isSubmittingPayment = false here as it's already handled in next/error
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onPaymentAmountKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.submitPayment();
+    }
   }
 
   isProcessingPayment(vendorId: number): boolean {
-    return this.processingPaymentId === vendorId;
+    return this.isSubmittingPayment && this.selectedVendor?.vendorId === vendorId;
   }
 
   navigateToPayments(): void {
