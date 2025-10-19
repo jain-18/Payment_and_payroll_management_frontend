@@ -235,3 +235,86 @@
     </div>
   </div>
 </div>
+
+<!-- Edit Payment Modal -->
+<div class="modal fade" 
+     [class.show]="showEditModal" 
+     [style.display]="showEditModal ? 'block' : 'none'"
+     tabindex="-1" 
+     role="dialog" 
+     aria-labelledby="editPaymentModalLabel" 
+     aria-hidden="true"
+     *ngIf="showEditModal">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="editPaymentModalLabel">
+          <i class="fas fa-edit me-2"></i>
+          Edit Payment Amount
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeEditModal()" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body">
+        <div *ngIf="editingPayment" class="mb-3">
+          <div class="alert alert-info">
+            <strong>Payment Details:</strong><br>
+            <strong>Payment ID:</strong> {{ editingPayment.vpId }}<br>
+            <strong>Vendor:</strong> {{ editingPayment.vendorName }}<br>
+            <strong>Current Amount:</strong> ${{ editingPayment.amount | number:'1.2-2' }}<br>
+            <strong>Status:</strong> 
+            <span [class]="getStatusBadgeClass(editingPayment.status)">{{ editingPayment.status }}</span>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="editErrorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          {{ editErrorMessage }}
+          <button type="button" class="btn-close" (click)="editErrorMessage = ''" aria-label="Close"></button>
+        </div>
+
+        <form (submit)="submitEditPayment()" #editForm="ngForm">
+          <div class="mb-3">
+            <label for="editAmount" class="form-label">
+              <strong>New Payment Amount ($):</strong>
+            </label>
+            <input 
+              type="number" 
+              id="editAmount"
+              name="editAmount"
+              class="form-control form-control-lg" 
+              [(ngModel)]="editAmount"
+              min="0.01"
+              step="0.01"
+              required
+              placeholder="Enter new amount"
+              [disabled]="isUpdatingPayment">
+            <div class="form-text">
+              Enter the corrected payment amount for this rejected payment.
+            </div>
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()" [disabled]="isUpdatingPayment">
+          <i class="fas fa-times me-2"></i>
+          Cancel
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="submitEditPayment()"
+          [disabled]="isUpdatingPayment || editAmount <= 0">
+          <span *ngIf="isUpdatingPayment" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          <i *ngIf="!isUpdatingPayment" class="fas fa-save me-2"></i>
+          {{ isUpdatingPayment ? 'Updating...' : 'Update Payment' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade" [class.show]="showEditModal" *ngIf="showEditModal" (click)="closeEditModal()"></div>

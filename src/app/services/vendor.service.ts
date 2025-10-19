@@ -8,6 +8,7 @@ import { VendorPageResponse } from '../model/pageable-response.model';
 import { VendorPaymentRequest } from '../model/vendor-payment-request.model';
 import { VendorPaymentResponse } from '../model/vendor-payment-response.model';
 import { VendorPaymentPageResponse } from '../model/vendor-payment-page-response.model';
+import { VendorPaymentUpdate, VendorPaymentUpdateResponse } from '../model/vendor-payment-update.model';
 
 @Injectable({
   providedIn: 'root'
@@ -119,6 +120,14 @@ export class VendorService {
     return this.http.post<VendorPaymentResponse>(
       `${this.baseUrl}/request${params}`, 
       null,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  updateRejectedPayment(paymentUpdate: VendorPaymentUpdate): Observable<VendorPaymentUpdateResponse> {
+    return this.http.put<VendorPaymentUpdateResponse>(
+      `${this.baseUrl}/editRejectedVendorPayment`, 
+      paymentUpdate, 
       { headers: this.getAuthHeaders() }
     );
   }

@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { VendorService } from '../../services/vendor.service';
 import { VendorPaymentResponse } from '../../model/vendor-payment-response.model';
 import { VendorPaymentPageResponse } from '../../model/vendor-payment-page-response.model';
+import { VendorPaymentUpdate, VendorPaymentUpdateResponse } from '../../model/vendor-payment-update.model';
 import { OrgDashboardNavbar } from '../org-dashboard-navbar/org-dashboard-navbar';
 
 @Component({
@@ -32,6 +33,13 @@ export class VpPayment implements OnInit {
   
   // Action processing
   processingPaymentId: number | null = null;
+  
+  // Edit payment modal properties
+  showEditModal = false;
+  editingPayment: VendorPaymentResponse | null = null;
+  editAmount: number = 0;
+  editErrorMessage = '';
+  isUpdatingPayment = false;
   
   // Expose Math to template
   Math = Math;
@@ -194,7 +202,7 @@ export class VpPayment implements OnInit {
         }
         
         // Show success message
-        alert(`Request sent successfully for payment ID: ${response.vpId}. Status updated to: ${response.status}`);
+        this.successMessage = `Payment request sent successfully! Payment ID: ${response.vpId}. Status: ${response.status}`;
         
         // Refresh the data to get latest state
         this.loadPayments();
@@ -237,10 +245,86 @@ export class VpPayment implements OnInit {
   }
 
   editPayment(payment: VendorPaymentResponse): void {
-    // TODO: Implement edit payment functionality
     console.log('Editing payment:', payment);
-    // Navigate to edit page or open edit modal
-    alert(`Editing payment ID: ${payment.vpId}`);
+    this.editingPayment = payment;
+    this.editAmount = payment.amount;
+    this.editErrorMessage = '';
+    this.showEditModal = true;
+    this.cdr.markForCheck();
+  }
+
+  submitEditPayment(): void {
+    if (!this.editingPayment || this.editAmount <= 0) {
+      this.editErrorMessage = 'Please enter a valid amount greater than 0.';
+      return;
+    }
+
+    this.isUpdatingPayment = true;
+    this.editErrorMessage = '';
+
+    const updateRequest: VendorPaymentUpdate = {
+      id: this.editingPayment.vpId,
+      amount: this.editAmount
+    };
+
+    this.vendorService.updateRejectedPayment(updateRequest).subscribe({
+      next: (response: VendorPaymentUpdateResponse) => {
+        console.log('Payment updated successfully:', response);
+        this.isUpdatingPayment = false;
+        
+        // Update the payment in the local array
+        const index = this.payments.findIndex(p => p.vpId === this.editingPayment!.vpId);
+        if (index !== -1) {
+          this.payments[index].amount = response.amount;
+          this.payments[index].status = response.status;
+        }
+        
+        // Show success message
+        this.successMessage = `Payment updated successfully! New amount: $${response.amount}. Status: ${response.status}`;
+        
+        // Close modal and refresh data
+        this.closeEditModal();
+        this.loadPayments();
+        
+        this.cdr.markForCheck();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      },
+      error: (error) => {
+        console.error('Error updating payment:', error);
+        this.isUpdatingPayment = false;
+        
+        if (error.status === 400) {
+          this.editErrorMessage = error.error?.message || 'Invalid payment data. Please check the amount.';
+        } else if (error.status === 401) {
+          this.editErrorMessage = 'Session expired. Please login again.';
+        } else if (error.status === 403) {
+          this.editErrorMessage = 'Access denied. You do not have permission to update payments.';
+        } else if (error.status === 404) {
+          this.editErrorMessage = 'Payment not found or does not belong to your organization.';
+        } else if (error.status === 500) {
+          if (error.error?.message?.includes('Only rejected payments')) {
+            this.editErrorMessage = 'Only rejected payments can be updated.';
+          } else if (error.error?.message?.includes('not active')) {
+            this.editErrorMessage = 'Organization is not active for this operation.';
+          } else {
+            this.editErrorMessage = error.error?.message || 'Failed to update payment. Please try again.';
+          }
+        } else {
+          this.editErrorMessage = error.error?.message || 'Failed to update payment. Please try again.';
+        }
+        
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.editingPayment = null;
+    this.editAmount = 0;
+    this.editErrorMessage = '';
+    this.isUpdatingPayment = false;
+    this.cdr.markForCheck();
   }
 
   isProcessing(paymentId: number): boolean {
