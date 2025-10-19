@@ -1,14 +1,45 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { EmployeeDetail } from '../model/employeeDetail';
 import { isPlatformBrowser } from '@angular/common';
 import { catchError, tap, map } from 'rxjs/operators';
 import { SalarySlip } from '../model/salarySlip';
+import { RaiseConcernResp } from '../model/raiseConcernResp';
 
 // Interface for paginated response
 export interface PagedSalarySlipResponse {
   content: SalarySlip[];
+  pageable: {
+    sort: {
+      sorted: boolean;
+      unsorted: boolean;
+      empty: boolean;
+    };
+    pageNumber: number;
+    pageSize: number;
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  first: boolean;
+  numberOfElements: number;
+  size: number;
+  number: number;
+  sort: {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  };
+  empty: boolean;
+}
+
+// Interface for paginated concern response
+export interface PagedConcernResponse {
+  content: RaiseConcernResp[];
   pageable: {
     sort: {
       sorted: boolean;
@@ -46,16 +77,23 @@ export interface SalarySlipFilters {
   sortDir?: 'ASC' | 'DESC';
 }
 
+// Interface for concern filter parameters
+export interface ConcernFilters {
+  page?: number;
+  size?: number;
+  sortBy?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class EmployeeService {
-  
+
   constructor(private http: HttpClient) { }
 
   apiUrl = `http://localhost:8080/api/employees`;
   private platformId = inject(PLATFORM_ID);
-  
+
   // BehaviorSubject to cache employee details
   private employeeDetailsSubject = new BehaviorSubject<EmployeeDetail | null>(null);
   public employeeDetails$ = this.employeeDetailsSubject.asObservable();
@@ -71,7 +109,7 @@ export class EmployeeService {
     employeeDetails?: EmployeeDetail;
     isAuthenticated: boolean;
   } | null> {
-    
+
     if (!isPlatformBrowser(this.platformId)) {
       return null;
     }
@@ -106,14 +144,14 @@ export class EmployeeService {
 
       // Fetch fresh employee details from API
       const employeeDetails = await this.getEmployeeDetails().toPromise();
-      
+
       if (employeeDetails) {
         // Cache the details
         this.employeeDetailsSubject.next(employeeDetails);
-        
+
         // Update localStorage with fresh data if needed
         this.updateLocalStorageFromEmployeeDetails(employeeDetails);
-        
+
         return {
           ...basicUserInfo,
           employeeDetails
@@ -122,7 +160,7 @@ export class EmployeeService {
 
       // Return basic info if API call fails
       return basicUserInfo;
-      
+
     } catch (error) {
       console.error('Error fetching employee details:', error);
       // Return basic user info even if API fails
@@ -139,7 +177,7 @@ export class EmployeeService {
       const userId = localStorage.getItem('userId');
       const username = localStorage.getItem('username');
       const role = localStorage.getItem('userRole');
-      
+
       if (userId && username && role) {
         return { userId, username, role };
       }
@@ -153,7 +191,7 @@ export class EmployeeService {
    */
   getEmployeeDetails(): Observable<EmployeeDetail> {
     const headers = this.getHeaders();
-    
+
     return this.http.get<EmployeeDetail>(`${this.apiUrl}/get-employee-detail`, { headers })
       .pipe(
         tap(details => {
@@ -162,13 +200,13 @@ export class EmployeeService {
         }),
         catchError(error => {
           console.error('Error fetching employee details:', error);
-          
+
           if (error.status === 401) {
             // Token might be expired, clear session
             this.clearSession();
             throw new Error('Authentication expired. Please login again.');
           }
-          
+
           return throwError(() => error);
         })
       );
@@ -199,7 +237,7 @@ export class EmployeeService {
     if (!isPlatformBrowser(this.platformId)) {
       return false;
     }
-    
+
     const token = localStorage.getItem('token');
     return token !== null && this.isTokenValid();
   }
@@ -212,17 +250,17 @@ export class EmployeeService {
     if (!isPlatformBrowser(this.platformId)) {
       return false;
     }
-    
+
     const token = localStorage.getItem('token');
     const tokenExpiry = localStorage.getItem('tokenExpiry');
-    
+
     if (!token || !tokenExpiry) {
       return false;
     }
-    
+
     const currentTime = Math.floor(Date.now() / 1000);
     const expiryTime = parseInt(tokenExpiry);
-    
+
     return currentTime < expiryTime;
   }
 
@@ -236,12 +274,12 @@ export class EmployeeService {
       if (details.employeeName && details.employeeName !== localStorage.getItem('username')) {
         localStorage.setItem('username', details.employeeName);
       }
-      
+
       // Update role if it differs
       if (details.employeeRole && details.employeeRole !== localStorage.getItem('userRole')) {
         localStorage.setItem('userRole', details.employeeRole);
       }
-      
+
       // Store additional employee info for quick access
       localStorage.setItem('employeeEmail', details.email);
       localStorage.setItem('employeeDepartment', details.department);
@@ -257,14 +295,14 @@ export class EmployeeService {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
-    
+
     if (isPlatformBrowser(this.platformId)) {
       const token = localStorage.getItem('token');
       if (token) {
         headers = headers.set('Authorization', `Bearer ${token}`);
       }
     }
-    
+
     return headers;
   }
 
@@ -283,7 +321,7 @@ export class EmployeeService {
       localStorage.removeItem('employeeEmail');
       localStorage.removeItem('employeeDepartment');
       localStorage.removeItem('organizationName');
-      
+
       // Clear cached data
       this.employeeDetailsSubject.next(null);
     }
@@ -304,7 +342,7 @@ export class EmployeeService {
    */
   getSalarySlips(filters?: SalarySlipFilters): Observable<PagedSalarySlipResponse> {
     const headers = this.getHeaders();
-    
+
     // Build query parameters
     let params: { [key: string]: string } = {
       page: (filters?.page ?? 0).toString(),
@@ -312,7 +350,7 @@ export class EmployeeService {
       sortBy: filters?.sortBy ?? 'createdAt',
       sortDir: filters?.sortDir ?? 'DESC'
     };
-    
+
     // Add optional filters
     if (filters?.month) {
       params['month'] = filters.month;
@@ -320,13 +358,13 @@ export class EmployeeService {
     if (filters?.year) {
       params['year'] = filters.year;
     }
-    
+
     // Convert params to URLSearchParams
     const searchParams = new URLSearchParams(params);
     const queryString = searchParams.toString();
-    
+
     console.log('Fetching salary slips with filters:', filters);
-    
+
     return this.http.get<PagedSalarySlipResponse>(`http://localhost:8080/api/salary-structures/salary-slip-of-emp?${queryString}`, { headers })
       .pipe(
         tap(response => {
@@ -339,12 +377,12 @@ export class EmployeeService {
         }),
         catchError(error => {
           console.error('Error fetching salary slips:', error);
-          
+
           if (error.status === 401) {
             this.clearSession();
             throw new Error('Authentication expired. Please login again.');
           }
-          
+
           return throwError(() => error);
         })
       );
@@ -448,12 +486,12 @@ export class EmployeeService {
     const currentYear = new Date().getFullYear();
     const start = startYear ?? currentYear - 5;
     const end = endYear ?? currentYear;
-    
+
     const years: string[] = [];
     for (let year = end; year >= start; year--) {
       years.push(year.toString());
     }
-    
+
     return years;
   }
 
@@ -475,7 +513,7 @@ export class EmployeeService {
    */
   raiseConcern(concernRequest: { salarySlipId: number; concern: string }): Observable<any> {
     const headers = this.getHeaders();
-    
+
     return this.http.post<any>(
       `http://localhost:8080/api/salary-structures/salary-slip/${concernRequest.salarySlipId}/concern`,
       { concern: concernRequest.concern },
@@ -486,14 +524,74 @@ export class EmployeeService {
       }),
       catchError(error => {
         console.error('Error raising concern:', error);
-        
+
         if (error.status === 401) {
           this.clearSession();
           throw new Error('Authentication expired. Please login again.');
         }
-        
+
         return throwError(() => error);
       })
     );
+  }
+
+
+  getAllConcerns(filters?: ConcernFilters): Observable<PagedConcernResponse> {
+    const headers = this.getHeaders();
+    
+    // Build query parameters
+    const params: { [key: string]: string } = {
+      page: (filters?.page ?? 0).toString(),
+      size: (filters?.size ?? 10).toString(),
+      sortBy: filters?.sortBy ?? 'raiseAt'
+    };
+    
+    // Convert params to URLSearchParams
+    const searchParams = new URLSearchParams(params);
+    const queryString = searchParams.toString();
+    
+    console.log('Fetching concerns with filters:', filters);
+    
+    return this.http.get<PagedConcernResponse>(`${this.apiUrl}/raised-concerns?${queryString}`, { headers })
+      .pipe(
+        tap(response => {
+          console.log('Concerns fetched:', {
+            totalElements: response.totalElements,
+            totalPages: response.totalPages,
+            currentPage: response.number,
+            size: response.size
+          });
+        }),
+        catchError(error => {
+          console.error('Error fetching concerns:', error);
+          
+          if (error.status === 401) {
+            this.clearSession();
+            throw new Error('Authentication expired. Please login again.');
+          }
+          
+          return throwError(() => error);
+        })
+      );
+  }
+
+  raiseConcernByEmployee(slipId: number): Observable<any> {
+    const headers = this.getHeaders();
+    const params = new HttpParams().set('slipId', slipId.toString());
+    
+    return this.http.post(`${this.apiUrl}/raise-concerns`, null, { headers, params })
+      .pipe(
+        tap(response => {
+          console.log('Concern raised by employee:', response);
+        }),
+        catchError(error => {
+          console.error('Error raising concern:', error);
+          if (error.status === 401) {
+            this.clearSession();
+            throw new Error('Authentication expired. Please login again.');
+          }
+          return throwError(() => error);
+        })
+      );
   }
 }

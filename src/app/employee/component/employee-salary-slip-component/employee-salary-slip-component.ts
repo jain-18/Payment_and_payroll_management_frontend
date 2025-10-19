@@ -36,6 +36,7 @@ export class EmployeeSalarySlipComponent implements OnInit {
   selectedSlip: SalarySlip | null = null;
   showSlipModal = false;
   showConcernModal = false;
+  showConfirmationModal = false;
   isSubmittingConcern = false;
   
   // Pagination properties
@@ -192,35 +193,50 @@ export class EmployeeSalarySlipComponent implements OnInit {
 
   raiseConcern(slip: SalarySlip): void {
     this.selectedSlip = slip;
-    this.concernForm.patchValue({
-      slipId: slip.slipId,
-      subject: `Concern regarding salary slip for ${this.getMonthName(slip.periodMonth)} ${slip.periodYear}`
-    });
-    this.showConcernModal = true;
+    this.showConfirmationModal = true;
+  }
+
+  confirmRaiseConcern(): void {
+    if (this.selectedSlip) {
+      this.showConfirmationModal = false;
+      this.submitConcern();
+    }
+  }
+
+  cancelRaiseConcern(): void {
+    this.showConfirmationModal = false;
+    this.selectedSlip = null;
   }
 
   submitConcern(): void {
-    if (this.concernForm.valid && this.selectedSlip) {
+    if (this.selectedSlip) {
       this.isSubmittingConcern = true;
       
       const concernRequest = {
         salarySlipId: this.selectedSlip.slipId,
-        concern: this.concernForm.get('description')?.value || this.concernForm.get('concern')?.value
+        concern: `Concern raised for salary slip - ${this.getMonthName(this.selectedSlip.periodMonth)} ${this.selectedSlip.periodYear}`
       };
       
       console.log('Submitting concern:', concernRequest);
       
-      this.employeeService.raiseConcern(concernRequest).subscribe({
+      this.employeeService.raiseConcernByEmployee(this.selectedSlip.slipId).subscribe({
         next: (response) => {
-          console.log('Concern raised successfully:', response);
-          alert('Concern submitted successfully! You will receive a response within 2-3 business days.');
-          this.closeConcernModal();
+          console.log('Concern submitted successfully:', response);
           this.isSubmittingConcern = false;
+          this.selectedSlip = null;
+          alert('Concern raised successfully!');
         },
-        error: (error) => {
-          console.error('Error raising concern:', error);
-          alert('Failed to submit concern. Please try again.');
+        error: (err) => {
+          console.error('Error submitting concern:', err);
           this.isSubmittingConcern = false;
+          this.selectedSlip = null;
+          
+          // Check if the error status is 500 (Internal Server Error)
+          if (err.status === 500) {
+            alert('Concern already raised for this salary slip.');
+          } else {
+            alert('Failed to raise concern. Please try again.');
+          }
         }
       });
     }

@@ -389,3 +389,34 @@
     </div>
   </div>
 </div>
+
+<!-- Confirmation Modal for Raising Concern -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" [class.show]="showConfirmationModal" [style.display]="showConfirmationModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">
+          <i class="bi bi-question-circle me-2"></i>
+          Confirm Action
+        </h5>
+      </div>
+      <div class="modal-body text-center py-4">
+        <div class="mb-3">
+          <i class="bi bi-exclamation-triangle text-warning fs-1"></i>
+        </div>
+        <h6 class="mb-3">Do you want to raise a concern?</h6>
+        <p class="text-muted">This will submit a concern for the selected salary slip.</p>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-secondary me-2" (click)="cancelRaiseConcern()">
+          <i class="bi bi-x-circle me-1"></i>
+          No
+        </button>
+        <button type="button" class="btn btn-warning" (click)="confirmRaiseConcern()">
+          <i class="bi bi-check-circle me-1"></i>
+          Yes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

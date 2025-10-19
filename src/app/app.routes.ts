@@ -19,6 +19,8 @@ import { EditVendorComponent } from './organization/edit-vendor-component/edit-v
 import { UpdateInfo } from './organization/update-info/update-info';
 import { EmployeeDashboard } from './employee/component/employee-dashboard/employee-dashboard';
 import { EmployeeSalarySlipComponent } from './employee/component/employee-salary-slip-component/employee-salary-slip-component';
+import { EmployeeConcernComponent } from './employee/component/employee-concern-component/employee-concern-component';
+import { EmployeeSalaryComponent } from './organization/component/employee-salary-component/employee-salary-component';
 import { VendorPaymentsComponent } from './organization/vendor-payments-component/vendor-payments-component';
 import { VpPayment } from './organization/vp-payment/vp-payment';
 import { VpPaymentRequest } from './organization/vp-payment-request/vp-payment-request';
@@ -44,8 +46,10 @@ export const routes: Routes = [
     {path:'org-dashboard/edit-vendor/:id', component: EditVendorComponent},
     {path:'org-dashboard/update-info', component: UpdateInfo},
     {path:'org-dashboard/edit-vendor/:id', component: EditVendorComponent, data: {prerender: false}},
+    {path:'org-dashboard/employee-payments',component:EmployeeSalaryComponent},
     {path:'employee/employee-dashboard', component:EmployeeDashboard},
     {path:'employee/salary-slips', component: EmployeeSalarySlipComponent},
+    {path:'employee/raise-concerns', component: EmployeeConcernComponent},
     {path:'org-dashboard/vendor-payments', component: VendorPaymentsComponent},
     {path:'org-dashboard/vendor-payments/payments', component: VpPayment},
     {path:'org-dashboard/vendor-payments/request', component: VpPaymentRequest}

@@ -47,7 +47,7 @@ export class EmployeeNavbarComponent implements OnInit, OnDestroy {
     {
       label: 'My Concerns',
       icon: 'bi-chat-dots-fill',
-      route: '/employee/concerns',
+      route: '/employee/raise-concerns',
       isActive: false
     }
   ];

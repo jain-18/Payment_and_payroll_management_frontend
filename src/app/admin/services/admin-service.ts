@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
@@ -11,6 +11,7 @@ import { OrgInfoResponse } from '../model/orgInfoResponse';
 import { AllRequest } from '../model/allRequest';
 import { RequestResp } from '../model/requestResp';
 import { RequestReasonDto } from '../model/RequestReasonDto';
+import { TokenUtils } from '../../utils/token-utils';
 
 @Injectable({
   providedIn: 'root'
@@ -24,15 +25,34 @@ export class AdminService {
   constructor(private http: HttpClient, private router: Router) { }
 
   private getHeaders() {
-    let token = '';
-    if (isPlatformBrowser(this.platformId)) {
-      token = localStorage.getItem('token') || '';
-    }
-    return {
-      headers: {
-        'Authorization': `Bearer ${token}`
+    const token = TokenUtils.getToken();
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    if (token && TokenUtils.isValidToken()) {
+      console.log('Admin service: Token found and valid, adding to headers');
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    } else {
+      console.log('Admin service: No valid token found, using headers without auth');
+      if (token) {
+        console.log('Admin service: Token exists but is invalid - clearing session');
+        this.clearSession();
       }
-    };
+    }
+    
+    return { headers };
+  }
+  
+  private clearSession(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userType');
+      localStorage.removeItem('adminId');
+      console.log('Admin session cleared due to authentication failure');
+      // Optionally redirect to login page
+      // this.router.navigate(['/admin-login']);
+    }
   }
 
   getAdminData(): Observable<AdminData> {
