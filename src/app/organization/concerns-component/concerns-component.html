@@ -1,0 +1,250 @@
+<app-org-dashboard-navbar></app-org-dashboard-navbar>
+
+<div class="container-fluid concerns-container">
+  <div class="row">
+    <div class="col-12">
+      <!-- Header Section -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-danger text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              Raised Concerns Management
+            </h4>
+            <div class="btn-group">
+              <button class="btn btn-light btn-sm" routerLink="/org-dashboard">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Dashboard
+              </button>
+              <button class="btn btn-light btn-sm" (click)="refreshConcerns()">
+                <i class="fas fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>
+                Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label for="pageSize" class="form-label">Show:</label>
+              <select 
+                id="pageSize" 
+                class="form-select" 
+                [(ngModel)]="pageSize" 
+                (change)="onPageSizeChange()">
+                <option *ngFor="let size of pageSizes" [value]="size">{{ size }} concerns</option>
+              </select>
+            </div>
+            
+            <div class="col-md-3">
+              <label for="filterStatus" class="form-label">Filter:</label>
+              <select 
+                id="filterStatus" 
+                class="form-select" 
+                [(ngModel)]="selectedFilter" 
+                (change)="onFilterChange()">
+                <option *ngFor="let option of filterOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="d-flex align-items-end justify-content-end">
+                <div class="text-muted">
+                  <strong>Total Concerns:</strong> {{ totalElements }}
+                  <span class="badge bg-info ms-2" [class.bg-warning]="selectedFilter === 'pending'" [class.bg-success]="selectedFilter === 'solved'">
+                    {{ selectedFilter === 'all' ? 'All' : selectedFilter === 'pending' ? 'Pending' : 'Solved' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Concerns Table -->
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light border-bottom">
+          <h6 class="mb-0 text-muted">
+            <i class="fas fa-table me-2"></i>
+            Concerns List
+            <span *ngIf="!isLoading" class="badge bg-primary ms-2">{{ concerns.length }} of {{ totalElements }}</span>
+          </h6>
+        </div>
+
+        <div class="card-body p-0">
+          <!-- Loading State -->
+          <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2 text-muted">Loading concerns...</div>
+          </div>
+
+          <!-- No Data State -->
+          <div *ngIf="!isLoading && concerns.length === 0" class="text-center py-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Concerns Found</h5>
+            <p class="text-muted">
+              No concerns have been raised by employees yet.
+            </p>
+          </div>
+
+          <!-- Data Table -->
+          <div *ngIf="!isLoading && concerns.length > 0" class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-danger">
+                <tr>
+                  <th scope="col" class="text-center" style="width: 10%;">
+                    <i class="fas fa-hashtag me-1"></i>Concern ID
+                  </th>
+                  <th scope="col" class="text-center" style="width: 15%;">
+                    <i class="fas fa-user me-1"></i>Employee ID
+                  </th>
+                  <th scope="col" class="text-center" style="width: 15%;">
+                    <i class="fas fa-file-invoice me-1"></i>Slip ID
+                  </th>
+                  <th scope="col" class="text-center" style="width: 20%;">
+                    <i class="fas fa-calendar me-1"></i>Raised Date
+                  </th>
+                  <th scope="col" class="text-center" style="width: 15%;">
+                    <i class="fas fa-info-circle me-1"></i>Status
+                  </th>
+                  <th scope="col" class="text-center" style="width: 25%;">
+                    <i class="fas fa-cog me-1"></i>Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let concern of concerns; trackBy: trackByConcernId" class="concern-row">
+                  <!-- Concern ID -->
+                  <td class="text-center">
+                    <span class="fw-bold text-primary">#{{ concern.concernId }}</span>
+                  </td>
+                  
+                  <!-- Employee ID -->
+                  <td class="text-center">
+                    <span class="fw-medium text-dark">{{ concern.employeeId }}</span>
+                  </td>
+                  
+                  <!-- Slip ID -->
+                  <td class="text-center">
+                    <span class="fw-medium text-info">{{ concern.slipId }}</span>
+                  </td>
+                  
+                  <!-- Raised Date -->
+                  <td class="text-center">
+                    <div class="date-info">
+                      <span class="fw-medium text-dark">
+                        <i class="fas fa-calendar-alt fa-sm me-1 text-muted"></i>
+                        {{ concern.raiseAt | date:'MMM dd, yyyy' }}
+                      </span>
+                    </div>
+                  </td>
+                  
+                  <!-- Status -->
+                  <td class="text-center">
+                    <span [class]="getStatusBadgeClass(concern.solved)">
+                      <i class="fas" [class.fa-check-circle]="concern.solved" [class.fa-clock]="!concern.solved" class="me-1"></i>
+                      {{ getStatusText(concern.solved) }}
+                    </span>
+                  </td>
+                  
+                  <!-- Actions -->
+                  <td class="text-center">
+                    <div class="btn-group" role="group">
+                      <!-- Mark as Solved Button -->
+                      <button 
+                        type="button" 
+                        class="btn btn-success btn-sm"
+                        [disabled]="!canPerformAction(concern) || concern.solved"
+                        (click)="markAsSolved(concern)"
+                        [title]="concern.solved ? 'Already solved' : 'Mark as solved'">
+                        <span *ngIf="isProcessing(concern.concernId, 'solve')" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        <i *ngIf="!isProcessing(concern.concernId, 'solve')" class="fas fa-check me-1"></i>
+                        {{ isProcessing(concern.concernId, 'solve') ? 'Solving...' : 'Mark Solved' }}
+                      </button>
+                      
+                      <!-- Delete Button -->
+                      <button 
+                        type="button" 
+                        class="btn btn-danger btn-sm"
+                        [disabled]="!canPerformAction(concern) || concern.solved"
+                        (click)="deleteConcern(concern)"
+                        [title]="concern.solved ? 'Cannot delete solved concern' : 'Delete concern'">
+                        <span *ngIf="isProcessing(concern.concernId, 'delete')" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        <i *ngIf="!isProcessing(concern.concernId, 'delete')" class="fas fa-trash me-1"></i>
+                        {{ isProcessing(concern.concernId, 'delete') ? 'Deleting...' : 'Delete' }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="showPagination" class="card-footer bg-light border-top-0">
+          <nav aria-label="Concerns pagination">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+              <!-- First Page -->
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="onPageChange(0)" [disabled]="currentPage === 0">
+                  <i class="fas fa-angle-double-left"></i>
+                </button>
+              </li>
+              
+              <!-- Previous Page -->
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">
+                  <i class="fas fa-angle-left"></i>
+                </button>
+              </li>
+
+              <!-- Page Numbers -->
+              <li *ngFor="let page of getPageNumbers()" 
+                  class="page-item" 
+                  [class.active]="page === currentPage">
+                <button class="page-link" (click)="onPageChange(page)">
+                  {{ page + 1 }}
+                </button>
+              </li>
+
+              <!-- Next Page -->
+              <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+                  <i class="fas fa-angle-right"></i>
+                </button>
+              </li>
+              
+              <!-- Last Page -->
+              <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                <button class="page-link" (click)="onPageChange(totalPages - 1)" [disabled]="currentPage === totalPages - 1">
+                  <i class="fas fa-angle-double-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { OrganizationUpdateRequest } from '../model/organization-update-request.model';
 import { OrgInfoResponse } from '../admin/model/orgInfoResponse';
+import { RaiseConcernedPageResponse, RaiseConcernedResponse } from '../model/raise-concerned-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,9 @@ export class OrganizationService {
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
+    console.log('Retrieved token:', token ? 'Token exists' : 'No token found');
     return new HttpHeaders({
+      'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     });
   }
@@ -86,6 +89,34 @@ export class OrganizationService {
       this.baseUrl,
       formData,
       { headers: this.getMultipartAuthHeaders() }
+    );
+  }
+
+  getAllRaisedConcerns(page: number = 0, size: number = 10, sortBy: string = 'raiseAt', solved?: boolean): Observable<RaiseConcernedPageResponse> {
+    let params = `?page=${page}&size=${size}&sortBy=${sortBy}`;
+    if (solved !== undefined) {
+      params += `&solved=${solved}`;
+    }
+    return this.http.get<RaiseConcernedPageResponse>(
+      `${this.baseUrl}/org-raised-concerns${params}`, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  markConcernAsSolved(concernId: number): Observable<RaiseConcernedResponse> {
+    const params = `?concernId=${concernId}`;
+    return this.http.post<RaiseConcernedResponse>(
+      `${this.baseUrl}/solvedRaiseConcern${params}`, 
+      null,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  deleteConcern(concernId: number): Observable<void> {
+    const params = `?concernId=${concernId}`;
+    return this.http.delete<void>(
+      `${this.baseUrl}/concerns${params}`, 
+      { headers: this.getAuthHeaders() }
     );
   }
 }

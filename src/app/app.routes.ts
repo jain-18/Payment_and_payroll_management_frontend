@@ -24,6 +24,7 @@ import { EmployeeSalaryComponent } from './organization/component/employee-salar
 import { VendorPaymentsComponent } from './organization/vendor-payments-component/vendor-payments-component';
 import { VpPayment } from './organization/vp-payment/vp-payment';
 import { VpPaymentRequest } from './organization/vp-payment-request/vp-payment-request';
+import { ConcernsComponent } from './organization/concerns-component/concerns-component';
 
 export const routes: Routes = [
     {path:'', redirectTo:'home', pathMatch:'full'},
@@ -52,5 +53,6 @@ export const routes: Routes = [
     {path:'employee/raise-concerns', component: EmployeeConcernComponent},
     {path:'org-dashboard/vendor-payments', component: VendorPaymentsComponent},
     {path:'org-dashboard/vendor-payments/payments', component: VpPayment},
-    {path:'org-dashboard/vendor-payments/request', component: VpPaymentRequest}
+    {path:'org-dashboard/vendor-payments/request', component: VpPaymentRequest},
+    {path:'org-dashboard/concerns', component: ConcernsComponent}
 ];
