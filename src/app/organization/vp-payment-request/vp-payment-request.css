@@ -108,6 +108,8 @@
   font-size: 0.85rem;
   max-width: 150px;
   word-wrap: break-word;
+  text-align: center;
+  margin: 0 auto;
 }
 
 /* Filter controls */

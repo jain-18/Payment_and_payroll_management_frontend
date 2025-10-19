@@ -107,11 +107,11 @@
     </div>
 
     <div class="col-lg-3 col-md-6">
-      <div class="card stats-card border-warning" style="cursor: pointer;">
+      <div class="card stats-card border-warning" style="cursor: pointer;" routerLink="/org-dashboard/vendor-payments/payments">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle mb-2 text-muted">Pending Payments</h6>
+              <h6 class="card-subtitle mb-2 text-muted">Unpaid Vendors</h6>
               <h4 class="card-title text-warning mb-0">
                 <span *ngIf="!isLoadingStats">{{ pendingPayments }}</span>
                 <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm" role="status">

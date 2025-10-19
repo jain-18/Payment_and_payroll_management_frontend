@@ -12,9 +12,9 @@
               Vendor Payment Requests
             </h4>
             <div class="btn-group">
-              <button class="btn btn-light btn-sm" routerLink="/org-dashboard/vp-payment">
+              <button class="btn btn-light btn-sm" routerLink="/org-dashboard/vendor-payments">
                 <i class="fas fa-arrow-left me-2"></i>
-                Back to Payments
+                Back to Vendor Payments
               </button>
               <button class="btn btn-light btn-sm" (click)="refreshRequests()">
                 <i class="fas fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>
@@ -144,22 +144,22 @@
                   <th scope="col" class="text-center" style="width: 10%;">
                     <i class="fas fa-hashtag me-1"></i>Request ID
                   </th>
-                  <th scope="col" style="width: 15%;">
+                  <th scope="col" class="text-center" style="width: 15%;">
                     <i class="fas fa-tag me-1"></i>Type & Status
                   </th>
-                  <th scope="col" style="width: 15%;">
+                  <th scope="col" class="text-center" style="width: 15%;">
                     <i class="fas fa-calendar me-1"></i>Dates
                   </th>
-                  <th scope="col" class="text-end" style="width: 15%;">
+                  <th scope="col" class="text-center" style="width: 15%;">
                     <i class="fas fa-dollar-sign me-1"></i>Amount
                   </th>
-                  <th scope="col" class="text-end" style="width: 15%;">
+                  <th scope="col" class="text-center" style="width: 15%;">
                     <i class="fas fa-piggy-bank me-1"></i>Balance
                   </th>
-                  <th scope="col" style="width: 15%;">
+                  <th scope="col" class="text-center" style="width: 15%;">
                     <i class="fas fa-user me-1"></i>Created By
                   </th>
-                  <th scope="col" style="width: 15%;">
+                  <th scope="col" class="text-center" style="width: 15%;">
                     <i class="fas fa-comment me-1"></i>Reject Reason
                   </th>
                 </tr>
@@ -172,8 +172,8 @@
                   </td>
                   
                   <!-- Type & Status -->
-                  <td>
-                    <div class="d-flex flex-column">
+                  <td class="text-center">
+                    <div class="d-flex flex-column align-items-center">
                       <span [class]="getRequestTypeClass(request.requestType)" class="mb-1">
                         {{ request.requestType }}
                       </span>
@@ -184,7 +184,7 @@
                   </td>
                   
                   <!-- Dates -->
-                  <td>
+                  <td class="text-center">
                     <div class="date-info">
                       <div class="fw-medium text-primary">
                         <i class="fas fa-calendar-plus fa-sm me-1"></i>
@@ -202,7 +202,7 @@
                   </td>
                   
                   <!-- Amount -->
-                  <td class="text-end">
+                  <td class="text-center">
                     <div class="amount-display">
                       <span class="fw-bold fs-5 text-success">
                         ${{ request.totalAmount | number:'1.2-2' }}
@@ -211,7 +211,7 @@
                   </td>
                   
                   <!-- Balance -->
-                  <td class="text-end">
+                  <td class="text-center">
                     <div class="balance-display">
                       <span class="fw-medium text-info">
                         ${{ request.balance | number:'1.2-2' }}
@@ -220,7 +220,7 @@
                   </td>
                   
                   <!-- Created By -->
-                  <td>
+                  <td class="text-center">
                     <div class="creator-info">
                       <span class="fw-medium text-dark">
                         <i class="fas fa-building fa-sm me-1 text-muted"></i>
@@ -230,7 +230,7 @@
                   </td>
                   
                   <!-- Reject Reason -->
-                  <td>
+                  <td class="text-center">
                     <div *ngIf="request.rejectReason" class="reject-reason">
                       <span class="text-danger fw-medium">
                         <i class="fas fa-exclamation-circle fa-sm me-1"></i>

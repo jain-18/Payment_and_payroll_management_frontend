@@ -26,7 +26,17 @@
 					<ul class="dropdown-menu animate__animated animate__fadeIn" aria-labelledby="vendorDropdown">
 						<li><a class="dropdown-item" routerLink="/org-dashboard/create-vendor">Create Vendor</a></li>
 						<li><a class="dropdown-item" routerLink="/org-dashboard/manage-vendor">Manage Vendor</a></li>
-						<li><a class="dropdown-item" routerLink="/org-dashboard/vendor-payments">Payments</a></li>
+						<li><hr class="dropdown-divider"></li>
+						<li class="dropdown-header">Payments</li>
+						<li><a class="dropdown-item ps-4" routerLink="/org-dashboard/vendor-payments">
+							<i class="fas fa-plus-circle me-2"></i>Initiate Payments
+						</a></li>
+						<li><a class="dropdown-item ps-4" routerLink="/org-dashboard/vendor-payments/payments">
+							<i class="fas fa-file-invoice-dollar me-2"></i>Payment Requests
+						</a></li>
+						<li><a class="dropdown-item ps-4" routerLink="/org-dashboard/vendor-payments/request">
+							<i class="fas fa-file-contract me-2"></i>View Payment Requests
+						</a></li>
 					</ul>
 				</li>
 			</ul>

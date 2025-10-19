@@ -22,7 +22,6 @@ export class VpPaymentRequest implements OnInit {
   selectedStatus = '';
   statusOptions = [
     { value: '', label: 'All Requests' },
-    { value: 'ALL', label: 'All Requests' },
     { value: 'PENDING', label: 'Pending' },
     { value: 'APPROVED', label: 'Approved' },
     { value: 'REJECTED', label: 'Rejected' }

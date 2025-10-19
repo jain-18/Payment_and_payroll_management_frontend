@@ -34,7 +34,7 @@ export class OrgDashboardComponent implements OnInit {
   loadDashboardStats(): void {
     this.isLoadingStats = true;
     let loadedCount = 0;
-    const totalRequests = 2;
+    const totalRequests = 3; // Updated to 3 requests
     
     const checkLoadingComplete = () => {
       loadedCount++;
@@ -80,6 +80,20 @@ export class OrgDashboardComponent implements OnInit {
             checkLoadingComplete();
           }
         });
+      }
+    });
+
+    // Load pending vendor payments count (NOT_PAID status)
+    this.vendorService.getPaymentsByStatus('NOT_PAID', 0, 1).subscribe({
+      next: (response) => {
+        this.pendingPayments = response.totalElements;
+        console.log('Pending vendor payments loaded:', this.pendingPayments);
+        checkLoadingComplete();
+      },
+      error: (error) => {
+        console.error('Error loading pending payments count:', error);
+        this.pendingPayments = 0;
+        checkLoadingComplete();
       }
     });
   }
