@@ -75,4 +75,12 @@ export class VendorService {
       { headers: this.getAuthHeaders() }
     );
   }
+
+  searchVendorByName(vendorName: string, page: number = 0, size: number = 10, sortBy: string = 'vendorName'): Observable<VendorPageResponse> {
+    const params = `?vendorName=${encodeURIComponent(vendorName)}&page=${page}&size=${size}&sortBy=${sortBy}`;
+    return this.http.get<VendorPageResponse>(
+      `${this.baseUrl}/by-name${params}`, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
 }

@@ -20,6 +20,8 @@ export class ManageVendorComponent implements OnInit {
   
   // Search functionality
   searchId: number | null = null;
+  searchName: string = '';
+  searchType: 'id' | 'name' = 'id';
   isSearching = false;
   searchResults: VendorResponse[] = [];
   isSearchMode = false;
@@ -155,62 +157,110 @@ export class ManageVendorComponent implements OnInit {
   }
 
   searchVendor(): void {
-    if (!this.searchId || !isPlatformBrowser(this.platformId)) {
+    if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
-    console.log('Starting search for vendor ID:', this.searchId);
+    if (this.searchType === 'id' && !this.searchId) {
+      return;
+    }
+
+    if (this.searchType === 'name' && !this.searchName.trim()) {
+      return;
+    }
+
+    console.log('Starting search for vendor');
     this.isSearching = true;
     this.errorMessage = '';
     
     this.cdr.markForCheck();
 
-    this.vendorService.searchVendorById(this.searchId).subscribe({
-      next: (vendor: VendorResponse) => {
-        console.log('Vendor found:', vendor);
-        this.searchResults = [vendor];
-        this.isSearchMode = true;
-        this.isSearching = false;
-        console.log('Search completed. isSearching:', this.isSearching, 'isSearchMode:', this.isSearchMode);
-        this.cdr.markForCheck();
-        setTimeout(() => this.cdr.detectChanges(), 0);
-      },
-      error: (error) => {
-        console.error('Error searching vendor:', error);
-        this.isSearching = false;
-        this.searchResults = [];
-        this.isSearchMode = true;
-        
-        if (error.status === 404) {
-          this.errorMessage = `Vendor not found with ID: ${this.searchId}`;
-        } else if (error.status === 400) {
-          this.errorMessage = 'This vendor does not belong to the given organization.';
-        } else if (error.status === 401) {
-          this.errorMessage = 'Session expired. Please login again.';
-        } else {
-          this.errorMessage = error.error?.message || 'Failed to search vendor. Please try again.';
+    if (this.searchType === 'id') {
+      this.vendorService.searchVendorById(this.searchId!).subscribe({
+        next: (vendor: VendorResponse) => {
+          console.log('Vendor found:', vendor);
+          this.searchResults = [vendor];
+          this.isSearchMode = true;
+          this.isSearching = false;
+          this.cdr.markForCheck();
+          setTimeout(() => this.cdr.detectChanges(), 0);
+        },
+        error: (error) => {
+          this.handleSearchError(error);
+        },
+        complete: () => {
+          this.isSearching = false;
+          this.cdr.markForCheck();
         }
-        this.cdr.markForCheck();
-        setTimeout(() => this.cdr.detectChanges(), 0);
-      },
-      complete: () => {
-        this.isSearching = false;
-        console.log('Search request completed. isSearching:', this.isSearching);
-        this.cdr.markForCheck();
-      }
-    });
+      });
+    } else {
+      this.vendorService.searchVendorByName(this.searchName.trim(), 0, this.pageSize, this.sortBy).subscribe({
+        next: (response: VendorPageResponse) => {
+          console.log('Vendors found by name:', response);
+          this.searchResults = response.content || [];
+          this.isSearchMode = true;
+          this.isSearching = false;
+          // Update pagination for search results
+          this.totalElements = response.totalElements || 0;
+          this.totalPages = response.totalPages || 0;
+          this.currentPage = 0;
+          this.cdr.markForCheck();
+          setTimeout(() => this.cdr.detectChanges(), 0);
+        },
+        error: (error) => {
+          this.handleSearchError(error);
+        },
+        complete: () => {
+          this.isSearching = false;
+          this.cdr.markForCheck();
+        }
+      });
+    }
+  }
+
+  private handleSearchError(error: any): void {
+    console.error('Error searching vendor:', error);
+    this.isSearching = false;
+    this.searchResults = [];
+    this.isSearchMode = true;
+    
+    if (error.status === 404) {
+      this.errorMessage = this.searchType === 'id' 
+        ? `Vendor not found with ID: ${this.searchId}`
+        : `No vendors found with name containing: ${this.searchName}`;
+    } else if (error.status === 400) {
+      this.errorMessage = 'This vendor does not belong to the given organization.';
+    } else if (error.status === 401) {
+      this.errorMessage = 'Session expired. Please login again.';
+    } else {
+      this.errorMessage = error.error?.message || 'Failed to search vendor. Please try again.';
+    }
+    this.cdr.markForCheck();
+    setTimeout(() => this.cdr.detectChanges(), 0);
   }
 
   clearSearch(): void {
     console.log('Clearing search');
     this.searchId = null;
+    this.searchName = '';
     this.searchResults = [];
     this.isSearchMode = false;
     this.errorMessage = '';
     this.isSearching = false;
+    this.currentPage = 0;
     console.log('Search cleared. isSearchMode:', this.isSearchMode);
     this.cdr.markForCheck();
     setTimeout(() => this.cdr.detectChanges(), 0);
+    this.loadVendors();
+  }
+
+  onSearchTypeChange(): void {
+    this.searchId = null;
+    this.searchName = '';
+    this.errorMessage = '';
+    if (this.isSearchMode) {
+      this.clearSearch();
+    }
   }
 
   onSearchKeyPress(event: KeyboardEvent): void {
@@ -230,19 +280,45 @@ export class ManageVendorComponent implements OnInit {
   onPageChange(page: number): void {
     if (page >= 0 && page < this.totalPages) {
       this.currentPage = page;
-      this.loadVendors();
+      if (this.isSearchMode) {
+        if (this.searchType === 'name') {
+          // For name search, we can paginate
+          this.vendorService.searchVendorByName(this.searchName.trim(), page, this.pageSize, this.sortBy).subscribe({
+            next: (response: VendorPageResponse) => {
+              this.searchResults = response.content || [];
+              this.totalElements = response.totalElements || 0;
+              this.totalPages = response.totalPages || 0;
+              this.cdr.markForCheck();
+            },
+            error: (error) => {
+              this.handleSearchError(error);
+            }
+          });
+        }
+        // For ID search, no pagination needed as it returns single result
+      } else {
+        this.loadVendors();
+      }
     }
   }
 
   onPageSizeChange(): void {
     this.currentPage = 0; // Reset to first page when changing page size
-    this.loadVendors();
+    if (this.isSearchMode) {
+      this.searchVendor();
+    } else {
+      this.loadVendors();
+    }
   }
 
   onSortChange(): void {
     this.currentPage = 0; // Reset to first page when changing sort
     this.errorMessage = ''; // Clear any previous errors
-    this.loadVendors();
+    if (this.isSearchMode) {
+      this.searchVendor();
+    } else {
+      this.loadVendors();
+    }
   }
 
   getPageNumbers(): number[] {
