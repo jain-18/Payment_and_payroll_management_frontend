@@ -9,6 +9,7 @@ import { VendorPaymentRequest } from '../model/vendor-payment-request.model';
 import { VendorPaymentResponse } from '../model/vendor-payment-response.model';
 import { VendorPaymentPageResponse } from '../model/vendor-payment-page-response.model';
 import { VendorPaymentUpdate, VendorPaymentUpdateResponse } from '../model/vendor-payment-update.model';
+import { RequestPageResponse } from '../model/request-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -128,6 +129,17 @@ export class VendorService {
     return this.http.put<VendorPaymentUpdateResponse>(
       `${this.baseUrl}/editRejectedVendorPayment`, 
       paymentUpdate, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  getVendorPaymentRequests(status?: string, page: number = 0, size: number = 10, sortBy: string = 'actionDate', sortDir: string = 'ASC'): Observable<RequestPageResponse> {
+    let params = `?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`;
+    if (status && status.trim() && status !== 'ALL') {
+      params += `&status=${encodeURIComponent(status)}`;
+    }
+    return this.http.get<RequestPageResponse>(
+      `${this.baseUrl}/vendor-payments${params}`, 
       { headers: this.getAuthHeaders() }
     );
   }
