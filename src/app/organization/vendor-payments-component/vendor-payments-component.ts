@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { VendorService } from '../../services/vendor.service';
 import { VendorResponse } from '../../model/vendor-response.model';
 import { VendorPageResponse } from '../../model/pageable-response.model';
@@ -61,6 +61,7 @@ export class VendorPaymentsComponent implements OnInit {
   constructor(
     private vendorService: VendorService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -361,12 +362,11 @@ export class VendorPaymentsComponent implements OnInit {
   }
 
   navigateToPayments(): void {
-    // TODO: Navigate to payments history page
-    console.log('Navigate to payments history');
+    this.router.navigate(['/org-dashboard/vendor-payments/payments']);
   }
 
   navigateToPaymentRequests(): void {
-    // TODO: Navigate to payment requests page
+    // TODO: Navigate to payment requests page when implemented
     console.log('Navigate to payment requests');
   }
 

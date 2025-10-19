@@ -7,6 +7,7 @@ import { VendorUpdateRequest } from '../model/vendor-update-request.model';
 import { VendorPageResponse } from '../model/pageable-response.model';
 import { VendorPaymentRequest } from '../model/vendor-payment-request.model';
 import { VendorPaymentResponse } from '../model/vendor-payment-response.model';
+import { VendorPaymentPageResponse } from '../model/vendor-payment-page-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -90,6 +91,25 @@ export class VendorService {
     return this.http.post<VendorPaymentResponse>(
       `${this.baseUrl}/payments`, 
       paymentRequest, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  getAllVendorPayments(page: number = 0, size: number = 10): Observable<VendorPaymentPageResponse> {
+    const params = `?page=${page}&size=${size}`;
+    return this.http.get<VendorPaymentPageResponse>(
+      `${this.baseUrl}/payments/all${params}`, 
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  getPaymentsByStatus(status?: string, page: number = 0, size: number = 10): Observable<VendorPaymentPageResponse> {
+    let params = `?page=${page}&size=${size}`;
+    if (status && status.trim()) {
+      params += `&status=${encodeURIComponent(status)}`;
+    }
+    return this.http.get<VendorPaymentPageResponse>(
+      `${this.baseUrl}/payments${params}`, 
       { headers: this.getAuthHeaders() }
     );
   }
