@@ -21,6 +21,7 @@ import { EmployeeDashboard } from './employee/component/employee-dashboard/emplo
 import { EmployeeSalarySlipComponent } from './employee/component/employee-salary-slip-component/employee-salary-slip-component';
 import { VendorPaymentsComponent } from './organization/vendor-payments-component/vendor-payments-component';
 import { VpPayment } from './organization/vp-payment/vp-payment';
+import { VpPaymentRequest } from './organization/vp-payment-request/vp-payment-request';
 
 export const routes: Routes = [
     {path:'', redirectTo:'home', pathMatch:'full'},
@@ -46,5 +47,6 @@ export const routes: Routes = [
     {path:'employee/employee-dashboard', component:EmployeeDashboard},
     {path:'employee/salary-slips', component: EmployeeSalarySlipComponent},
     {path:'org-dashboard/vendor-payments', component: VendorPaymentsComponent},
-    {path:'org-dashboard/vendor-payments/payments', component: VpPayment}
+    {path:'org-dashboard/vendor-payments/payments', component: VpPayment},
+    {path:'org-dashboard/vendor-payments/request', component: VpPaymentRequest}
 ];
