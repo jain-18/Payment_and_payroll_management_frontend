@@ -1,20 +1,26 @@
 <app-org-dashboard-navbar></app-org-dashboard-navbar>
 
-<div class="container-fluid manage-vendor-container">
+<div class="container-fluid vendor-payments-container">
   <div class="row">
     <div class="col-12">
       <!-- Header Section -->
       <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-success text-white">
+        <div class="card-header bg-primary text-white">
           <div class="d-flex justify-content-between align-items-center">
             <h4 class="card-title mb-0">
-              <i class="fas fa-handshake me-2"></i>
-              Manage Vendors
+              <i class="fas fa-credit-card me-2"></i>
+              Vendor Payments
             </h4>
-            <button class="btn btn-light btn-sm" routerLink="/org-dashboard/create-vendor">
-              <i class="fas fa-plus me-2"></i>
-              Add New Vendor
-            </button>
+            <div class="btn-group">
+              <button class="btn btn-light btn-sm" routerLink="/org-dashboard/vendor-payments/payments">
+                <i class="fas fa-history me-2"></i>
+                Payment Requests
+              </button>
+              <button class="btn btn-light btn-sm" routerLink="/org-dashboard/vendor-payments/request">
+                <i class="fas fa-file-invoice me-2"></i>
+                View Payment Requests
+              </button>
+            </div>
           </div>
         </div>
         
@@ -28,11 +34,11 @@
                 <div class="btn-group" role="group" aria-label="Search type">
                   <input type="radio" class="btn-check" name="searchType" id="searchById" value="id" 
                          [(ngModel)]="searchType" (change)="onSearchTypeChange()" autocomplete="off">
-                  <label class="btn btn-outline-success" for="searchById">Search by ID</label>
+                  <label class="btn btn-outline-primary" for="searchById">Search by ID</label>
 
                   <input type="radio" class="btn-check" name="searchType" id="searchByName" value="name" 
                          [(ngModel)]="searchType" (change)="onSearchTypeChange()" autocomplete="off">
-                  <label class="btn btn-outline-success" for="searchByName">Search by Name</label>
+                  <label class="btn btn-outline-primary" for="searchByName">Search by Name</label>
                 </div>
               </div>
 
@@ -61,7 +67,7 @@
                   [disabled]="isSearching">
 
                 <button 
-                  class="btn btn-success" 
+                  class="btn btn-primary" 
                   type="button" 
                   (click)="searchVendor()"
                   [disabled]="(searchType === 'id' && !searchId) || (searchType === 'name' && !searchName.trim()) || isSearching">
@@ -89,7 +95,7 @@
           <div class="row align-items-center mb-3" *ngIf="!isSearchMode">
             <div class="col-md-4">
               <button 
-                class="btn btn-outline-success" 
+                class="btn btn-outline-primary" 
                 (click)="refreshVendors()"
                 [disabled]="isLoading">
                 <i class="fas fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>
@@ -149,7 +155,7 @@
 
       <!-- Loading Spinner -->
       <div *ngIf="isLoading" class="text-center py-5">
-        <div class="spinner-border text-success" role="status">
+        <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
         <p class="mt-2 text-muted">Loading vendors...</p>
@@ -160,7 +166,7 @@
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0">
-              <thead class="table-success">
+              <thead class="table-primary">
                 <tr>
                   <th scope="col">ID</th>
                   <th scope="col">Vendor Name</th>
@@ -213,30 +219,15 @@
                     </span>
                   </td>
                   <td class="text-center">
-                    <div class="btn-group btn-group-sm" role="group">
-                      <!-- <button 
-                        type="button" 
-                        class="btn btn-outline-primary"
-                        title="View Details">
-                        <i class="fas fa-eye"></i>
-                      </button> -->
-                      <button 
-                        type="button" 
-                        class="btn btn-outline-warning"
-                        title="Edit Vendor"
-                        routerLink="/org-dashboard/edit-vendor/{{vendor.vendorId}}">
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button 
-                        type="button" 
-                        class="btn btn-outline-danger"
-                        title="Delete Vendor"
-                        (click)="deleteVendor(vendor.vendorId, vendor.vendorName)"
-                        [disabled]="isDeleting(vendor.vendorId)">
-                        <i class="fas fa-trash" [class.fa-spin]="isDeleting(vendor.vendorId)"></i>
-                        <span *ngIf="isDeleting(vendor.vendorId)" class="ms-1">Deleting...</span>
-                      </button>
-                    </div>
+                    <button 
+                      type="button" 
+                      class="btn btn-success btn-sm"
+                      title="Initiate Payment"
+                      (click)="initiatePayment(vendor.vendorId, vendor.vendorName)"
+                      [disabled]="isProcessingPayment(vendor.vendorId) || !vendor.active">
+                      <i class="fas fa-money-bill-wave me-1" [class.fa-spin]="isProcessingPayment(vendor.vendorId)"></i>
+                      {{ isProcessingPayment(vendor.vendorId) ? 'Processing...' : 'Initiate Payment' }}
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -245,18 +236,14 @@
 
           <!-- Empty State -->
           <div *ngIf="displayedVendors.length === 0 && !isLoading && !isSearching" class="text-center py-5">
-            <i class="fas fa-handshake fa-3x text-muted mb-3"></i>
+            <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">
               {{ isSearchMode ? 'No vendor found' : 'No vendors found' }}
             </h5>
             <p class="text-muted mb-3">
-              {{ isSearchMode ? 'Try searching with a different Vendor ID.' : 'Start by adding your first vendor to the organization.' }}
+              {{ isSearchMode ? 'Try searching with different criteria.' : 'No vendors available for payment processing.' }}
             </p>
-            <button *ngIf="!isSearchMode" class="btn btn-success" routerLink="/org-dashboard/create-vendor">
-              <i class="fas fa-plus me-2"></i>
-              Add First Vendor
-            </button>
-            <button *ngIf="isSearchMode" class="btn btn-outline-success" (click)="clearSearch()">
+            <button *ngIf="isSearchMode" class="btn btn-outline-primary" (click)="clearSearch()">
               <i class="fas fa-arrow-left me-2"></i>
               Back to All Vendors
             </button>
@@ -315,6 +302,104 @@
           </ul>
         </nav>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Popup Modal -->
+<div *ngIf="showPaymentPopup" class="payment-modal-overlay" (click)="closePaymentPopup()">
+  <div class="payment-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <i class="fas fa-credit-card me-2"></i>
+        Initiate Payment
+      </h5>
+      <button type="button" class="btn-close" (click)="closePaymentPopup()"></button>
+    </div>
+    
+    <div class="modal-body">
+
+      <div *ngIf="selectedVendor" class="vendor-info mb-4">
+        <h6 class="text-primary">Payment Details</h6>
+        <div class="row">
+          <div class="col-sm-4"><strong>Vendor:</strong></div>
+          <div class="col-sm-8">{{ selectedVendor.vendorName }}</div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4"><strong>Vendor ID:</strong></div>
+          <div class="col-sm-8">{{ selectedVendor.vendorId }}</div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4"><strong>Email:</strong></div>
+          <div class="col-sm-8">{{ selectedVendor.email }}</div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4"><strong>Account:</strong></div>
+          <div class="col-sm-8">{{ selectedVendor.accountNumber }} ({{ selectedVendor.ifsc }})</div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="paymentSuccessMessage" class="alert alert-success" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        {{ paymentSuccessMessage }}
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="paymentErrorMessage" class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ paymentErrorMessage }}
+      </div>
+
+      <!-- Payment Form -->
+      <div *ngIf="!paymentSuccessMessage" class="payment-form">
+        <div class="mb-3">
+          <label for="paymentAmount" class="form-label">
+            <strong>Payment Amount (₹)</strong>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text">₹</span>
+            <input 
+              type="number" 
+              id="paymentAmount"
+              class="form-control" 
+              placeholder="Enter amount..."
+              [(ngModel)]="paymentAmount"
+              (keypress)="onPaymentAmountKeyPress($event)"
+              [disabled]="isSubmittingPayment"
+              min="0.01"
+              step="0.01">
+          </div>
+          <div class="form-text">
+            Enter the amount you want to pay to this vendor
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer" *ngIf="!paymentSuccessMessage">
+      <button 
+        type="button" 
+        class="btn btn-secondary" 
+        (click)="closePaymentPopup()"
+        [disabled]="isSubmittingPayment">
+        Cancel
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-success" 
+        (click)="submitPayment()"
+        [disabled]="!paymentAmount || paymentAmount <= 0 || isSubmittingPayment">
+        <i class="fas fa-paper-plane me-2" [class.fa-spin]="isSubmittingPayment"></i>
+        {{ isSubmittingPayment ? 'Processing...' : 'Submit Payment' }}
+      </button>
+    </div>
+    
+    <!-- Success footer -->
+    <div class="modal-footer" *ngIf="paymentSuccessMessage">
+      <button type="button" class="btn btn-primary" (click)="closePaymentPopup()">
+        Close
+      </button>
     </div>
   </div>
 </div>

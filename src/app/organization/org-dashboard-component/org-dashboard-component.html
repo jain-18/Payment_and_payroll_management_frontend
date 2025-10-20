@@ -54,12 +54,12 @@
           <div class="icon-wrapper mb-3">
             <i class="fas fa-user-cog fa-3x text-warning"></i>
           </div>
-          <h5 class="card-title">Profile & Settings</h5>
-          <p class="card-text text-muted">Update your information and manage account settings</p>
-          <div class="d-grid gap-2">
+          <h5 class="card-title">Profile & Concerns</h5>
+          <p class="card-text text-muted">Update your information and Review Employee Concerns</p>
+          <div class="d-grid gap-5">
             <button class="btn btn-outline-warning" routerLink="/org-dashboard/update-info">Account Details</button>
             <button class="btn btn-outline-warning" routerLink="/org-dashboard/concerns">Concerns</button>
-            <button class="btn btn-warning text-white">Account Settings</button>
+            <!-- <button class="btn btn-warning text-white">Account Settings</button> -->
           </div>
         </div>
       </div>
@@ -107,11 +107,11 @@
     </div>
 
     <div class="col-lg-3 col-md-6">
-      <div class="card stats-card border-warning" style="cursor: pointer;">
+      <div class="card stats-card border-warning" style="cursor: pointer;" routerLink="/org-dashboard/vendor-payments/payments">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle mb-2 text-muted">Pending Payments</h6>
+              <h6 class="card-subtitle mb-2 text-muted">Unpaid Vendors</h6>
               <h4 class="card-title text-warning mb-0">
                 <span *ngIf="!isLoadingStats">{{ pendingPayments }}</span>
                 <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm" role="status">
@@ -126,19 +126,19 @@
     </div>
 
     <div class="col-lg-3 col-md-6">
-      <div class="card stats-card border-info" style="cursor: pointer;">
+      <div class="card stats-card border-danger" style="cursor: pointer;" routerLink="/org-dashboard/concerns">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="card-subtitle mb-2 text-muted">This Month</h6>
-              <h4 class="card-title text-info mb-0">
-                <span *ngIf="!isLoadingStats">₹{{ monthlyTotal | number:'1.0-0' }}</span>
+              <h6 class="card-subtitle mb-2 text-muted">Pending Concerns</h6>
+              <h4 class="card-title text-danger mb-0">
+                <span *ngIf="!isLoadingStats">{{ pendingConcerns }}</span>
                 <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm" role="status">
                   <span class="visually-hidden">Loading...</span>
                 </span>
               </h4>
             </div>
-            <i class="fas fa-dollar-sign fa-2x text-info opacity-75"></i>
+            <i class="fas fa-exclamation-triangle fa-2x text-danger opacity-75"></i>
           </div>
         </div>
       </div>

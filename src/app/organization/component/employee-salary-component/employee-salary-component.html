@@ -395,5 +395,133 @@
   </div>
 </div>
 
+<!-- Salary Slip Modal -->
+<div *ngIf="showSalarySlipModal && selectedEmployee" class="modal fade show d-block" tabindex="-1" 
+     style="background-color: rgba(0,0,0,0.5);" (click)="closeSalarySlipModal()">
+  <div class="modal-dialog modal-xl" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h4 class="modal-title">
+          <i class="bi bi-receipt me-2"></i>
+          Salary Slips - {{ selectedEmployee.employee }}
+        </h4>
+        <button type="button" class="btn-close btn-close-white" (click)="closeSalarySlipModal()"></button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Loading State -->
+        <div *ngIf="isLoadingSalarySlips" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3 text-muted">Loading salary slips...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoadingSalarySlips && employeeSalarySlips.length === 0" class="text-center py-5">
+          <i class="bi bi-receipt display-1 text-muted mb-3"></i>
+          <h5 class="text-muted">No Salary Slips Found</h5>
+          <p class="text-muted">This employee has no salary slips available.</p>
+        </div>
+
+        <!-- Salary Slips Table -->
+        <div *ngIf="!isLoadingSalarySlips && employeeSalarySlips.length > 0">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Slip ID</th>
+                  <th>Period</th>
+                  <th>Basic Salary</th>
+                  <th>HRA</th>
+                  <th>DA</th>
+                  <th>PF</th>
+                  <th>Other Allowances</th>
+                  <th>Net Salary</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let slip of employeeSalarySlips; trackBy: trackBySalarySlipId">
+                  <td>
+                    <span class="badge bg-primary">{{ slip.slipId }}</span>
+                  </td>
+                  <td>
+                    <strong>{{ getMonthName(slip.periodMonth) }} {{ slip.periodYear }}</strong>
+                  </td>
+                  <td>
+                    <span class="text-success">₹{{ slip.basicSalary | number:'1.2-2' }}</span>
+                  </td>
+                  <td>
+                    <span class="text-info">₹{{ slip.hra | number:'1.2-2' }}</span>
+                  </td>
+                  <td>
+                    <span class="text-info">₹{{ slip.da | number:'1.2-2' }}</span>
+                  </td>
+                  <td>
+                    <span class="text-warning">₹{{ slip.pf | number:'1.2-2' }}</span>
+                  </td>
+                  <td>
+                    <span class="text-info">₹{{ slip.otherAllowances | number:'1.2-2' }}</span>
+                  </td>
+                  <td>
+                    <strong class="text-primary">₹{{ slip.netSalary | number:'1.2-2' }}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="salarySlipTotalPages > 1" class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted">
+              Showing {{ salarySlipCurrentPage * salarySlipPageSize + 1 }} to 
+              {{ Math.min((salarySlipCurrentPage + 1) * salarySlipPageSize, salarySlipTotalElements) }} 
+              of {{ salarySlipTotalElements }} salary slips
+            </div>
+            <nav>
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" [class.disabled]="salarySlipCurrentPage === 0">
+                  <button class="page-link" (click)="onSalarySlipPageChange(0)" [disabled]="salarySlipCurrentPage === 0">
+                    <i class="bi bi-chevron-double-left"></i>
+                  </button>
+                </li>
+                <li class="page-item" [class.disabled]="salarySlipCurrentPage === 0">
+                  <button class="page-link" (click)="onSalarySlipPageChange(salarySlipCurrentPage - 1)" [disabled]="salarySlipCurrentPage === 0">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                </li>
+                <li *ngFor="let page of getSalarySlipPaginationArray()" 
+                    class="page-item" 
+                    [class.active]="page === salarySlipCurrentPage">
+                  <button class="page-link" (click)="onSalarySlipPageChange(page)">
+                    {{ page + 1 }}
+                  </button>
+                </li>
+                <li class="page-item" [class.disabled]="salarySlipCurrentPage === salarySlipTotalPages - 1">
+                  <button class="page-link" (click)="onSalarySlipPageChange(salarySlipCurrentPage + 1)" [disabled]="salarySlipCurrentPage === salarySlipTotalPages - 1">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </li>
+                <li class="page-item" [class.disabled]="salarySlipCurrentPage === salarySlipTotalPages - 1">
+                  <button class="page-link" (click)="onSalarySlipPageChange(salarySlipTotalPages - 1)" [disabled]="salarySlipCurrentPage === salarySlipTotalPages - 1">
+                    <i class="bi bi-chevron-double-right"></i>
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeSalarySlipModal()">
+          <i class="bi bi-x-circle me-2"></i>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Backdrop -->
 <div *ngIf="showEditModal" class="modal-backdrop fade show" (click)="cancelEdit()"></div>

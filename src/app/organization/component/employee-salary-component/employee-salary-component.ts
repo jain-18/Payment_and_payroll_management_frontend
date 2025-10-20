@@ -48,6 +48,16 @@ export class EmployeeSalaryComponent implements OnInit, OnDestroy {
   // Edit salary form and modal state
   editForm!: FormGroup;
   showEditModal = false;
+  
+  // Salary slip popup properties
+  showSalarySlipModal = false;
+  selectedEmployee: SalaryRequestOfMonth | null = null;
+  employeeSalarySlips: any[] = [];
+  isLoadingSalarySlips = false;
+  salarySlipCurrentPage = 0;
+  salarySlipPageSize = 10;
+  salarySlipTotalElements = 0;
+  salarySlipTotalPages = 0;
   selectedStructure: SalaryRequestOfMonth | null = null;
   isUpdating = false;
 
@@ -231,7 +241,10 @@ export class EmployeeSalaryComponent implements OnInit, OnDestroy {
 
   viewDetails(structure: SalaryRequestOfMonth): void {
     console.log('Viewing details for:', structure);
-    // Implement view details logic
+    this.selectedEmployee = structure;
+    this.showSalarySlipModal = true;
+    this.salarySlipCurrentPage = 0;
+    this.loadEmployeeSalarySlips();
   }
 
   editStructure(structure: SalaryRequestOfMonth): void {
@@ -380,6 +393,69 @@ export class EmployeeSalaryComponent implements OnInit, OnDestroy {
     }
 
     return pages;
+  }
+
+  // Salary slip modal methods
+  loadEmployeeSalarySlips(): void {
+    if (!this.selectedEmployee) return;
+
+    this.isLoadingSalarySlips = true;
+    this.cdr.markForCheck();
+
+    this.organizationService.getEmployeeSalarySlips(
+      this.selectedEmployee.employeeId,
+      undefined, // month
+      undefined, // year
+      this.salarySlipCurrentPage,
+      this.salarySlipPageSize
+    ).subscribe({
+      next: (response: any) => {
+        console.log('Employee salary slips loaded:', response);
+        this.employeeSalarySlips = response.content || [];
+        this.salarySlipTotalElements = response.totalElements || 0;
+        this.salarySlipTotalPages = response.totalPages || 0;
+        this.isLoadingSalarySlips = false;
+        this.cdr.markForCheck();
+      },
+      error: (error: any) => {
+        console.error('Error loading employee salary slips:', error);
+        this.employeeSalarySlips = [];
+        this.isLoadingSalarySlips = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  closeSalarySlipModal(): void {
+    this.showSalarySlipModal = false;
+    this.selectedEmployee = null;
+    this.employeeSalarySlips = [];
+    this.salarySlipCurrentPage = 0;
+    this.salarySlipTotalElements = 0;
+    this.salarySlipTotalPages = 0;
+  }
+
+  onSalarySlipPageChange(page: number): void {
+    if (page >= 0 && page < this.salarySlipTotalPages) {
+      this.salarySlipCurrentPage = page;
+      this.loadEmployeeSalarySlips();
+    }
+  }
+
+  getSalarySlipPaginationArray(): number[] {
+    const pages: number[] = [];
+    const startPage = Math.max(0, this.salarySlipCurrentPage - 2);
+    const endPage = Math.min(this.salarySlipTotalPages - 1, this.salarySlipCurrentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  trackBySalarySlipId(index: number, slip: any): any {
+    return slip.slipId || index;
   }
 
 }

@@ -255,5 +255,55 @@ export class OrganizationService {
       );
   }
 
+  /**
+   * Get salary slips for a specific employee
+   * @param empId - Employee ID
+   * @param month - Optional month filter
+   * @param year - Optional year filter
+   * @param page - Page number (default: 0)
+   * @param size - Page size (default: 10)
+   * @param sortBy - Sort field (default: createdAt)
+   * @param sortDir - Sort direction (default: DESC)
+   * @returns Observable of paginated salary slip response
+   */
+  getEmployeeSalarySlips(
+    empId: number,
+    month?: string,
+    year?: string,
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = 'createdAt',
+    sortDir: string = 'DESC'
+  ): Observable<any> {
+    const headers = this.getHeaders();
+    let params = `?empId=${empId}&page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`;
+    
+    if (month) {
+      params += `&month=${month}`;
+    }
+    if (year) {
+      params += `&year=${year}`;
+    }
+
+    console.log('Fetching employee salary slips with params:', params);
+
+    return this.http.get<any>(`${this.apiUrlOfSalaryStructure}/employee-salary-slips${params}`, { headers })
+      .pipe(
+        tap(response => {
+          console.log('Employee salary slips fetched successfully:', response);
+        }),
+        catchError(error => {
+          console.error('Error fetching employee salary slips:', error);
+
+          if (error.status === 401) {
+            this.clearSession();
+            throw new Error('Authentication expired. Please login again.');
+          }
+
+          return throwError(() => error);
+        })
+      );
+  }
+
 
 }

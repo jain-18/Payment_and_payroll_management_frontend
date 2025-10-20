@@ -1,0 +1,297 @@
+<app-org-dashboard-navbar></app-org-dashboard-navbar>
+
+<div class="container-fluid vp-payment-request-container">
+  <div class="row">
+    <div class="col-12">
+      <!-- Header Section -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-success text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-file-contract me-2"></i>
+              Vendor Payment Requests
+            </h4>
+            <div class="btn-group">
+              <button class="btn btn-light btn-sm" routerLink="/org-dashboard/vendor-payments">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Vendor Payments
+              </button>
+              <button class="btn btn-light btn-sm" (click)="refreshRequests()">
+                <i class="fas fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>
+                Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Filters and Controls -->
+        <div class="card-body">
+          <!-- Filters Row -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <label for="statusFilter" class="form-label">
+                <strong>Filter by Status:</strong>
+              </label>
+              <select 
+                id="statusFilter" 
+                class="form-select" 
+                [(ngModel)]="selectedStatus" 
+                (change)="onStatusFilterChange()">
+                <option *ngFor="let option of statusOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="col-md-3">
+              <label for="sortBy" class="form-label">
+                <strong>Sort by:</strong>
+              </label>
+              <select 
+                id="sortBy" 
+                class="form-select" 
+                [(ngModel)]="sortBy" 
+                (change)="onSortChange()">
+                <option *ngFor="let option of sortOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="col-md-2">
+              <label for="sortDir" class="form-label">
+                <strong>Order:</strong>
+              </label>
+              <select 
+                id="sortDir" 
+                class="form-select" 
+                [(ngModel)]="sortDir" 
+                (change)="onSortChange()">
+                <option value="ASC">Ascending</option>
+                <option value="DESC">Descending</option>
+              </select>
+            </div>
+            
+            <div class="col-md-2">
+              <label for="pageSize" class="form-label">Show:</label>
+              <select 
+                id="pageSize" 
+                class="form-select" 
+                [(ngModel)]="pageSize" 
+                (change)="onPageSizeChange()">
+                <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+              </select>
+            </div>
+            
+            <div class="col-md-2">
+              <div class="d-flex align-items-end">
+                <div class="text-muted small">
+                  Total: {{ totalElements }} requests
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Requests Table -->
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light border-bottom">
+          <h6 class="mb-0 text-muted">
+            <i class="fas fa-table me-2"></i>
+            Payment Requests List
+            <span *ngIf="!isLoading" class="badge bg-primary ms-2">{{ requests.length }} of {{ totalElements }}</span>
+          </h6>
+        </div>
+
+        <div class="card-body p-0">
+          <!-- Loading State -->
+          <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2 text-muted">Loading payment requests...</div>
+          </div>
+
+          <!-- No Data State -->
+          <div *ngIf="!isLoading && requests.length === 0" class="text-center py-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Payment Requests Found</h5>
+            <p class="text-muted">
+              {{ selectedStatus ? 'No requests found with the selected status.' : 'No payment requests have been created yet.' }}
+            </p>
+          </div>
+
+          <!-- Data Table -->
+          <div *ngIf="!isLoading && requests.length > 0" class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-success">
+                <tr>
+                  <th scope="col" class="text-center" style="width: 10%;">
+                    <i class="fas fa-hashtag me-1"></i>Request ID
+                  </th>
+                  <th scope="col" class="text-center" style="width: 15%;">
+                    <i class="fas fa-tag me-1"></i>Type & Status
+                  </th>
+                  <th scope="col" class="text-center" style="width: 15%;">
+                    <i class="fas fa-calendar me-1"></i>Dates
+                  </th>
+                  <th scope="col" class="text-center" style="width: 15%;">
+                    <i class="fas fa-dollar-sign me-1"></i>Amount
+                  </th>
+                  <th scope="col" class="text-center" style="width: 15%;">
+                    <i class="fas fa-piggy-bank me-1"></i>Balance
+                  </th>
+                  <th scope="col" class="text-center" style="width: 15%;">
+                    <i class="fas fa-user me-1"></i>Created By
+                  </th>
+                  <th scope="col" class="text-center" style="width: 15%;">
+                    <i class="fas fa-comment me-1"></i>Reject Reason
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let request of requests; trackBy: trackByRequestId" class="request-row">
+                  <!-- Request ID -->
+                  <td class="text-center">
+                    <span class="fw-bold text-primary">{{ request.requestId }}</span>
+                  </td>
+                  
+                  <!-- Type & Status -->
+                  <td class="text-center">
+                    <div class="d-flex flex-column align-items-center">
+                      <span [class]="getRequestTypeClass(request.requestType)" class="mb-1">
+                        {{ request.requestType }}
+                      </span>
+                      <span [class]="getStatusBadgeClass(request.requestStatus)">
+                        {{ request.requestStatus }}
+                      </span>
+                    </div>
+                  </td>
+                  
+                  <!-- Dates -->
+                  <td class="text-center">
+                    <div class="date-info">
+                      <div class="fw-medium text-primary">
+                        <i class="fas fa-calendar-plus fa-sm me-1"></i>
+                        {{ request.requestDate | date:'MMM dd, yyyy' }}
+                      </div>
+                      <div *ngIf="request.actionDate" class="text-muted small">
+                        <i class="fas fa-calendar-check fa-sm me-1"></i>
+                        Action: {{ request.actionDate | date:'MMM dd, yyyy' }}
+                      </div>
+                      <div *ngIf="!request.actionDate" class="text-muted small">
+                        <i class="fas fa-clock fa-sm me-1"></i>
+                        Pending Action
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <!-- Amount -->
+                  <td class="text-center">
+                    <div class="amount-display">
+                      <span class="fw-bold fs-5 text-success">
+                        ${{ request.totalAmount | number:'1.2-2' }}
+                      </span>
+                    </div>
+                  </td>
+                  
+                  <!-- Balance -->
+                  <td class="text-center">
+                    <div class="balance-display">
+                      <span class="fw-medium text-info">
+                        ${{ request.balance | number:'1.2-2' }}
+                      </span>
+                    </div>
+                  </td>
+                  
+                  <!-- Created By -->
+                  <td class="text-center">
+                    <div class="creator-info">
+                      <span class="fw-medium text-dark">
+                        <i class="fas fa-building fa-sm me-1 text-muted"></i>
+                        {{ request.createdBy }}
+                      </span>
+                    </div>
+                  </td>
+                  
+                  <!-- Reject Reason -->
+                  <td class="text-center">
+                    <div *ngIf="request.rejectReason" class="reject-reason">
+                      <span class="text-danger fw-medium">
+                        <i class="fas fa-exclamation-circle fa-sm me-1"></i>
+                        {{ request.rejectReason }}
+                      </span>
+                    </div>
+                    <div *ngIf="!request.rejectReason" class="text-muted">
+                      <i class="fas fa-minus fa-sm"></i>
+                      N/A
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="showPagination" class="card-footer bg-light border-top-0">
+          <nav aria-label="Payment requests pagination">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+              <!-- First Page -->
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="onPageChange(0)" [disabled]="currentPage === 0">
+                  <i class="fas fa-angle-double-left"></i>
+                </button>
+              </li>
+              
+              <!-- Previous Page -->
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">
+                  <i class="fas fa-angle-left"></i>
+                </button>
+              </li>
+
+              <!-- Page Numbers -->
+              <li *ngFor="let page of getPageNumbers()" 
+                  class="page-item" 
+                  [class.active]="page === currentPage">
+                <button class="page-link" (click)="onPageChange(page)">
+                  {{ page + 1 }}
+                </button>
+              </li>
+
+              <!-- Next Page -->
+              <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+                  <i class="fas fa-angle-right"></i>
+                </button>
+              </li>
+              
+              <!-- Last Page -->
+              <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                <button class="page-link" (click)="onPageChange(totalPages - 1)" [disabled]="currentPage === totalPages - 1">
+                  <i class="fas fa-angle-double-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

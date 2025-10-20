@@ -1,0 +1,65 @@
+/* Search type buttons styling */
+.btn-group .btn-outline-success {
+  border-color: #28a745;
+  color: #28a745;
+}
+
+.btn-group .btn-outline-success:hover {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-group .btn-check:checked + .btn-outline-success {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  color: white;
+  border-color: #28a745;
+}
+
+/* Ensure proper spacing for search type buttons */
+.btn-group {
+  margin-bottom: 1rem;
+}
+
+/* Form control styling */
+.form-control:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.input-group-text {
+  background-color: #e9ecef;
+  border-color: #ced4da;
+}
+
+/* Button styling */
+.btn-success {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background: linear-gradient(45deg, #20c997, #28a745);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-success:disabled {
+  background: #6c757d;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn-group .btn {
+    margin-bottom: 0.5rem;
+  }
+}

@@ -1,19 +1,21 @@
 import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { VendorService } from '../../services/vendor.service';
 import { VendorResponse } from '../../model/vendor-response.model';
 import { VendorPageResponse } from '../../model/pageable-response.model';
+import { VendorPaymentRequest } from '../../model/vendor-payment-request.model';
+import { VendorPaymentResponse } from '../../model/vendor-payment-response.model';
 import { OrgDashboardNavbar } from '../org-dashboard-navbar/org-dashboard-navbar';
 
 @Component({
-  selector: 'app-manage-vendor-component',
+  selector: 'app-vendor-payments-component',
   imports: [CommonModule, FormsModule, RouterModule, OrgDashboardNavbar],
-  templateUrl: './manage-vendor-component.html',
-  styleUrl: './manage-vendor-component.css'
+  templateUrl: './vendor-payments-component.html',
+  styleUrl: './vendor-payments-component.css'
 })
-export class ManageVendorComponent implements OnInit {
+export class VendorPaymentsComponent implements OnInit {
   vendors: VendorResponse[] = [];
   isLoading = true;
   errorMessage = '';
@@ -26,8 +28,16 @@ export class ManageVendorComponent implements OnInit {
   searchResults: VendorResponse[] = [];
   isSearchMode = false;
   
-  // Delete functionality
-  deletingVendorId: number | null = null;
+  // Payment processing
+  processingPaymentId: number | null = null;
+  
+  // Payment popup
+  showPaymentPopup = false;
+  selectedVendor: VendorResponse | null = null;
+  paymentAmount: number | null = null;
+  isSubmittingPayment = false;
+  paymentSuccessMessage = '';
+  paymentErrorMessage = '';
   
   // Expose Math to template
   Math = Math;
@@ -51,6 +61,7 @@ export class ManageVendorComponent implements OnInit {
   constructor(
     private vendorService: VendorService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -59,7 +70,6 @@ export class ManageVendorComponent implements OnInit {
   
   // Map frontend sort field names to backend field names if needed
   private getSortFieldForBackend(frontendField: string): string {
-    // If the backend expects different field names, map them here
     const fieldMapping: { [key: string]: string } = {
       'vendorName': 'vendorName',
       'email': 'email', 
@@ -123,21 +133,17 @@ export class ManageVendorComponent implements OnInit {
           const problematicField = this.sortBy;
           this.errorMessage = `Sorting by "${problematicField}" is not supported by the server.`;
           
-          // Remove the problematic field from safe fields if it was there
           const index = this.safeSortFields.indexOf(problematicField);
           if (index > -1) {
             this.safeSortFields.splice(index, 1);
           }
           
-          // Reset to default safe sort field
           this.sortBy = 'vendorName';
           
-          // Update sortOptions to only include safe fields
           this.sortOptions = this.sortOptions.filter(option => 
             this.safeSortFields.includes(option.value)
           );
           
-          // Try loading again with the default sort after a brief delay
           setTimeout(() => {
             this.errorMessage = '';
             this.loadVendors();
@@ -240,18 +246,19 @@ export class ManageVendorComponent implements OnInit {
   }
 
   clearSearch(): void {
-    console.log('Clearing search');
     this.searchId = null;
     this.searchName = '';
-    this.searchResults = [];
     this.isSearchMode = false;
+    this.searchResults = [];
     this.errorMessage = '';
-    this.isSearching = false;
     this.currentPage = 0;
-    console.log('Search cleared. isSearchMode:', this.isSearchMode);
-    this.cdr.markForCheck();
-    setTimeout(() => this.cdr.detectChanges(), 0);
     this.loadVendors();
+  }
+
+  onSearchKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.searchVendor();
+    }
   }
 
   onSearchTypeChange(): void {
@@ -263,47 +270,113 @@ export class ManageVendorComponent implements OnInit {
     }
   }
 
-  onSearchKeyPress(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      this.searchVendor();
+  initiatePayment(vendorId: number, vendorName: string): void {
+    // Find the vendor object
+    const vendor = this.displayedVendors.find(v => v.vendorId === vendorId);
+    if (vendor) {
+      this.selectedVendor = vendor;
+      this.paymentAmount = null;
+      this.paymentErrorMessage = '';
+      this.paymentSuccessMessage = '';
+      this.showPaymentPopup = true;
     }
   }
 
-  refreshVendors(): void {
-    if (!isPlatformBrowser(this.platformId)) {
+  closePaymentPopup(): void {
+    this.showPaymentPopup = false;
+    this.selectedVendor = null;
+    this.paymentAmount = null;
+    this.paymentErrorMessage = '';
+    this.paymentSuccessMessage = '';
+    this.isSubmittingPayment = false;
+  }
+
+  submitPayment(): void {
+    if (!this.selectedVendor || !this.paymentAmount || this.paymentAmount <= 0) {
+      this.paymentErrorMessage = 'Please enter a valid amount greater than 0';
       return;
     }
+
+    console.log('Starting payment submission...');
+    this.isSubmittingPayment = true;
+    this.paymentErrorMessage = '';
+    this.paymentSuccessMessage = '';
+    this.cdr.markForCheck(); // Ensure loading state is displayed immediately
+
+    const paymentRequest: VendorPaymentRequest = {
+      vendorId: this.selectedVendor.vendorId,
+      amount: this.paymentAmount
+    };
+
+    this.vendorService.initiatePayment(paymentRequest).subscribe({
+      next: (response: VendorPaymentResponse) => {
+        console.log('Payment initiated successfully:', response);
+        console.log('Setting success message and stopping loading...');
+        this.isSubmittingPayment = false;
+        this.paymentErrorMessage = ''; // Clear any previous error
+        this.paymentSuccessMessage = `Payment of ₹${response.amount} initiated successfully for ${response.vendorName}. Payment ID: ${response.vpId}`;
+        
+        console.log('Success message set:', this.paymentSuccessMessage);
+        console.log('isSubmittingPayment:', this.isSubmittingPayment);
+        
+        // Force immediate change detection
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error initiating payment:', error);
+        this.isSubmittingPayment = false;
+        this.paymentSuccessMessage = ''; // Clear any previous success message
+        this.cdr.markForCheck();
+        setTimeout(() => this.cdr.detectChanges(), 0);
+        
+        if (error.status === 400) {
+          this.paymentErrorMessage = error.error?.message || 'Invalid payment details. Please check the amount and try again.';
+        } else if (error.status === 401) {
+          this.paymentErrorMessage = 'Session expired. Please login again.';
+        } else if (error.status === 403) {
+          this.paymentErrorMessage = 'Access denied. You do not have permission to initiate payments.';
+        } else if (error.status === 404) {
+          this.paymentErrorMessage = 'Vendor not found or not registered with your organization.';
+        } else if (error.status === 500) {
+          this.paymentErrorMessage = error.error?.message || 'Organization is not active or not registered for this vendor.';
+        } else {
+          this.paymentErrorMessage = error.error?.message || 'Failed to initiate payment. Please try again.';
+        }
+      },
+      complete: () => {
+        console.log('Payment request completed');
+        // Don't set isSubmittingPayment = false here as it's already handled in next/error
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onPaymentAmountKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.submitPayment();
+    }
+  }
+
+  isProcessingPayment(vendorId: number): boolean {
+    return this.isSubmittingPayment && this.selectedVendor?.vendorId === vendorId;
+  }
+
+  navigateToPayments(): void {
+    this.router.navigate(['/org-dashboard/vendor-payments/payments']);
+  }
+
+  navigateToPaymentRequests(): void {
+    // TODO: Navigate to payment requests page when implemented
+    console.log('Navigate to payment requests');
+  }
+
+  refreshVendors(): void {
     this.currentPage = 0;
     this.loadVendors();
   }
 
-  onPageChange(page: number): void {
-    if (page >= 0 && page < this.totalPages) {
-      this.currentPage = page;
-      if (this.isSearchMode) {
-        if (this.searchType === 'name') {
-          // For name search, we can paginate
-          this.vendorService.searchVendorByName(this.searchName.trim(), page, this.pageSize, this.sortBy).subscribe({
-            next: (response: VendorPageResponse) => {
-              this.searchResults = response.content || [];
-              this.totalElements = response.totalElements || 0;
-              this.totalPages = response.totalPages || 0;
-              this.cdr.markForCheck();
-            },
-            error: (error) => {
-              this.handleSearchError(error);
-            }
-          });
-        }
-        // For ID search, no pagination needed as it returns single result
-      } else {
-        this.loadVendors();
-      }
-    }
-  }
-
   onPageSizeChange(): void {
-    this.currentPage = 0; // Reset to first page when changing page size
+    this.currentPage = 0;
     if (this.isSearchMode) {
       this.searchVendor();
     } else {
@@ -312,8 +385,7 @@ export class ManageVendorComponent implements OnInit {
   }
 
   onSortChange(): void {
-    this.currentPage = 0; // Reset to first page when changing sort
-    this.errorMessage = ''; // Clear any previous errors
+    this.currentPage = 0;
     if (this.isSearchMode) {
       this.searchVendor();
     } else {
@@ -321,95 +393,53 @@ export class ManageVendorComponent implements OnInit {
     }
   }
 
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    if (this.isSearchMode) {
+      if (this.searchType === 'name') {
+        // For name search, we can paginate
+        this.vendorService.searchVendorByName(this.searchName.trim(), page, this.pageSize, this.sortBy).subscribe({
+          next: (response: VendorPageResponse) => {
+            this.searchResults = response.content || [];
+            this.totalElements = response.totalElements || 0;
+            this.totalPages = response.totalPages || 0;
+            this.cdr.markForCheck();
+          },
+          error: (error) => {
+            this.handleSearchError(error);
+          }
+        });
+      }
+      // For ID search, no pagination needed as it returns single result
+    } else {
+      this.loadVendors();
+    }
+  }
+
   getPageNumbers(): number[] {
     const pages: number[] = [];
-    const startPage = Math.max(0, this.currentPage - 2);
-    const endPage = Math.min(this.totalPages - 1, this.currentPage + 2);
+    const maxPagesToShow = 5;
+    const halfMax = Math.floor(maxPagesToShow / 2);
+    
+    let startPage = Math.max(0, this.currentPage - halfMax);
+    let endPage = Math.min(this.totalPages - 1, startPage + maxPagesToShow - 1);
+    
+    if (endPage - startPage < maxPagesToShow - 1) {
+      startPage = Math.max(0, endPage - maxPagesToShow + 1);
+    }
     
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
-    return pages;
-  }
-
-  get showPagination(): boolean {
-    return !this.isSearchMode && this.totalPages > 1 && !this.isLoading && this.vendors.length > 0;
-  }
-
-  deleteVendor(vendorId: number, vendorName: string): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    const confirmed = confirm(`Are you sure you want to delete vendor "${vendorName}"? This action cannot be undone.`);
-    if (!confirmed) {
-      return;
-    }
-
-    console.log('Starting delete for vendor ID:', vendorId);
-    this.deletingVendorId = vendorId;
-    this.errorMessage = '';
     
-    this.cdr.markForCheck();
-
-    this.vendorService.deleteVendor(vendorId).subscribe({
-      next: () => {
-        console.log('Vendor deleted successfully:', vendorId);
-        this.deletingVendorId = null;
-        
-        if (this.isSearchMode) {
-          this.clearSearch();
-        } else {
-          // Remove from vendors array
-          this.vendors = this.vendors.filter(vendor => vendor.vendorId !== vendorId);
-          this.totalElements = Math.max(0, this.totalElements - 1);
-          
-          // If current page becomes empty and it's not the first page, go to previous page
-          if (this.vendors.length === 0 && this.currentPage > 0) {
-            this.currentPage--;
-          }
-        }
-        
-        this.loadVendors();
-        this.cdr.markForCheck();
-        setTimeout(() => this.cdr.detectChanges(), 0);
-      },
-      error: (error) => {
-        console.error('Error deleting vendor:', error);
-        this.deletingVendorId = null;
-        
-        if (error.status === 404) {
-          this.errorMessage = `Vendor not found with ID: ${vendorId}`;
-        } else if (error.status === 400) {
-          this.errorMessage = error.error?.message || 'This vendor does not belong to the given organization.';
-        } else if (error.status === 401) {
-          this.errorMessage = 'Session expired. Please login again.';
-        } else if (error.status === 403) {
-          this.errorMessage = 'Access denied. You do not have permission to delete vendors.';
-        } else {
-          this.errorMessage = error.error?.message || 'Failed to delete vendor. Please try again.';
-        }
-        
-        this.cdr.markForCheck();
-        setTimeout(() => this.cdr.detectChanges(), 0);
-      },
-      complete: () => {
-        this.deletingVendorId = null;
-        console.log('Delete request completed');
-        this.cdr.markForCheck();
-      }
-    });
-  }
-
-  isDeleting(vendorId: number): boolean {
-    return this.deletingVendorId === vendorId;
+    return pages;
   }
 
   get displayedVendors(): VendorResponse[] {
     return this.isSearchMode ? this.searchResults : this.vendors;
   }
 
-  isBrowser(): boolean {
-    return isPlatformBrowser(this.platformId);
+  get showPagination(): boolean {
+    return this.totalPages > 1 && !this.isLoading && !this.isSearching;
   }
 }

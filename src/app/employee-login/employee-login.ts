@@ -38,7 +38,7 @@ export class EmployeeLogin implements OnInit {
       ]),
       password: new FormControl('', [
         Validators.required,
-        Validators.minLength(6)
+        Validators.minLength(2)
       ])
     });
   }
